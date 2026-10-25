@@ -5,6 +5,7 @@ import { MAX_PLAYERS } from '../lib/game';
 import type { PublicRoom } from '../lib/realtime/rpc';
 import Avatar from './Avatar';
 import GameSetup from './GameSetup';
+import { HelpButton } from './Help';
 import { Button, Card } from './ui';
 
 interface Props {
@@ -49,6 +50,8 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
         <h1 className="mt-1 font-mono text-4xl font-bold tracking-[0.3em]">{room.code}</h1>
         {!connected && <p className="mt-2 text-sm text-amber-400">Conectando…</p>}
       </header>
+
+      <HelpButton themeId={room.theme} />
 
       <div className="flex flex-col gap-3">
         <a

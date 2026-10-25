@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Help from '../components/Help';
+---
+
+<Layout title="Ayuda · Hombres lobo online">
+  <header class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold">Ayuda</h1>
+    <a href="/" class="text-stone-400 underline">Volver</a>
+  </header>
+  <Help client:load />
+</Layout>
