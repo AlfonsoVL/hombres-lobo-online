@@ -58,6 +58,11 @@ export default function MyRoleCard({ theme, token }: { theme: Theme; token: stri
                 : 'Eres el único de tu bando.'}
             </span>
           )}
+          {role.lover && (
+            <span className="text-sm text-pink-300">
+              💘 Estás enamorado de {role.lover.name}. Si uno muere, el otro también.
+            </span>
+          )}
         </span>
       ) : (
         <span className="flex h-full min-h-56 flex-col items-center justify-center gap-2 text-center">

@@ -8,6 +8,8 @@ export interface RoomChannelHandlers {
   onEvent: (event: GameEvent) => void;
   onPresence: (onlineIds: Set<string>) => void;
   onStatus?: (connected: boolean) => void;
+  /** Alguien ha actuado o votado: hay que pedir el estado. */
+  onRefresh?: () => void;
   /** Foto de un jugador, recibida de su móvil. Solo se guarda en memoria. */
   onPhoto?: (playerId: string, photo: string) => void;
 }
@@ -43,6 +45,8 @@ export function joinRoomChannel(
       handlers.onEvent({ ...(payload as object), type } as GameEvent);
     });
   }
+
+  channel.on('broadcast', { event: 'actualizado' }, () => handlers.onRefresh?.());
 
   // Las fotos van de móvil a móvil por Broadcast y nunca pasan por la base de datos.
   channel.on('broadcast', { event: PHOTO_EVENT }, ({ payload }) => {

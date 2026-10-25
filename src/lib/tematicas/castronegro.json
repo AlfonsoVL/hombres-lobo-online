@@ -42,7 +42,7 @@
       "bando": "good",
       "avatar": "/avatares/castronegro/witch.svg",
       "cuando_actua": "Cada noche, en su turno.",
-      "poder": "Tiene una poción de cura para salvar a un jugador y una de veneno para eliminar a otro. Cada poción se puede usar una vez por partida.",
+      "poder": "Tiene una poción de cura para salvar a un jugador y una de veneno para eliminar a otro. Cada poción se puede usar una vez por partida y la cura no puede usarla en sí misma.",
       "gana": "Cuando no queda ningún lobo vivo."
     },
     {

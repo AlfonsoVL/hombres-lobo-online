@@ -26,6 +26,7 @@ export default function GameSetup({ room, token, onStarted }: Props) {
   const suggestion = classicComposition(theme, players, { testMode: TEST_MODE });
   const [bad, setBad] = useState(suggestion.ok ? suggestion.value.bad : 1);
   const [specials, setSpecials] = useState<string[]>(suggestion.ok ? suggestion.value.specials : []);
+  const [mayor, setMayor] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -53,7 +54,7 @@ export default function GameSetup({ room, token, onStarted }: Props) {
     setBusy(true);
     setError('');
     try {
-      await startGame(room.code, token, composition.value.specials, composition.value.bad);
+      await startGame(room.code, token, composition.value.specials, composition.value.bad, mayor);
       // El servidor avisa a todos; además se reenvía el aviso desde aquí.
       await onStarted();
     } catch (err) {
@@ -67,6 +68,7 @@ export default function GameSetup({ room, token, onStarted }: Props) {
       <Card className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">Confirma la partida</h2>
         <p>{compositionSummary(theme, composition.value)}</p>
+        {mayor && <p className="text-sm text-stone-400">Con Alcalde, que se sorteará entre todos.</p>}
         <ErrorText>{error}</ErrorText>
         <Button type="button" disabled={busy} onClick={() => void start()}>
           {busy ? 'Repartiendo roles…' : 'Confirmar e iniciar'}
@@ -133,6 +135,22 @@ export default function GameSetup({ room, token, onStarted }: Props) {
           )}
         </>
       )}
+
+      <label className="flex items-start gap-3 rounded-lg bg-stone-800 px-3 py-2">
+        <input
+          type="checkbox"
+          className="mt-1 h-4 w-4"
+          style={{ accentColor: theme.color }}
+          checked={mayor}
+          onChange={(e) => setMayor(e.target.checked)}
+        />
+        <span>
+          <span className="block">Alcalde</span>
+          <span className="text-sm text-stone-400">
+            Se sortea entre todos al repartir y es público. Deshace los empates del día.
+          </span>
+        </span>
+      </label>
 
       {composition.ok ? (
         <p className="text-stone-300">{compositionSummary(theme, composition.value)}</p>
