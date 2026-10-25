@@ -6,6 +6,16 @@ Astro + React + Tailwind en Vercel y Supabase (plan Free).
 
 El diseño está en [docs/arquitectura.md](docs/arquitectura.md).
 
+## Motor de la partida
+
+El motor está en `src/lib/game` y las temáticas en `src/lib/tematicas`. No dependen de la UI.
+
+```bash
+npm install
+npm test          # tests del motor
+npm run typecheck
+```
+
 ## Base de datos
 
 Las migraciones están en `supabase/migrations`. Para probarlas en un Postgres local vacío:
