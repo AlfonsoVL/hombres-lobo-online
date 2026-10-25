@@ -2,6 +2,8 @@
 import { findRoleByKind, getRole, type RoleKind, type Theme } from '../tematicas';
 
 export const MIN_PLAYERS_CLASSIC = 6;
+/** Mínimo en modo pruebas, para probar la app con pocos móviles. */
+export const MIN_PLAYERS_TEST = 2;
 export const MAX_PLAYERS = 24;
 
 export interface Composition {
@@ -30,22 +32,39 @@ const CLASSIC_TABLE: Record<number, ClassicRow> = {
   24: { bad: 6, investigate: 1, protect: 1, shoot_on_death: 1, link: 1 },
 };
 
+// Solo en modo pruebas, para menos de 6 jugadores: 1 malo y hasta 2 roles especiales.
+const TEST_TABLE: Record<number, ClassicRow> = {
+  2: { bad: 1 },
+  3: { bad: 1, investigate: 1 },
+  4: { bad: 1, investigate: 1, protect: 1 },
+  5: { bad: 1, investigate: 1, protect: 1 },
+};
+
 const CLASSIC_SPECIAL_ORDER: Exclude<RoleKind, 'bad' | 'plain_good'>[] = ['investigate', 'protect', 'shoot_on_death', 'link'];
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
 /**
  * Composición del modo clásico. Con un número impar se usa la fila inferior
- * y se añade un bueno sin rol.
+ * y se añade un bueno sin rol. En modo pruebas se permite empezar con menos
+ * de 6 jugadores.
  */
-export function classicComposition(theme: Theme, players: number): Result<Composition> {
-  if (players < MIN_PLAYERS_CLASSIC) {
-    return { ok: false, error: `El modo clásico necesita al menos ${MIN_PLAYERS_CLASSIC} jugadores.` };
+export function classicComposition(
+  theme: Theme,
+  players: number,
+  options: { testMode?: boolean } = {},
+): Result<Composition> {
+  const min = options.testMode ? MIN_PLAYERS_TEST : MIN_PLAYERS_CLASSIC;
+  if (players < min) {
+    return { ok: false, error: `El modo clásico necesita al menos ${min} jugadores.` };
   }
   if (players > MAX_PLAYERS) {
     return { ok: false, error: `El máximo es de ${MAX_PLAYERS} jugadores.` };
   }
-  const row = CLASSIC_TABLE[players % 2 === 0 ? players : players - 1]!;
+  const row =
+    players < MIN_PLAYERS_CLASSIC
+      ? TEST_TABLE[players]!
+      : CLASSIC_TABLE[players % 2 === 0 ? players : players - 1]!;
   const specials = CLASSIC_SPECIAL_ORDER.filter((kind) => row[kind]).map((kind) => {
     const role = findRoleByKind(theme, kind);
     if (!role) throw new Error(`${theme.nombre} no tiene un rol de tipo ${kind}`);

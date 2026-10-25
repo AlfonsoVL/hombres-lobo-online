@@ -7,6 +7,7 @@ import {
   type Composition,
   type Result,
 } from '../lib/game';
+import { TEST_MODE } from '../lib/config';
 import { getTheme } from '../lib/tematicas';
 import { startGame, type PublicRoom } from '../lib/realtime/rpc';
 import { Button, Card, ErrorText } from './ui';
@@ -22,7 +23,7 @@ export default function GameSetup({ room, token, onStarted }: Props) {
   const players = room.players.length;
   const specialRoles = theme.roles.filter((r) => r.tipo !== 'bad' && r.tipo !== 'plain_good');
 
-  const suggestion = classicComposition(theme, players);
+  const suggestion = classicComposition(theme, players, { testMode: TEST_MODE });
   const [bad, setBad] = useState(suggestion.ok ? suggestion.value.bad : 1);
   const [specials, setSpecials] = useState<string[]>(suggestion.ok ? suggestion.value.specials : []);
   const [confirming, setConfirming] = useState(false);
@@ -32,7 +33,7 @@ export default function GameSetup({ room, token, onStarted }: Props) {
   const composition: Result<Composition> = useMemo(
     () =>
       room.mode === 'classic'
-        ? classicComposition(theme, players)
+        ? classicComposition(theme, players, { testMode: TEST_MODE })
         : customComposition(theme, players, bad, specials),
     [room.mode, theme, players, bad, specials],
   );
@@ -80,6 +81,11 @@ export default function GameSetup({ room, token, onStarted }: Props) {
   return (
     <Card className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold">Configurar partida</h2>
+      {TEST_MODE && players < 6 && (
+        <p className="rounded-lg bg-amber-950 px-3 py-2 text-sm text-amber-200">
+          Modo pruebas: se puede empezar con menos de 6 jugadores.
+        </p>
+      )}
 
       {room.mode === 'custom' && (
         <>
