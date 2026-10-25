@@ -25,5 +25,20 @@ createdb lobos_test
 DATABASE_URL="postgresql://localhost/lobos_test" scripts/test-sql.sh
 ```
 
-Las instrucciones para ejecutar la app en local y desplegarla en Vercel se añadirán
-cuando exista el proyecto de Astro.
+## Ejecutar en local
+
+1. Crea un proyecto gratuito en [Supabase](https://supabase.com).
+2. En el editor SQL del proyecto, ejecuta el contenido de
+   `supabase/migrations/20261025000000_esquema_inicial.sql`.
+3. Copia `.env.example` a `.env` y rellena la URL y la clave `anon` del proyecto
+   (Project Settings → API). Nunca commitees el archivo `.env`.
+4. Arranca la app:
+
+```bash
+npm install
+npm run dev
+```
+
+Abre http://localhost:4321, crea una sala y abre el enlace en otros móviles o pestañas.
+
+Las instrucciones para desplegar en Vercel se añadirán en el último paso.

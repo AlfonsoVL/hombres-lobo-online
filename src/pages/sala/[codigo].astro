@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RoomApp from '../../components/RoomApp';
+
+const code = (Astro.params.codigo ?? '').toUpperCase();
+if (!/^[A-Z2-9]{6}$/.test(code)) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title={`Sala ${code} · Hombres lobo online`}>
+  <RoomApp client:only="react" code={code} />
+</Layout>

@@ -1,0 +1,83 @@
+// Sala de espera: código, enlace, jugadores conectados y configuración.
+import { useState } from 'react';
+import { getTheme } from '../lib/tematicas';
+import { MAX_PLAYERS } from '../lib/game';
+import type { PublicRoom } from '../lib/realtime/rpc';
+import GameSetup from './GameSetup';
+import { Button, Card } from './ui';
+
+interface Props {
+  room: PublicRoom;
+  token: string;
+  online: Set<string>;
+  connected: boolean;
+}
+
+export default function Lobby({ room, token, online, connected }: Props) {
+  const theme = getTheme(room.theme);
+  const [copied, setCopied] = useState(false);
+  const creator = room.players.find((p) => p.is_creator);
+
+  async function share() {
+    const url = `${window.location.origin}/sala/${room.code}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: theme.nombre, text: '¡Únete a la partida!', url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // El usuario canceló o el navegador no deja copiar.
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <header className="text-center">
+        <p className="text-sm font-semibold" style={{ color: theme.color }}>
+          {theme.nombre} · {room.mode === 'classic' ? 'Clásico' : 'Personalizado'}
+        </p>
+        <h1 className="mt-1 font-mono text-4xl font-bold tracking-[0.3em]">{room.code}</h1>
+        {!connected && <p className="mt-2 text-sm text-amber-400">Conectando…</p>}
+      </header>
+
+      <Button type="button" variant="secondary" onClick={() => void share()}>
+        {copied ? 'Enlace copiado' : 'Compartir enlace'}
+      </Button>
+
+      <Card>
+        <h2 className="mb-3 flex justify-between text-lg font-semibold">
+          <span>Jugadores</span>
+          <span className="text-stone-400">
+            {room.players.length}/{MAX_PLAYERS}
+          </span>
+        </h2>
+        <ul className="flex flex-col gap-2">
+          {room.players.map((p) => (
+            <li key={p.id} className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${online.has(p.id) ? 'bg-emerald-400' : 'bg-stone-600'}`}
+                aria-label={online.has(p.id) ? 'Conectado' : 'Desconectado'}
+              />
+              <span className="flex-1 truncate">
+                {p.name}
+                {p.id === room.me.id && <span className="text-stone-400"> (tú)</span>}
+              </span>
+              {p.is_creator && <span className="text-xs text-amber-400">Dirige la partida</span>}
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      {room.me.is_creator ? (
+        <GameSetup room={room} token={token} />
+      ) : (
+        <p className="text-center text-stone-400">
+          Esperando a que {creator?.name ?? 'el creador'} inicie la partida…
+        </p>
+      )}
+    </div>
+  );
+}
