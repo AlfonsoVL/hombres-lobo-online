@@ -25,7 +25,9 @@ function speak(text: string): Promise<void> {
   });
 }
 
-/** Narra las frases en orden. Una narración nueva corta la anterior. */
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Narra las frases en orden, con sus pausas. Una narración nueva corta la anterior. */
 export async function narrate(lines: Spoken[]): Promise<void> {
   const id = ++queueId;
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -33,5 +35,6 @@ export async function narrate(lines: Spoken[]): Promise<void> {
     if (id !== queueId) return;
     const played = line.audio ? await playMp3(line.audio) : false;
     if (!played && id === queueId) await speak(line.texto);
+    if (line.pausaMs && id === queueId) await wait(line.pausaMs);
   }
 }
