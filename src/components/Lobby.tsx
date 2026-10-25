@@ -19,8 +19,12 @@ export default function Lobby({ room, token, online, connected, onStarted }: Pro
   const [copied, setCopied] = useState(false);
   const creator = room.players.find((p) => p.is_creator);
 
+  const url = `${window.location.origin}/sala/${room.code}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+    `¡Únete a mi partida de ${theme.nombre}! Código ${room.code}: ${url}`,
+  )}`;
+
   async function share() {
-    const url = `${window.location.origin}/sala/${room.code}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: theme.nombre, text: '¡Únete a la partida!', url });
@@ -44,9 +48,19 @@ export default function Lobby({ room, token, online, connected, onStarted }: Pro
         {!connected && <p className="mt-2 text-sm text-amber-400">Conectando…</p>}
       </header>
 
-      <Button type="button" variant="secondary" onClick={() => void share()}>
-        {copied ? 'Enlace copiado' : 'Compartir enlace'}
-      </Button>
+      <div className="flex flex-col gap-3">
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full rounded-xl bg-[#25D366] px-4 py-3 text-center font-semibold text-stone-950 transition hover:brightness-110"
+        >
+          Compartir por WhatsApp
+        </a>
+        <Button type="button" variant="secondary" onClick={() => void share()}>
+          {copied ? 'Enlace copiado' : 'Compartir enlace'}
+        </Button>
+      </div>
 
       <Card>
         <h2 className="mb-3 flex justify-between text-lg font-semibold">
