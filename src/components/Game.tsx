@@ -186,7 +186,11 @@ export default function Game({ room, token, photos, onAdvanced }: Props) {
               <p className="text-sm text-stone-400">Turno de</p>
               <p className="text-2xl font-bold">🌙 {stepName(theme, room)}</p>
               <p className={`mt-1 text-sm ${room.step_done ? 'text-emerald-400' : 'text-stone-400'}`}>
-                {room.step_done ? '✓ Ya ha actuado' : 'Esperando a que actúe…'}
+                {room.step_done
+                  ? '✓ Ya ha actuado'
+                  : room.night_step === 'bad'
+                    ? 'Esperando a que se pongan de acuerdo…'
+                    : 'Esperando a que actúe…'}
               </p>
             </Card>
           )}

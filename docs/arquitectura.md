@@ -121,8 +121,9 @@ el plan gratuito.
 - **Enamorados.** Si muere uno, muere el otro. Se conocen entre sí.
 - **Turnos de noche.** Los pasa el creador con un botón. El turno de un rol muerto no se narra,
   porque al morir se revela su rol (también de noche).
-- **Decisiones mías, fáciles de cambiar:** si los malos empatan al elegir víctima, se elige una
-  al azar entre las empatadas; los votos del día son públicos; el Cazador dispara también si
+- **Víctima de los malos.** Ven en directo los votos de sus compañeros y el turno solo termina
+  cuando todos coinciden. Si el creador lo salta antes, gana la más votada (empate: al azar).
+- **Decisiones mías, fáciles de cambiar:** los votos del día son públicos; el Cazador dispara también si
   muere por amor.
 
 ## Reglas pendientes
