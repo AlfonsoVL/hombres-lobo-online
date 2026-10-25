@@ -5,9 +5,9 @@ import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
 import { getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
 import { loadToken, newToken, saveToken } from '../lib/realtime/token';
+import Game from './Game';
 import JoinForm from './JoinForm';
 import Lobby from './Lobby';
-import { Card } from './ui';
 
 type Status = 'loading' | 'join' | 'ready';
 
@@ -99,6 +99,17 @@ export default function RoomApp({ code }: { code: string }) {
     channelRef.current?.announce({ type: 'partida_iniciada', version: r.version });
   }
 
+  async function onAdvanced() {
+    const r = await refresh(token!);
+    channelRef.current?.announce({
+      type: 'fase_cambiada',
+      version: r.version,
+      phase: r.phase,
+      round: r.round,
+      nightStep: r.night_step,
+    });
+  }
+
   async function join(name: string, photo: string | null) {
     const t = loadToken(code) ?? newToken();
     await joinRoom(code, name, t);
@@ -118,10 +129,5 @@ export default function RoomApp({ code }: { code: string }) {
   if (room.phase === 'lobby') {
     return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} />;
   }
-  return (
-    <Card className="text-center">
-      <h1 className="text-2xl font-bold">¡La partida ha empezado!</h1>
-      <p className="mt-2 text-stone-400">Las fases de la partida llegarán en el siguiente paso.</p>
-    </Card>
-  );
+  return <Game room={room} token={token} photos={photos} onAdvanced={onAdvanced} />;
 }

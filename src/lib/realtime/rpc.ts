@@ -62,3 +62,21 @@ export function startGame(code: string, token: string, specialRoles: string[], b
     p_bad_count: badCount,
   });
 }
+
+/** Rol propio. Los malos reciben también a sus compañeros; nunca llega el rol de otro. */
+export interface MyRole {
+  player_id: string;
+  role: string;
+  team: 'bad' | 'good';
+  is_alive: boolean;
+  bad_teammates: { id: string; name: string }[] | null;
+}
+
+export function getMyRole(token: string) {
+  return call<MyRole>('obtener_mi_rol', { p_token: token });
+}
+
+/** Solo el creador. `version` evita que dos toques seguidos se salten una fase. */
+export function advancePhase(code: string, token: string, version: number) {
+  return call<void>('avanzar_fase', { p_room_code: code, p_token: token, p_version: version });
+}
