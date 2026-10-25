@@ -1,0 +1,155 @@
+{
+  "id": "castronegro",
+  "nombre": "Hombres lobo de Castronegro",
+  "color": "#d97706",
+  "bandos": { "bad": "Lobos", "good": "Aldea" },
+  "nombres_grupo": { "bad": "Lobos", "plain_good": "Aldeanos", "lovers": "Enamorados" },
+  "roles": [
+    {
+      "id": "werewolf",
+      "tipo": "bad",
+      "nombre": "Lobo",
+      "bando": "bad",
+      "avatar": "/avatares/castronegro/werewolf.svg",
+      "cuando_actua": "Cada noche, junto a los demás lobos.",
+      "poder": "Con los demás lobos, elige en secreto a una víctima cada noche. Conoce a sus compañeros lobos.",
+      "gana": "Cuando los lobos vivos igualan o superan en número al resto de vivos."
+    },
+    {
+      "id": "villager",
+      "tipo": "plain_good",
+      "nombre": "Aldeano",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/villager.svg",
+      "cuando_actua": "Durante el día.",
+      "poder": "No tiene poderes especiales. Su arma es el debate y su voto en el linchamiento.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "seer",
+      "tipo": "investigate",
+      "nombre": "Vidente",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/seer.svg",
+      "cuando_actua": "Cada noche, en su turno.",
+      "poder": "Elige a un jugador y ve su rol. Solo lo ve ella.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "witch",
+      "tipo": "protect",
+      "nombre": "Bruja",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/witch.svg",
+      "cuando_actua": "Cada noche, en su turno.",
+      "poder": "Tiene una poción de cura para salvar a un jugador y una de veneno para eliminar a otro. Cada poción se puede usar una vez por partida.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "hunter",
+      "tipo": "shoot_on_death",
+      "nombre": "Cazador",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/hunter.svg",
+      "cuando_actua": "En el momento de morir.",
+      "poder": "Si muere, de noche o tras una votación, elimina en ese momento a un jugador.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "cupid",
+      "tipo": "link",
+      "nombre": "Cupido",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/cupid.svg",
+      "cuando_actua": "Solo la primera noche.",
+      "poder": "Elige a dos jugadores, que serán los Enamorados.",
+      "gana": "Con la aldea, cuando no queda ningún lobo vivo. Si Cupido y los Enamorados son los últimos vivos, ganan los Enamorados."
+    },
+    {
+      "id": "little_girl",
+      "tipo": "spy",
+      "nombre": "Niña",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/little_girl.svg",
+      "cuando_actua": "Durante el turno de los lobos.",
+      "poder": "Puede pulsar «Espiar». Con un 50 % de probabilidad la descubren y muere en ese momento. Si no, ve el rol de un jugador al azar entre los lobos y los aldeanos. No puede espiar dos noches seguidas.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "thief",
+      "tipo": "swap",
+      "nombre": "Ladrón",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/thief.svg",
+      "cuando_actua": "Solo la primera noche.",
+      "poder": "Ve dos cartas que han quedado sin repartir y cambia su rol por una de ellas. Si las dos son de lobo, tiene que convertirse en lobo.",
+      "gana": "Con el bando del rol que elija."
+    }
+  ],
+  "textos": {
+    "introduccion": {
+      "texto": "En la aldea de Castronegro, la luna llena asoma tras la montaña. Entre sus habitantes se esconden criaturas que no deberían existir. Esta noche, nadie está a salvo.",
+      "audio": "/audio/castronegro/introduccion.mp3"
+    },
+    "cerrad_ojos": {
+      "texto": "Cae la noche sobre Castronegro. Todos cerrad los ojos.",
+      "audio": "/audio/castronegro/cerrad_ojos.mp3"
+    },
+    "malos_abrid": {
+      "texto": "Lobos, abrid los ojos y elegid a vuestra víctima.",
+      "audio": "/audio/castronegro/malos_abrid.mp3"
+    },
+    "malos_cerrad": {
+      "texto": "Lobos, cerrad los ojos.",
+      "audio": "/audio/castronegro/malos_cerrad.mp3"
+    },
+    "turnos": {
+      "seer": {
+        "abrir": { "texto": "Vidente, abre los ojos y elige a quién quieres ver.", "audio": "/audio/castronegro/seer_abrir.mp3" },
+        "cerrar": { "texto": "Vidente, cierra los ojos.", "audio": "/audio/castronegro/seer_cerrar.mp3" }
+      },
+      "witch": {
+        "abrir": { "texto": "Bruja, abre los ojos. ¿Usarás alguna de tus pociones?", "audio": "/audio/castronegro/witch_abrir.mp3" },
+        "cerrar": { "texto": "Bruja, cierra los ojos.", "audio": "/audio/castronegro/witch_cerrar.mp3" }
+      },
+      "cupid": {
+        "abrir": { "texto": "Cupido, abre los ojos y elige a los dos Enamorados.", "audio": "/audio/castronegro/cupid_abrir.mp3" },
+        "cerrar": { "texto": "Cupido, cierra los ojos.", "audio": "/audio/castronegro/cupid_cerrar.mp3" }
+      },
+      "thief": {
+        "abrir": { "texto": "Ladrón, abre los ojos y elige la carta que te quedas.", "audio": "/audio/castronegro/thief_abrir.mp3" },
+        "cerrar": { "texto": "Ladrón, cierra los ojos.", "audio": "/audio/castronegro/thief_cerrar.mp3" }
+      }
+    },
+    "amanecer": {
+      "texto": "Amanece en Castronegro. Los aldeanos salen de sus casas y descubren que esta noche ha muerto…",
+      "audio": "/audio/castronegro/amanecer.mp3"
+    },
+    "amanecer_sin_victima": {
+      "texto": "Amanece en Castronegro y, por suerte, esta noche no ha muerto nadie.",
+      "audio": "/audio/castronegro/amanecer_sin_victima.mp3"
+    },
+    "dia": {
+      "texto": "Los aldeanos se reúnen en la plaza. Debatid y decidid a quién linchar.",
+      "audio": "/audio/castronegro/dia.mp3"
+    },
+    "linchamiento": {
+      "texto": "La aldea ha decidido. El elegido para el linchamiento es…",
+      "audio": "/audio/castronegro/linchamiento.mp3"
+    },
+    "victoria": {
+      "bad": { "texto": "Los lobos se han hecho con Castronegro. Ganan los lobos.", "audio": "/audio/castronegro/victoria_lobos.mp3" },
+      "good": { "texto": "No queda ningún lobo en Castronegro. Gana la aldea.", "audio": "/audio/castronegro/victoria_aldea.mp3" },
+      "lovers": { "texto": "Solo el amor ha sobrevivido. Ganan los Enamorados.", "audio": "/audio/castronegro/victoria_enamorados.mp3" }
+    }
+  },
+  "reglas": [
+    "Cada jugador recibe un rol secreto en su móvil. Nadie debe enseñarlo.",
+    "Hay dos bandos: los lobos, que se conocen entre sí, y la aldea, que no sabe quién es quién.",
+    "Por la noche todos cierran los ojos. La app va llamando a cada rol y solo ese jugador actúa desde su móvil.",
+    "Al amanecer se anuncia quién ha muerto esa noche, si es que ha muerto alguien.",
+    "Durante el día, todos debaten y votan a quién linchar. El linchado revela su rol.",
+    "Los muertos no pueden hablar ni votar.",
+    "Los lobos ganan cuando igualan o superan en número al resto de vivos. La aldea gana cuando no queda ningún lobo."
+  ]
+}

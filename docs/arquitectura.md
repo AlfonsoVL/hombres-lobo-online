@@ -118,3 +118,19 @@ el plan gratuito.
 - Si el turno de un rol muerto se sigue anunciando para no dar pistas.
 - Si los turnos de noche avanzan solos cuando el rol actúa o los avanza el creador.
 - Enamorados: si saben quién es el otro y cómo ganan si son de bandos distintos.
+
+## Motor (`src/lib/game`)
+
+| Archivo | Qué hace |
+|---|---|
+| `composition.ts` | Tabla clásica, validación del modo personalizado y resumen para el creador. |
+| `deal.ts` | Baraja y reparto (el mismo algoritmo que `iniciar_partida`). |
+| `night.ts` | Orden de los turnos de noche y qué ve cada jugador: botón de poder, «Espera tu turno» o «Duerme». |
+| `littleGirl.ts` | Espiar de la Niña: dado al 50 % y sin espiar dos noches seguidas. |
+| `thief.ts` | Opciones y elección del Ladrón. |
+| `victory.ts` | Condiciones de victoria. |
+| `visibility.ts` | Vista de «Ver mi rol»: solo la ficha propia y, si es malo, sus compañeros. |
+| `events.ts` | Tipos de eventos de Broadcast y comprobación de que no llevan roles. |
+
+Orden de la noche: Ladrón y Cupido (solo la primera
+noche), malos (y la Niña durante su turno), Vidente y Bruja.

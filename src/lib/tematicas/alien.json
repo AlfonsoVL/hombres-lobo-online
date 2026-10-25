@@ -1,0 +1,131 @@
+{
+  "id": "alien",
+  "nombre": "Alien: nave Sigma-7",
+  "color": "#16a34a",
+  "bandos": { "bad": "Xenomorfos", "good": "Tripulación" },
+  "nombres_grupo": { "bad": "Xenomorfos", "plain_good": "Tripulantes", "lovers": "Vinculados" },
+  "roles": [
+    {
+      "id": "xenomorph",
+      "tipo": "bad",
+      "nombre": "Xenomorfo",
+      "bando": "bad",
+      "avatar": "/avatares/alien/xenomorph.svg",
+      "cuando_actua": "Cada noche, junto a los demás xenomorfos.",
+      "poder": "Con los demás xenomorfos, elige en secreto a una víctima cada noche. Conoce a sus compañeros xenomorfos.",
+      "gana": "Cuando los xenomorfos vivos igualan o superan en número al resto de vivos."
+    },
+    {
+      "id": "crew_member",
+      "tipo": "plain_good",
+      "nombre": "Tripulante",
+      "bando": "good",
+      "avatar": "/avatares/alien/crew_member.svg",
+      "cuando_actua": "Durante el día.",
+      "poder": "No tiene poderes especiales. Su arma es el debate y su voto para expulsar a alguien de la nave.",
+      "gana": "Cuando no queda ningún xenomorfo vivo."
+    },
+    {
+      "id": "scientist",
+      "tipo": "investigate",
+      "nombre": "Científico",
+      "bando": "good",
+      "avatar": "/avatares/alien/scientist.svg",
+      "cuando_actua": "Cada noche, en su turno.",
+      "poder": "Investiga a un jugador y ve su rol. Solo lo ve él.",
+      "gana": "Cuando no queda ningún xenomorfo vivo."
+    },
+    {
+      "id": "medic",
+      "tipo": "protect",
+      "nombre": "Médico",
+      "bando": "good",
+      "avatar": "/avatares/alien/medic.svg",
+      "cuando_actua": "Cada noche, en su turno.",
+      "poder": "Una vez por partida, salva a un jugador durante la noche.",
+      "gana": "Cuando no queda ningún xenomorfo vivo."
+    },
+    {
+      "id": "marine",
+      "tipo": "shoot_on_death",
+      "nombre": "Marine",
+      "bando": "good",
+      "avatar": "/avatares/alien/marine.svg",
+      "cuando_actua": "En el momento de morir.",
+      "poder": "Si muere, de noche o tras una votación, dispara en ese momento a un jugador.",
+      "gana": "Cuando no queda ningún xenomorfo vivo."
+    },
+    {
+      "id": "android",
+      "tipo": "link",
+      "nombre": "Androide",
+      "bando": "good",
+      "avatar": "/avatares/alien/android.svg",
+      "cuando_actua": "Solo la primera noche.",
+      "poder": "Vincula a dos jugadores.",
+      "gana": "Con la tripulación, cuando no queda ningún xenomorfo vivo. Si el Androide y los dos vinculados son los últimos vivos, ganan los vinculados."
+    }
+  ],
+  "textos": {
+    "introduccion": {
+      "texto": "La nave Sigma-7 orbita un planeta sin nombre. Durante el viaje de vuelta, algo subió a bordo. Alguien de la tripulación no es quien dice ser.",
+      "audio": "/audio/alien/introduccion.mp3"
+    },
+    "cerrad_ojos": {
+      "texto": "Se apagan las luces de la Sigma-7. Todos cerrad los ojos.",
+      "audio": "/audio/alien/cerrad_ojos.mp3"
+    },
+    "malos_abrid": {
+      "texto": "Xenomorfos, abrid los ojos y elegid a vuestra víctima.",
+      "audio": "/audio/alien/malos_abrid.mp3"
+    },
+    "malos_cerrad": {
+      "texto": "Xenomorfos, cerrad los ojos.",
+      "audio": "/audio/alien/malos_cerrad.mp3"
+    },
+    "turnos": {
+      "scientist": {
+        "abrir": { "texto": "Científico, abre los ojos y elige a quién investigar.", "audio": "/audio/alien/scientist_abrir.mp3" },
+        "cerrar": { "texto": "Científico, cierra los ojos.", "audio": "/audio/alien/scientist_cerrar.mp3" }
+      },
+      "medic": {
+        "abrir": { "texto": "Médico, abre los ojos. ¿Vas a salvar a alguien esta noche?", "audio": "/audio/alien/medic_abrir.mp3" },
+        "cerrar": { "texto": "Médico, cierra los ojos.", "audio": "/audio/alien/medic_cerrar.mp3" }
+      },
+      "android": {
+        "abrir": { "texto": "Androide, abre los ojos y vincula a dos tripulantes.", "audio": "/audio/alien/android_abrir.mp3" },
+        "cerrar": { "texto": "Androide, cierra los ojos.", "audio": "/audio/alien/android_cerrar.mp3" }
+      }
+    },
+    "amanecer": {
+      "texto": "Se encienden las luces de la Sigma-7. Al revisar los módulos, la tripulación descubre que esta noche ha muerto…",
+      "audio": "/audio/alien/amanecer.mp3"
+    },
+    "amanecer_sin_victima": {
+      "texto": "Se encienden las luces de la Sigma-7 y, por ahora, toda la tripulación sigue con vida.",
+      "audio": "/audio/alien/amanecer_sin_victima.mp3"
+    },
+    "dia": {
+      "texto": "La tripulación se reúne en el puente de mando. Debatid y decidid a quién expulsar de la nave.",
+      "audio": "/audio/alien/dia.mp3"
+    },
+    "linchamiento": {
+      "texto": "La tripulación ha votado. La persona expulsada por la esclusa es…",
+      "audio": "/audio/alien/linchamiento.mp3"
+    },
+    "victoria": {
+      "bad": { "texto": "La Sigma-7 ya no tiene tripulación humana. Ganan los xenomorfos.", "audio": "/audio/alien/victoria_xenomorfos.mp3" },
+      "good": { "texto": "No queda ningún xenomorfo a bordo. Gana la tripulación.", "audio": "/audio/alien/victoria_tripulacion.mp3" },
+      "lovers": { "texto": "Solo los vinculados han sobrevivido. Ganan los vinculados.", "audio": "/audio/alien/victoria_vinculados.mp3" }
+    }
+  },
+  "reglas": [
+    "Cada jugador recibe un rol secreto en su móvil. Nadie debe enseñarlo.",
+    "Hay dos bandos: los xenomorfos, que se conocen entre sí, y la tripulación, que no sabe quién es quién.",
+    "Por la noche todos cierran los ojos. La app va llamando a cada rol y solo ese jugador actúa desde su móvil.",
+    "Al amanecer se anuncia quién ha muerto esa noche, si es que ha muerto alguien.",
+    "Durante el día, todos debaten y votan a quién expulsar de la nave. El expulsado revela su rol.",
+    "Los muertos no pueden hablar ni votar.",
+    "Los xenomorfos ganan cuando igualan o superan en número al resto de vivos. La tripulación gana cuando no queda ningún xenomorfo."
+  ]
+}
