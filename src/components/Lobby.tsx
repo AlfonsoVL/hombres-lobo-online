@@ -11,9 +11,10 @@ interface Props {
   token: string;
   online: Set<string>;
   connected: boolean;
+  onStarted: () => Promise<void>;
 }
 
-export default function Lobby({ room, token, online, connected }: Props) {
+export default function Lobby({ room, token, online, connected, onStarted }: Props) {
   const theme = getTheme(room.theme);
   const [copied, setCopied] = useState(false);
   const creator = room.players.find((p) => p.is_creator);
@@ -72,7 +73,7 @@ export default function Lobby({ room, token, online, connected }: Props) {
       </Card>
 
       {room.me.is_creator ? (
-        <GameSetup room={room} token={token} />
+        <GameSetup room={room} token={token} onStarted={onStarted} />
       ) : (
         <p className="text-center text-stone-400">
           Esperando a que {creator?.name ?? 'el creador'} inicie la partida…

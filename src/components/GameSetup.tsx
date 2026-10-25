@@ -11,7 +11,13 @@ import { getTheme } from '../lib/tematicas';
 import { startGame, type PublicRoom } from '../lib/realtime/rpc';
 import { Button, Card, ErrorText } from './ui';
 
-export default function GameSetup({ room, token }: { room: PublicRoom; token: string }) {
+interface Props {
+  room: PublicRoom;
+  token: string;
+  onStarted: () => Promise<void>;
+}
+
+export default function GameSetup({ room, token, onStarted }: Props) {
   const theme = getTheme(room.theme);
   const players = room.players.length;
   const specialRoles = theme.roles.filter((r) => r.tipo !== 'bad' && r.tipo !== 'plain_good');
@@ -47,7 +53,8 @@ export default function GameSetup({ room, token }: { room: PublicRoom; token: st
     setError('');
     try {
       await startGame(room.code, token, composition.value.specials, composition.value.bad);
-      // El evento partida_iniciada actualizará la pantalla de todos.
+      // El servidor avisa a todos; además se reenvía el aviso desde aquí.
+      await onStarted();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se ha podido iniciar la partida.');
       setBusy(false);
