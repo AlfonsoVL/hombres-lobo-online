@@ -1,7 +1,7 @@
 // Pantalla de la sala: unirse, lobby y (más adelante) la partida.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameEvent } from '../lib/game';
-import { isNewer, joinRoomChannel } from '../lib/realtime/channel';
+import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
 import { getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
 import { loadToken, newToken, saveToken } from '../lib/realtime/token';
 import JoinForm from './JoinForm';
@@ -17,10 +17,13 @@ export default function RoomApp({ code }: { code: string }) {
   const [online, setOnline] = useState<Set<string>>(new Set());
   const [connected, setConnected] = useState(false);
   const versionRef = useRef(0);
+  const knownIdsRef = useRef<Set<string>>(new Set());
+  const channelRef = useRef<RoomChannel | null>(null);
 
   const refresh = useCallback(async (t: string) => {
     const r = await getRoom(code, t);
     versionRef.current = r.version;
+    knownIdsRef.current = new Set(r.players.map((p) => p.id));
     setRoom(r);
     return r;
   }, [code]);
@@ -48,6 +51,7 @@ export default function RoomApp({ code }: { code: string }) {
       if (!isNewer(event, versionRef.current)) return;
       if (event.type === 'jugador_unido') {
         versionRef.current = event.version;
+        knownIdsRef.current.add(event.id);
         setRoom((r) =>
           r && !r.players.some((p) => p.id === event.id)
             ? {
@@ -65,16 +69,30 @@ export default function RoomApp({ code }: { code: string }) {
       // El resto de eventos solo avisan: el estado se pide al servidor.
       void refresh(token);
     };
-    return joinRoomChannel(code, playerId, {
+    const channel = joinRoomChannel(code, playerId, {
       onEvent,
-      onPresence: setOnline,
+      onPresence: (ids) => {
+        setOnline(ids);
+        // Si aparece alguien que no conocemos, se ha unido y no nos llegó el aviso.
+        if ([...ids].some((id) => !knownIdsRef.current.has(id))) void refresh(token);
+      },
       onStatus: (isConnected) => {
         setConnected(isConnected);
         // Al reconectar se pide el estado por si se perdió algún evento.
         if (isConnected) void refresh(token);
       },
     });
+    channelRef.current = channel;
+    return () => {
+      channelRef.current = null;
+      channel.leave();
+    };
   }, [code, playerId, token, refresh]);
+
+  async function onStarted() {
+    const r = await refresh(token!);
+    channelRef.current?.announce({ type: 'partida_iniciada', version: r.version });
+  }
 
   async function join(name: string) {
     const t = loadToken(code) ?? newToken();
@@ -92,7 +110,7 @@ export default function RoomApp({ code }: { code: string }) {
     return <JoinForm code={code} onJoin={join} />;
   }
   if (room.phase === 'lobby') {
-    return <Lobby room={room} token={token} online={online} connected={connected} />;
+    return <Lobby room={room} token={token} online={online} connected={connected} onStarted={onStarted} />;
   }
   return (
     <Card className="text-center">
