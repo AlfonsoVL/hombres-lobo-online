@@ -21,6 +21,11 @@ export default function RoomApp({ code }: { code: string }) {
   const versionRef = useRef(0);
   const knownIdsRef = useRef<Set<string>>(new Set());
   const channelRef = useRef<RoomChannel | null>(null);
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
+  const connectedRef = useRef(false);
+  // Cambia para volver a crear el canal si no se recupera solo.
+  const [channelKey, setChannelKey] = useState(0);
 
   const refresh = useCallback(async (t: string) => {
     const r = await getRoom(code, t);
@@ -76,13 +81,19 @@ export default function RoomApp({ code }: { code: string }) {
     const channel = joinRoomChannel(code, playerId, {
       onEvent,
       onRefresh: () => void refresh(token),
-      onPhoto: (id, photo) => setPhotos((m) => (m.get(id) === photo ? m : new Map(m).set(id, photo))),
+      onPhoto: (id, photo) => {
+        // Si nos devuelven nuestra foto tras recargar, la volvemos a guardar en memoria.
+        if (id === playerId && !getOwnPhoto(code)) setOwnPhoto(code, photo);
+        setPhotos((m) => (m.get(id) === photo ? m : new Map(m).set(id, photo)));
+      },
+      getPhoto: (id) => photosRef.current.get(id),
       onPresence: (ids) => {
         setOnline(ids);
         // Si aparece alguien que no conocemos, se ha unido y no nos llegó el aviso.
         if ([...ids].some((id) => !knownIdsRef.current.has(id))) void refresh(token);
       },
       onStatus: (isConnected) => {
+        connectedRef.current = isConnected;
         setConnected(isConnected);
         // Al reconectar se pide el estado por si se perdió algún evento.
         if (isConnected) void refresh(token);
@@ -93,7 +104,31 @@ export default function RoomApp({ code }: { code: string }) {
       channelRef.current = null;
       channel.leave();
     };
-  }, [code, playerId, token, refresh]);
+  }, [code, playerId, token, refresh, channelKey]);
+
+  // Al volver a la app (pantalla bloqueada, cambio de app) o recuperar la red,
+  // se pide el estado y, si el canal no se ha recuperado solo, se crea de nuevo.
+  useEffect(() => {
+    if (!token) return;
+    const resume = () => {
+      if (document.visibilityState !== 'visible') return;
+      void refresh(token).catch(() => undefined);
+      if (!connectedRef.current) setChannelKey((k) => k + 1);
+    };
+    // Mientras no hay conexión en tiempo real, se pregunta cada 20 s.
+    const timer = setInterval(() => {
+      if (!connectedRef.current && document.visibilityState === 'visible') {
+        void refresh(token).catch(() => undefined);
+      }
+    }, 20_000);
+    document.addEventListener('visibilitychange', resume);
+    window.addEventListener('online', resume);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', resume);
+      window.removeEventListener('online', resume);
+    };
+  }, [token, refresh]);
 
   async function onStarted() {
     const r = await refresh(token!);
@@ -130,5 +165,5 @@ export default function RoomApp({ code }: { code: string }) {
   if (room.phase === 'lobby') {
     return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} />;
   }
-  return <Game room={room} token={token} photos={photos} onAdvanced={onAdvanced} />;
+  return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} />;
 }
