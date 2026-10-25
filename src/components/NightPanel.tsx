@@ -84,6 +84,10 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
     case 'bad': {
       const mates = new Set(role?.bad_teammates?.map((p) => p.id));
       const targets = alive.filter((p) => p.id !== me && !mates.has(p.id));
+      const agreed =
+        !!night.my_target &&
+        (night.votes ?? []).length === mates.size &&
+        (night.votes ?? []).every((v) => v.target === night.my_target);
       const votesFor = (id: string) => {
         const voters = (night.votes ?? []).filter((v) => v.target === id).map((v) => v.voter);
         return voters.length ? voters.join(', ') : undefined;
@@ -91,8 +95,15 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
       body = (
         <>
           <p className="text-stone-400">
-            Elige a la víctima con tus compañeros. Veis los votos de los demás y podéis cambiar el vuestro.
+            {mates.size
+              ? 'Proponed una víctima: veis los votos de los demás y podéis cambiar el vuestro. El turno termina cuando todos elegís a la misma.'
+              : 'Elige a tu víctima.'}
           </p>
+          {mates.size > 0 && night.my_target && (
+            <p className={agreed ? 'font-semibold text-emerald-400' : 'text-amber-300'}>
+              {agreed ? '✓ Estáis de acuerdo. Cerrad los ojos.' : 'Todavía no coincidís todos.'}
+            </p>
+          )}
           <PlayerPicker
             players={targets}
             photos={photos}

@@ -152,8 +152,10 @@ begin
   perform pg_temp.advance(c, 'b');
   perform public.accion_nocturna(c, pg_temp.tok('b', 1), 'kill', pg_temp.pid(c, 'J5'));
   perform pg_temp.check(not (pg_temp.room(c, 'b')->>'step_done')::boolean, 'falta el otro lobo');
+  perform public.accion_nocturna(c, pg_temp.tok('b', 2), 'kill', pg_temp.pid(c, 'J0'));
+  perform pg_temp.check(not (pg_temp.room(c, 'b')->>'step_done')::boolean, 'los lobos no coinciden');
   perform public.accion_nocturna(c, pg_temp.tok('b', 2), 'kill', pg_temp.pid(c, 'J5'));
-  perform pg_temp.check((pg_temp.room(c, 'b')->>'step_done')::boolean, 'han votado los dos lobos');
+  perform pg_temp.check((pg_temp.room(c, 'b')->>'step_done')::boolean, 'los dos lobos coinciden');
 
   r := pg_temp.advance(c, 'b');
   perform pg_temp.check(r->>'phase' = 'dawn', 'amanecer ' || r::text);
