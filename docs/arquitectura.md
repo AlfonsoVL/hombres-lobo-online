@@ -108,6 +108,14 @@ el plan gratuito.
    comprobar que es el creador) y la composición elegida.
 3. **Creador.** Juega con su propio rol y dirige las fases, pero no ve los roles de nadie.
 
+## Reglas confirmadas para el paso 5
+
+- **Alcalde (opcional).** Se activa en la configuración y no ocupa carta. Cuando ya están
+  repartidos todos los roles, se sortea entre todos los jugadores (puede ser bueno o malo) y
+  se anuncia públicamente quién es. Su único poder es deshacer los empates del día.
+- **Protección (Bruja / Médico).** No puede protegerse a sí mismo ni proteger al mismo
+  jugador dos noches seguidas.
+
 ## Reglas que te preguntaré antes del paso 5
 
 - Empates en el voto de los malos y en el linchamiento.
