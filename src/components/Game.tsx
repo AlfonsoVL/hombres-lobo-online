@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { narration, type NarrationState } from '../lib/game';
 import { narrate } from '../lib/audio/narrate';
 import { isAudioUnlocked } from '../lib/audio/unlock';
-import { findRoleByKind, getRole, getTheme, type Theme } from '../lib/tematicas';
+import { findRoleByKind, getRole, getTheme, roleByKind, type RoleCard, type Theme } from '../lib/tematicas';
 import { advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
 import AudioUnlock from './AudioUnlock';
 import { HelpButton } from './Help';
@@ -12,6 +12,7 @@ import Avatar from './Avatar';
 import MyRoleCard from './MyRoleCard';
 import NightPanel from './NightPanel';
 import PlayerPicker from './PlayerPicker';
+import RoleAvatar from './RoleAvatar';
 import { Button, Card, ErrorText } from './ui';
 
 interface Props {
@@ -21,6 +22,16 @@ interface Props {
   online: Set<string>;
   connected: boolean;
   onAdvanced: () => Promise<void>;
+}
+
+function stepRole(theme: Theme, room: PublicRoom): RoleCard | undefined {
+  return room.night_step ? findRoleByKind(theme, room.night_step) : undefined;
+}
+
+/** Ilustración de quien gana: los malos, la aldea o Cupido por los enamorados. */
+function winnerRole(theme: Theme, winner: 'bad' | 'good' | 'lovers'): RoleCard {
+  if (winner === 'bad') return roleByKind(theme, 'bad');
+  return (winner === 'lovers' && findRoleByKind(theme, 'link')) || roleByKind(theme, 'plain_good');
 }
 
 function stepName(theme: Theme, room: PublicRoom): string {
@@ -108,12 +119,13 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   const deathList = deaths.length ? (
     <ul className="flex flex-col gap-2">
       {deaths.map((p) => (
-        <li key={p.id} className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
-          <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} />
+        <li key={p.id} className="aparecer flex items-center gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 px-3 py-2">
+          <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} size={44} />
           <span className="flex-1">
             <strong>{p.name}</strong>
             {p.revealed_role && <span className="text-stone-400">, que era {getRole(theme, p.revealed_role).nombre}</span>}
           </span>
+          {p.revealed_role && <RoleAvatar role={getRole(theme, p.revealed_role)} size={44} />}
         </li>
       ))}
     </ul>
@@ -151,7 +163,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   return (
     <div className="flex flex-col gap-6">
       <header className="text-center">
-        <p className="text-sm font-semibold" style={{ color: theme.color }}>
+        <p className="titulo text-sm font-semibold text-amber-400">
           {theme.nombre}
           {room.round > 0 && ` · Ronda ${room.round}`}
         </p>
@@ -187,7 +199,14 @@ export default function Game({ room, token, photos, online, connected, onAdvance
           <Card>
             <h1 className="mb-2 text-2xl font-bold">Mira tu rol</h1>
             <p className="text-stone-400">Que nadie vea tu pantalla. Mantén pulsada la carta para verla.</p>
-            {mayor && <p className="mt-3">🎖️ El sorteo ha elegido Alcalde a <strong>{mayor.name}</strong>.</p>}
+            {mayor && (
+              <p className="mt-3 flex items-center gap-3">
+                <RoleAvatar role="alcalde" size={48} />
+                <span>
+                  El sorteo ha elegido Alcalde a <strong>{mayor.name}</strong>.
+                </span>
+              </p>
+            )}
           </Card>
           <MyRoleCard theme={theme} token={token} />
         </>
@@ -196,9 +215,10 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       {room.phase === 'night' && (
         <>
           {room.me.is_creator && (
-            <Card className="text-center">
+            <Card className="flex flex-col items-center text-center">
+              {stepRole(theme, room) && <RoleAvatar role={stepRole(theme, room)!} size={88} className="mb-2" />}
               <p className="text-sm text-stone-400">Turno de</p>
-              <p className="text-2xl font-bold">🌙 {stepName(theme, room)}</p>
+              <p className="titulo text-2xl font-bold">{stepName(theme, room)}</p>
               <p className={`mt-1 text-sm ${room.step_done ? 'text-emerald-400' : 'text-stone-400'}`}>
                 {room.step_done
                   ? '✓ Ya ha actuado'
@@ -258,8 +278,9 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       )}
 
       {room.phase === 'finished' && room.winner && (
-        <Card className="flex flex-col gap-4 text-center">
-          <h1 className="text-2xl font-bold">{theme.textos.victoria[room.winner].texto}</h1>
+        <Card className="flex flex-col items-center gap-4 text-center">
+          <RoleAvatar role={winnerRole(theme, room.winner)} size={128} />
+          <h1 className="text-xl font-bold text-amber-300">{theme.textos.victoria[room.winner].texto}</h1>
           {deathList}
           <a href="/" className="text-stone-400 underline">
             Nueva partida
@@ -292,10 +313,15 @@ export default function Game({ room, token, photos, online, connected, onAdvance
         <h2 className="mb-3 font-semibold">Jugadores</h2>
         <ul className="grid grid-cols-4 gap-3">
           {room.players.map((p) => (
-            <li key={p.id} className={`flex flex-col items-center gap-1 ${p.is_alive ? '' : 'opacity-40'}`}>
+            <li key={p.id} className={`flex flex-col items-center gap-1 ${p.is_alive ? '' : 'opacity-40 grayscale'}`}>
               <span className="relative">
                 <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} size={48} />
-                {p.id === room.mayor_id && <span className="absolute -right-1 -top-1 text-sm">🎖️</span>}
+                {p.id === room.mayor_id && (
+                  <RoleAvatar role="alcalde" size={22} className="absolute -right-1.5 -top-1.5" />
+                )}
+                {p.revealed_role && (
+                  <RoleAvatar role={getRole(theme, p.revealed_role)} size={24} className="absolute -bottom-1 -right-1.5" />
+                )}
               </span>
               <span className="w-full truncate text-center text-xs">{p.name}</span>
               {p.revealed_role && (

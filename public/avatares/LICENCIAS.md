@@ -1,32 +1,34 @@
 # Licencias de los avatares
 
-Los avatares de rol se han hecho con iconos de [Tabler Icons](https://tabler.io/icons)
-(versión 3.49.0), con licencia MIT. Cada SVG indica en un comentario qué icono usa.
+Los avatares de rol y el del Alcalde son los emojis 3D de
+[Fluent Emoji](https://github.com/microsoft/fluentui-emoji) de Microsoft, con
+licencia MIT (copiada abajo). Los PNG están sin modificar; el medallón de color
+de fondo se dibuja con CSS en `src/components/RoleAvatar.tsx`.
 
-| Rol | Icono |
+| Archivo | Emoji de Fluent |
 |---|---|
-| castronegro/werewolf | `paw` |
-| castronegro/villager | `home` |
-| castronegro/seer | `crystal-ball` |
-| castronegro/witch | `flask` |
-| castronegro/hunter | `target-arrow` |
-| castronegro/cupid | `hearts` |
-| castronegro/little_girl | `mood-kid` |
-| castronegro/thief | `mask` |
-| alien/xenomorph | `alien` |
-| alien/crew_member | `user` |
-| alien/scientist | `microscope` |
-| alien/medic | `first-aid-kit` |
-| alien/marine | `crosshair` |
-| alien/android | `robot` |
-| alcalde | `crown` |
+| castronegro/werewolf.png | Wolf |
+| castronegro/villager.png | Farmer |
+| castronegro/seer.png | Crystal ball |
+| castronegro/witch.png | Woman mage |
+| castronegro/hunter.png | Bow and arrow |
+| castronegro/cupid.png | Baby angel |
+| castronegro/little_girl.png | Girl |
+| castronegro/thief.png | Ninja |
+| alien/xenomorph.png | Alien |
+| alien/crew_member.png | Astronaut |
+| alien/scientist.png | Scientist |
+| alien/medic.png | Health worker |
+| alien/marine.png | Military helmet |
+| alien/android.png | Robot |
+| alcalde.png | Person with crown |
 
-## Licencia de Tabler Icons
+## Licencia de Fluent Emoji
 
 ```
 MIT License
 
-Copyright (c) 2020-2026 Paweł Kuna
+Copyright (c) Microsoft Corporation.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -46,3 +48,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Fuentes
+
+Las fuentes de los títulos se instalan con npm (`@fontsource`) y se sirven desde
+la propia web, sin llamar a Google:
+
+- Cinzel (Castronegro y portada): SIL Open Font License 1.1.
+- Orbitron (Alien): SIL Open Font License 1.1.

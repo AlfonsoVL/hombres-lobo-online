@@ -23,7 +23,7 @@ describe.each(Object.values(THEMES))('temática $id', (theme) => {
         expect(role[field], `${role.id}.${field}`).toBeTypeOf('string');
         expect(role[field].trim().length, `${role.id}.${field}`).toBeGreaterThan(0);
       }
-      expect(role.avatar).toBe(`/avatares/${theme.id}/${role.id}.svg`);
+      expect(role.avatar).toBe(`/avatares/${theme.id}/${role.id}.png`);
     }
   });
 
@@ -56,12 +56,14 @@ it('los roles coinciden con los de la base de datos', () => {
 });
 
 describe('avatares de rol', () => {
-  it('cada rol tiene su SVG en public y declara el icono de Tabler (MIT) que usa', () => {
+  it('cada rol tiene su imagen en public y figura en LICENCIAS.md', () => {
+    const licences = readFileSync(fileURLToPath(new URL('../../../public/avatares/LICENCIAS.md', import.meta.url)), 'utf8');
+    expect(licences).toContain('MIT License');
     for (const theme of Object.values(THEMES)) {
       for (const role of theme.roles) {
         const file = fileURLToPath(new URL(`../../../public${role.avatar}`, import.meta.url));
         expect(existsSync(file), role.avatar).toBe(true);
-        expect(readFileSync(file, 'utf8')).toContain('Tabler Icons (MIT)');
+        expect(licences, role.avatar).toContain(`| ${theme.id}/${role.id}.png |`);
       }
     }
   });

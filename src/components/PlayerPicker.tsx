@@ -25,7 +25,7 @@ export default function PlayerPicker({ players, photos, selected, onSelect, disa
               aria-pressed={isSelected}
               onClick={() => onSelect(p.id)}
               className={`flex w-full flex-col items-center gap-1 rounded-xl border-2 p-2 transition disabled:opacity-60 ${
-                isSelected ? 'border-amber-500 bg-stone-800' : 'border-transparent bg-stone-900'
+                isSelected ? 'border-amber-400 bg-stone-800 shadow-[var(--brillo)]' : 'border-stone-700/50 bg-stone-900/70'
               }`}
             >
               <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} size={52} />

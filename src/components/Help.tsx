@@ -1,6 +1,8 @@
 // Ayuda: reglas de la temática, Alcalde y la ficha de cada rol.
 import { useState } from 'react';
-import { THEMES, findRoleByKind, type RoleCard, type RoleKind, type Theme, type ThemeId } from '../lib/tematicas';
+import { useThemeStyle } from '../lib/estilo';
+import { THEMES, findRoleByKind, roleByKind, type RoleCard, type RoleKind, type Theme, type ThemeId } from '../lib/tematicas';
+import RoleAvatar from './RoleAvatar';
 
 /** Orden de la noche con los nombres de la temática. */
 function nightOrderText(theme: Theme): string {
@@ -18,8 +20,8 @@ function nightOrderText(theme: Theme): string {
 
 export function RoleFicha({ theme, role }: { theme: Theme; role: RoleCard }) {
   return (
-    <article className="flex gap-3 rounded-xl bg-stone-800 p-3">
-      <img src={role.avatar} alt="" width={56} height={56} className="h-14 w-14 shrink-0" />
+    <article className="flex gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 p-3">
+      <RoleAvatar role={role} size={64} />
       <div className="flex flex-col gap-1 text-sm">
         <h3 className="text-base font-semibold">
           {role.nombre}{' '}
@@ -42,6 +44,7 @@ export function RoleFicha({ theme, role }: { theme: Theme; role: RoleCard }) {
 export default function Help({ themeId }: { themeId?: ThemeId }) {
   const [selected, setSelected] = useState<ThemeId>(themeId ?? 'castronegro');
   const theme = THEMES[selected];
+  useThemeStyle(themeId ? undefined : selected);
 
   return (
     <div className="flex flex-col gap-5">
@@ -53,11 +56,11 @@ export default function Help({ themeId }: { themeId?: ThemeId }) {
               type="button"
               aria-pressed={selected === t.id}
               onClick={() => setSelected(t.id)}
-              className={`rounded-xl border-2 p-3 text-left font-semibold ${
-                selected === t.id ? 'border-current' : 'border-stone-700 text-stone-400'
+              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 text-center text-sm font-semibold ${
+                selected === t.id ? 'border-amber-400 bg-stone-800/80' : 'border-stone-700 text-stone-400 opacity-80'
               }`}
-              style={selected === t.id ? { color: t.color } : undefined}
             >
+              <RoleAvatar role={roleByKind(t, 'bad')} size={48} />
               {t.nombre}
             </button>
           ))}
@@ -80,8 +83,8 @@ export default function Help({ themeId }: { themeId?: ThemeId }) {
         {theme.roles.map((role) => (
           <RoleFicha key={role.id} theme={theme} role={role} />
         ))}
-        <article className="flex gap-3 rounded-xl bg-stone-800 p-3">
-          <img src="/avatares/alcalde.svg" alt="" width={56} height={56} className="h-14 w-14 shrink-0" />
+        <article className="flex gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 p-3">
+          <RoleAvatar role="alcalde" size={64} />
           <div className="flex flex-col gap-1 text-sm">
             <h3 className="text-base font-semibold">Alcalde (opcional)</h3>
             <p className="text-stone-300">
@@ -107,12 +110,12 @@ export function HelpButton({ themeId }: { themeId: ThemeId }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="self-center rounded-full bg-stone-800 px-4 py-2 text-sm text-stone-300"
+        className="self-center rounded-full border border-stone-700 bg-stone-900/80 px-4 py-2 text-sm text-stone-300"
       >
         ❓ Ayuda y roles
       </button>
       {open && (
-        <div role="dialog" aria-modal="true" aria-label="Ayuda" className="fixed inset-0 z-50 overflow-y-auto bg-stone-950">
+        <div role="dialog" aria-modal="true" aria-label="Ayuda" className="fixed inset-0 z-50 overflow-y-auto bg-stone-950/95 backdrop-blur">
           <div className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">Ayuda</h1>

@@ -10,7 +10,7 @@
       "tipo": "bad",
       "nombre": "Xenomorfo",
       "bando": "bad",
-      "avatar": "/avatares/alien/xenomorph.svg",
+      "avatar": "/avatares/alien/xenomorph.png",
       "cuando_actua": "Cada noche, junto a los demás xenomorfos.",
       "poder": "Con los demás xenomorfos, elige en secreto a una víctima cada noche. Conoce a sus compañeros xenomorfos.",
       "gana": "Cuando los xenomorfos vivos igualan o superan en número al resto de vivos."
@@ -20,7 +20,7 @@
       "tipo": "plain_good",
       "nombre": "Tripulante",
       "bando": "good",
-      "avatar": "/avatares/alien/crew_member.svg",
+      "avatar": "/avatares/alien/crew_member.png",
       "cuando_actua": "Durante el día.",
       "poder": "No tiene poderes especiales. Su arma es el debate y su voto para expulsar a alguien de la nave.",
       "gana": "Cuando no queda ningún xenomorfo vivo."
@@ -30,7 +30,7 @@
       "tipo": "investigate",
       "nombre": "Científico",
       "bando": "good",
-      "avatar": "/avatares/alien/scientist.svg",
+      "avatar": "/avatares/alien/scientist.png",
       "cuando_actua": "Cada noche, en su turno.",
       "poder": "Investiga a un jugador y ve su rol. Solo lo ve él.",
       "gana": "Cuando no queda ningún xenomorfo vivo."
@@ -40,7 +40,7 @@
       "tipo": "protect",
       "nombre": "Médico",
       "bando": "good",
-      "avatar": "/avatares/alien/medic.svg",
+      "avatar": "/avatares/alien/medic.png",
       "cuando_actua": "Cada noche, en su turno.",
       "poder": "Cada noche protege a un jugador de los xenomorfos. No puede protegerse a sí mismo ni proteger al mismo jugador dos noches seguidas.",
       "gana": "Cuando no queda ningún xenomorfo vivo."
@@ -50,7 +50,7 @@
       "tipo": "shoot_on_death",
       "nombre": "Marine",
       "bando": "good",
-      "avatar": "/avatares/alien/marine.svg",
+      "avatar": "/avatares/alien/marine.png",
       "cuando_actua": "En el momento de morir.",
       "poder": "Si muere, de noche o tras una votación, dispara en ese momento a un jugador.",
       "gana": "Cuando no queda ningún xenomorfo vivo."
@@ -60,7 +60,7 @@
       "tipo": "link",
       "nombre": "Androide",
       "bando": "good",
-      "avatar": "/avatares/alien/android.svg",
+      "avatar": "/avatares/alien/android.png",
       "cuando_actua": "Solo la primera noche.",
       "poder": "Vincula a dos jugadores.",
       "gana": "Con la tripulación, cuando no queda ningún xenomorfo vivo. Si el Androide y los dos vinculados son los últimos vivos, ganan los vinculados."
