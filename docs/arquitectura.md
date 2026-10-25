@@ -132,5 +132,5 @@ el plan gratuito.
 | `visibility.ts` | Vista de «Ver mi rol»: solo la ficha propia y, si es malo, sus compañeros. |
 | `events.ts` | Tipos de eventos de Broadcast y comprobación de que no llevan roles. |
 
-Orden provisional de la noche (pendiente de confirmar): Ladrón y Cupido (solo la primera
+Orden de la noche: Ladrón y Cupido (solo la primera
 noche), malos (y la Niña durante su turno), Vidente y Bruja.

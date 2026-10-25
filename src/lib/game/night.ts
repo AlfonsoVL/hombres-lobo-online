@@ -5,8 +5,8 @@ import { kindOf, type GamePlayer } from './state';
 /** Tipos de rol que solo actúan la primera noche. */
 export const FIRST_NIGHT_ONLY: RoleKind[] = ['swap', 'link'];
 
-// PENDIENTE de confirmar: orden de los turnos. El Ladrón va primero para que,
-// si se convierte en malo, vote ya con los malos esa misma noche.
+// Orden de los turnos. El Ladrón va primero para que, si se convierte en malo,
+// vote ya con los malos esa misma noche.
 const NIGHT_ORDER: RoleKind[] = ['swap', 'link', 'bad', 'investigate', 'protect'];
 
 /** Turnos de una noche (la primera es la ronda 1) según los roles repartidos. */
