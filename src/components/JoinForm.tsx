@@ -1,12 +1,14 @@
 // Formulario para unirse a una sala con el enlace.
 import { useState } from 'react';
 import AudioUnlock from './AudioUnlock';
+import Camera from './Camera';
 import { Button, Card, ErrorText, NameField } from './ui';
 
-export default function JoinForm({ code, onJoin }: { code: string; onJoin: (name: string) => Promise<void> }) {
+export default function JoinForm({ code, onJoin }: { code: string; onJoin: (name: string, photo: string | null) => Promise<void> }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -14,7 +16,7 @@ export default function JoinForm({ code, onJoin }: { code: string; onJoin: (name
     setBusy(true);
     setError('');
     try {
-      await onJoin(name.trim());
+      await onJoin(name.trim(), photo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se ha podido entrar en la sala.');
       setBusy(false);
@@ -30,6 +32,7 @@ export default function JoinForm({ code, onJoin }: { code: string; onJoin: (name
       <AudioUnlock />
       <Card className="flex flex-col gap-4">
         <NameField value={name} onChange={setName} />
+        <Camera name={name} photo={photo} onChange={setPhoto} />
         <ErrorText>{error}</ErrorText>
         <Button type="submit" disabled={busy}>
           {busy ? 'Entrando…' : 'Unirme a la partida'}

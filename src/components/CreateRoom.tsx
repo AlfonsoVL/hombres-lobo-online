@@ -3,7 +3,10 @@ import { useState } from 'react';
 import { THEMES, type ThemeId } from '../lib/tematicas';
 import { createRoom, type Mode } from '../lib/realtime/rpc';
 import { newToken, saveToken } from '../lib/realtime/token';
+import { setOwnPhoto } from '../lib/foto/ownPhoto';
 import AudioUnlock from './AudioUnlock';
+import Camera from './Camera';
+import RoomApp from './RoomApp';
 import { Button, Card, ErrorText, NameField } from './ui';
 
 const MODES: { id: Mode; name: string; description: string }[] = [
@@ -17,6 +20,8 @@ export default function CreateRoom() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [roomCode, setRoomCode] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,12 +32,17 @@ export default function CreateRoom() {
       const token = newToken();
       const { code } = await createRoom(theme, mode, name.trim(), token);
       saveToken(code, token);
-      window.location.href = `/sala/${code}`;
+      setOwnPhoto(code, photo);
+      // Se cambia la URL sin recargar para no perder la foto, que solo está en memoria.
+      window.history.pushState(null, '', `/sala/${code}`);
+      setRoomCode(code);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se ha podido crear la sala.');
       setBusy(false);
     }
   }
+
+  if (roomCode) return <RoomApp code={roomCode} />;
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
@@ -86,6 +96,7 @@ export default function CreateRoom() {
 
       <Card className="flex flex-col gap-4">
         <NameField value={name} onChange={setName} />
+        <Camera name={name} photo={photo} onChange={setPhoto} />
         <ErrorText>{error}</ErrorText>
         <Button type="submit" disabled={busy}>
           {busy ? 'Creando sala…' : 'Crear sala'}

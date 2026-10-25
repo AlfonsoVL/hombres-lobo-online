@@ -1,5 +1,6 @@
 // Pantalla de la sala: unirse, lobby y (más adelante) la partida.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getOwnPhoto, setOwnPhoto } from '../lib/foto/ownPhoto';
 import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
 import { getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
@@ -16,6 +17,7 @@ export default function RoomApp({ code }: { code: string }) {
   const [token, setToken] = useState<string | null>(null);
   const [online, setOnline] = useState<Set<string>>(new Set());
   const [connected, setConnected] = useState(false);
+  const [photos, setPhotos] = useState<Map<string, string>>(new Map());
   const versionRef = useRef(0);
   const knownIdsRef = useRef<Set<string>>(new Set());
   const channelRef = useRef<RoomChannel | null>(null);
@@ -69,8 +71,11 @@ export default function RoomApp({ code }: { code: string }) {
       // El resto de eventos solo avisan: el estado se pide al servidor.
       void refresh(token);
     };
+    const ownPhoto = getOwnPhoto(code);
+    if (ownPhoto) setPhotos((m) => new Map(m).set(playerId, ownPhoto));
     const channel = joinRoomChannel(code, playerId, {
       onEvent,
+      onPhoto: (id, photo) => setPhotos((m) => (m.get(id) === photo ? m : new Map(m).set(id, photo))),
       onPresence: (ids) => {
         setOnline(ids);
         // Si aparece alguien que no conocemos, se ha unido y no nos llegó el aviso.
@@ -81,7 +86,7 @@ export default function RoomApp({ code }: { code: string }) {
         // Al reconectar se pide el estado por si se perdió algún evento.
         if (isConnected) void refresh(token);
       },
-    });
+    }, ownPhoto);
     channelRef.current = channel;
     return () => {
       channelRef.current = null;
@@ -94,10 +99,11 @@ export default function RoomApp({ code }: { code: string }) {
     channelRef.current?.announce({ type: 'partida_iniciada', version: r.version });
   }
 
-  async function join(name: string) {
+  async function join(name: string, photo: string | null) {
     const t = loadToken(code) ?? newToken();
     await joinRoom(code, name, t);
     saveToken(code, t);
+    setOwnPhoto(code, photo);
     await refresh(t);
     setToken(t);
     setStatus('ready');
@@ -110,7 +116,7 @@ export default function RoomApp({ code }: { code: string }) {
     return <JoinForm code={code} onJoin={join} />;
   }
   if (room.phase === 'lobby') {
-    return <Lobby room={room} token={token} online={online} connected={connected} onStarted={onStarted} />;
+    return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} />;
   }
   return (
     <Card className="text-center">
