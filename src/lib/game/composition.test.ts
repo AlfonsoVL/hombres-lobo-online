@@ -60,6 +60,20 @@ describe('modo clásico', () => {
     }
   });
 
+  it('en modo pruebas permite empezar con 2 a 5 jugadores', () => {
+    const expected = { 2: [], 3: ['seer'], 4: ['seer', 'witch'], 5: ['seer', 'witch'] } as const;
+    for (const [n, specials] of Object.entries(expected)) {
+      const r = classicComposition(castronegro, Number(n), { testMode: true });
+      expect(r).toEqual({
+        ok: true,
+        value: { players: Number(n), bad: 1, specials, plain: Number(n) - 1 - specials.length },
+      });
+    }
+    expect(classicComposition(castronegro, 1, { testMode: true }).ok).toBe(false);
+    // Con 6 o más, el modo pruebas no cambia nada.
+    expect(classicComposition(castronegro, 8, { testMode: true })).toEqual(classicComposition(castronegro, 8));
+  });
+
   it('rechaza menos de 6 o más de 24 jugadores', () => {
     expect(classicComposition(castronegro, 5).ok).toBe(false);
     expect(classicComposition(castronegro, 25).ok).toBe(false);

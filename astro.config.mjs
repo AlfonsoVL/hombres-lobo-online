@@ -29,6 +29,7 @@ export default defineConfig({
     define: {
       'import.meta.env.PUBLIC_SUPABASE_URL': JSON.stringify(supabaseUrl),
       'import.meta.env.PUBLIC_SUPABASE_ANON_KEY': JSON.stringify(supabaseKey),
+      'import.meta.env.PUBLIC_MODO_PRUEBAS': JSON.stringify(env.PUBLIC_MODO_PRUEBAS ?? ''),
     },
   },
 });
