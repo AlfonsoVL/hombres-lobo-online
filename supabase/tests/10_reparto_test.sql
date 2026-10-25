@@ -72,6 +72,9 @@ begin
     'select public.iniciar_partida(%L, %L, %L, 2)', v_code, pg_temp.tok(0), '{little_girl}'),
     'no está disponible');
   perform pg_temp.expect_error(format(
+    'select public.iniciar_partida(%L, %L, %L, 2)', v_code, pg_temp.tok(0), '{seer,seer}'),
+    'solo puede elegirse una vez');
+  perform pg_temp.expect_error(format(
     'select public.iniciar_partida(%L, %L, %L, 2)', v_code, pg_temp.tok(0), '{xenomorph}'),
     'no está disponible');
   perform pg_temp.expect_error(format(
@@ -139,6 +142,28 @@ begin
 end;
 $$;
 
+-- Ladrón: se reparte siempre y sobran 2 cartas.
+do $$
+declare
+  v_code text;
+  v_thieves integer := 0;
+begin
+  select room_code into v_code
+  from public.create_room('castronegro', 'custom', 'Creadora', pg_temp.tok(200));
+  for i in 201..205 loop
+    perform public.join_room(v_code, 'L' || i, pg_temp.tok(i));
+  end loop;
+  perform public.iniciar_partida(v_code, pg_temp.tok(200), '{thief}', 2);
+  for i in 200..205 loop
+    if public.obtener_mi_rol(pg_temp.tok(i))->>'role' = 'thief' then
+      v_thieves := v_thieves + 1;
+    end if;
+  end loop;
+  if v_thieves <> 1 then raise exception 'El Ladrón debe repartirse una vez, hay %', v_thieves; end if;
+  perform set_config('pruebas.sala_ladron', v_code, false);
+end;
+$$;
+
 reset role;
 
 -- Ningún evento Broadcast lleva roles.
@@ -148,8 +173,31 @@ begin
              where payload::text ~ '(werewolf|seer|witch|hunter|villager|little_girl|role)') then
     raise exception 'Un evento Broadcast contiene datos de rol';
   end if;
-  if (select count(*) from realtime.sent_messages where event = 'partida_iniciada') <> 2 then
-    raise exception 'Se esperaban 2 eventos partida_iniciada';
+  if (select count(*) from realtime.sent_messages where event = 'partida_iniciada') <> 3 then
+    raise exception 'Se esperaban 3 eventos partida_iniciada';
+  end if;
+end;
+$$;
+
+-- Ladrón: 6 cartas repartidas + 2 sobrantes = 2 lobos, Ladrón y 5 aldeanos.
+do $$
+declare
+  v_room uuid := (select id from public.rooms where code = current_setting('pruebas.sala_ladron'));
+  v_all text[];
+begin
+  if (select count(*) from public.undealt_cards where room_id = v_room) <> 2 then
+    raise exception 'Deben sobrar 2 cartas para el Ladrón';
+  end if;
+  select array_agg(role order by role) into v_all from (
+    select role from public.roles_privados where room_id = v_room
+    union all
+    select role from public.undealt_cards where room_id = v_room) c;
+  if v_all <> '{thief,villager,villager,villager,villager,villager,werewolf,werewolf}'::text[] then
+    raise exception 'Baraja del Ladrón incorrecta: %', v_all;
+  end if;
+  if exists (select 1 from public.undealt_cards u join public.rooms r on r.id = u.room_id
+             where r.code <> current_setting('pruebas.sala_ladron')) then
+    raise exception 'Solo las partidas con Ladrón deben tener cartas sobrantes';
   end if;
 end;
 $$;

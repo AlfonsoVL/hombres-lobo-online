@@ -68,6 +68,23 @@ elige el creador, y se la pasa a `iniciar_partida`. La función vuelve a validar
 servidor (al menos 1 malo, que todo quepa, roles de la temática y del modo, sin repetir en
 personalizado) y es quien baraja y reparte, así que nadie puede elegir a quién le toca qué.
 
+Cada rol especial sale como máximo una vez, también en modo clásico. Donde la tabla proponía
+dos (2 «Investiga» de 20 a 24 y 2 «Dispara al morir» con 24), se reparte uno y el resto pasa a
+buenos sin rol:
+
+| Jugadores | Malos | Investiga | Salva/cura | Dispara al morir | Vincula a dos | Buenos sin rol |
+|---|---|---|---|---|---|---|
+| 20 | 5 | 1 | 1 | 1 | 1 | 11 |
+| 22 | 6 | 1 | 1 | 1 | 1 | 12 |
+| 24 | 6 | 1 | 1 | 1 | 1 | 14 |
+
+### Ladrón
+
+Si la partida tiene Ladrón, la baraja lleva 2 buenos sin rol extra (jugadores + 2 cartas). El
+Ladrón siempre se reparte a alguien; el resto de cartas se baraja y las 2 que sobran se guardan
+en `undealt_cards`. Esas son las que el Ladrón ve la primera noche, así que pueden ser malos
+(y entonces la partida tiene un malo menos en juego), igual que en el juego de mesa.
+
 ### Eventos en tiempo real
 
 - Canal Broadcast `sala:{codigo}`. Los cambios de estado los emite el servidor con
@@ -87,14 +104,9 @@ el plan gratuito.
 1. **Nombres.** Has pedido `iniciar_partida`, `obtener_mi_rol` y `roles_privados` en español
    y el resto de identificadores en inglés. He mantenido esos tres tal cual. ¿Los dejo así o
    los paso a inglés (`start_game`, `get_my_role`, `private_roles`)?
-2. **Roles repetidos en clásico.** La tabla tiene 2 «Investiga» de 20 a 24 jugadores y 2
-   «Dispara al morir» con 24, pero también dices que cada rol especial solo se asigna una
-   vez. Propongo permitir esos duplicados solo en modo clásico. ¿Te vale?
-3. **Firma de `iniciar_partida`.** Además del código de sala recibe el token (para
+2. **Firma de `iniciar_partida`.** Además del código de sala recibe el token (para
    comprobar que es el creador) y la composición elegida.
-4. **Creador.** Juega con su propio rol y dirige las fases, pero no ve los roles de nadie.
-5. **Ladrón.** ¿Qué dos cartas extra entran en la baraja? Por ejemplo, dos buenos sin rol
-   adicionales, o las que elija el creador. Hasta saberlo, la función lo rechaza.
+3. **Creador.** Juega con su propio rol y dirige las fases, pero no ve los roles de nadie.
 
 ## Reglas que te preguntaré antes del paso 5
 

@@ -361,7 +361,8 @@ end;
 $$;
 
 -- Reparte los roles en el servidor. Solo la puede llamar el creador.
---   p_special_roles: roles especiales elegidos (en clásico, los de la tabla).
+--   p_special_roles: roles especiales elegidos (en clásico, los de la tabla),
+--     cada uno como máximo una vez.
 --   p_bad_count: número de malos.
 -- Los buenos sin rol se calculan solos: jugadores - malos - especiales.
 create function public.iniciar_partida(
@@ -384,6 +385,8 @@ declare
   v_bad_role text;
   v_plain_role text;
   v_role text;
+  v_extra integer := 0;
+  v_deck text[];
 begin
   v_me := public._player_by_token(p_room_code, p_token);
   if not v_me.is_creator then
@@ -420,15 +423,9 @@ begin
     end if;
   end loop;
 
-  -- En modo personalizado cada rol especial solo puede salir una vez.
-  if v_room.mode = 'custom'
-     and v_specials <> (select count(distinct r) from unnest(p_special_roles) r) then
+  -- Cada rol especial solo puede salir una vez por partida, en cualquier modo.
+  if v_specials <> (select count(distinct r) from unnest(p_special_roles) r) then
     raise exception 'Cada rol especial solo puede elegirse una vez' using errcode = '22023';
-  end if;
-
-  if 'thief' = any (coalesce(p_special_roles, '{}')) then
-    -- PENDIENTE: falta definir qué cartas extra entran en la baraja del Ladrón.
-    raise exception 'El Ladrón todavía no está disponible' using errcode = '0A000';
   end if;
 
   select role into v_bad_role from public.theme_roles
@@ -436,25 +433,31 @@ begin
   select role into v_plain_role from public.theme_roles
   where theme = v_room.theme and kind = 'plain_good';
 
-  -- Baraja: malos + especiales + buenos sin rol, barajada al azar y
-  -- emparejada con los jugadores en orden aleatorio.
-  with deck as (
-    select d.role, row_number() over (order by gen_random_uuid()) as n
-    from (
-      select v_bad_role as role from generate_series(1, p_bad_count)
-      union all
-      select unnest(coalesce(p_special_roles, '{}'))
-      union all
-      select v_plain_role from generate_series(1, v_plain)
-    ) d
-  ),
-  seats as (
+  -- Si hay Ladrón, la baraja lleva 2 buenos sin rol extra. El Ladrón siempre
+  -- se reparte; las 2 cartas que sobran (que pueden ser malos) se guardan en
+  -- undealt_cards para que el Ladrón elija la primera noche.
+  if 'thief' = any (coalesce(p_special_roles, '{}')) then
+    v_extra := 2;
+  end if;
+
+  select array_agg(d.role order by d.role = 'thief' desc, gen_random_uuid())
+  into v_deck
+  from (
+    select v_bad_role as role from generate_series(1, p_bad_count)
+    union all
+    select unnest(coalesce(p_special_roles, '{}'))
+    union all
+    select v_plain_role from generate_series(1, v_plain + v_extra)
+  ) d;
+
+  -- Las primeras cartas van a los jugadores, en orden aleatorio.
+  with seats as (
     select p.id, row_number() over (order by gen_random_uuid()) as n
     from public.players p
     where p.room_id = v_room.id
   )
   insert into public.roles_privados (player_id, room_id, role, initial_role, team, power_state)
-  select s.id, v_room.id, d.role, d.role, t.team,
+  select s.id, v_room.id, v_deck[s.n], v_deck[s.n], t.team,
          case t.kind
            when 'protect' then
              case when v_room.theme = 'castronegro'
@@ -463,8 +466,11 @@ begin
            else '{}'::jsonb
          end
   from seats s
-  join deck d using (n)
-  join public.theme_roles t on t.theme = v_room.theme and t.role = d.role;
+  join public.theme_roles t on t.theme = v_room.theme and t.role = v_deck[s.n];
+
+  insert into public.undealt_cards (room_id, role)
+  select v_room.id, v_deck[i]
+  from generate_series(v_players + 1, array_length(v_deck, 1)) i;
 
   update public.rooms
   set phase = 'intro', round = 0, version = version + 1, updated_at = now()
