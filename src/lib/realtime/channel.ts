@@ -12,6 +12,8 @@ export interface RoomChannelHandlers {
   onRefresh?: () => void;
   /** Foto de un jugador, recibida de su móvil. Solo se guarda en memoria. */
   onPhoto?: (playerId: string, photo: string) => void;
+  /** Foto que este móvil tiene en memoria de otro jugador, para devolvérsela si recarga. */
+  getPhoto?: (playerId: string) => string | undefined;
 }
 
 const SERVER_EVENTS: GameEvent['type'][] = [
@@ -49,9 +51,14 @@ export function joinRoomChannel(
   channel.on('broadcast', { event: 'actualizado' }, () => handlers.onRefresh?.());
 
   // Las fotos van de móvil a móvil por Broadcast y nunca pasan por la base de datos.
+  // Fotos que este móvil va a devolver a quien acaba de volver (por id).
+  const returnTimers = new Map<string, ReturnType<typeof setTimeout>>();
   channel.on('broadcast', { event: PHOTO_EVENT }, ({ payload }) => {
     const { id, data } = (payload ?? {}) as { id?: unknown; data?: unknown };
     if (typeof id === 'string' && typeof data === 'string' && isSendablePhoto(data)) {
+      // Si otro móvil ya la ha enviado, no hace falta que la mandemos también.
+      clearTimeout(returnTimers.get(id));
+      returnTimers.delete(id);
       handlers.onPhoto?.(id, data);
     }
   });
@@ -72,9 +79,23 @@ export function joinRoomChannel(
   // aleatorio evita que todos los móviles la manden en el mismo instante.
   let resendTimer: ReturnType<typeof setTimeout> | undefined;
   channel.on('presence', { event: 'join' }, ({ key }) => {
-    if (key === playerId || !photoSendable) return;
-    clearTimeout(resendTimer);
-    resendTimer = setTimeout(sendPhoto, 300 + Math.random() * 1200);
+    if (key === playerId) return;
+    if (photoSendable) {
+      clearTimeout(resendTimer);
+      resendTimer = setTimeout(sendPhoto, 300 + Math.random() * 1200);
+    }
+    // Si quien entra es alguien que ha recargado, ha perdido su propia foto:
+    // se la devuelve un solo móvil (el primero cuyo temporizador salte).
+    const theirs = handlers.getPhoto?.(key);
+    if (theirs && isSendablePhoto(theirs) && !returnTimers.has(key)) {
+      returnTimers.set(
+        key,
+        setTimeout(() => {
+          returnTimers.delete(key);
+          void channel.send({ type: 'broadcast', event: PHOTO_EVENT, payload: { id: key, data: theirs } });
+        }, 1500 + Math.random() * 2500),
+      );
+    }
   });
 
   channel.on('presence', { event: 'sync' }, () => {
@@ -96,6 +117,7 @@ export function joinRoomChannel(
     },
     leave: () => {
       clearTimeout(resendTimer);
+      returnTimers.forEach(clearTimeout);
       void getSupabase().removeChannel(channel);
     },
   };

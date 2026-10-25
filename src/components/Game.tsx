@@ -18,6 +18,8 @@ interface Props {
   room: PublicRoom;
   token: string;
   photos: Map<string, string>;
+  online: Set<string>;
+  connected: boolean;
   onAdvanced: () => Promise<void>;
 }
 
@@ -47,7 +49,7 @@ function nextLabel(theme: Theme, room: PublicRoom): string | null {
   }
 }
 
-export default function Game({ room, token, photos, onAdvanced }: Props) {
+export default function Game({ room, token, photos, online, connected, onAdvanced }: Props) {
   const theme = getTheme(room.theme);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -160,6 +162,16 @@ export default function Game({ room, token, photos, onAdvanced }: Props) {
         )}
       </header>
 
+      {!connected && (
+        <p role="status" className="rounded-lg bg-amber-950 px-3 py-2 text-center text-sm text-amber-200">
+          Reconectando… Si tarda, recarga la página: volverás al mismo punto de la partida.
+        </p>
+      )}
+      {connected && online.size > 0 && creator && creator.id !== room.me.id && !online.has(creator.id) && room.phase !== 'finished' && (
+        <p role="status" className="rounded-lg bg-stone-800 px-3 py-2 text-center text-sm text-stone-300">
+          {creator.name} se ha desconectado. La partida sigue en cuanto vuelva a abrir el enlace.
+        </p>
+      )}
       <HelpButton themeId={room.theme} />
       {room.me.is_creator && room.phase !== 'finished' && <AudioUnlock />}
 
