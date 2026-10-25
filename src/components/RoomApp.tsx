@@ -5,6 +5,7 @@ import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
 import { getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
 import { loadToken, newToken, saveToken } from '../lib/realtime/token';
+import { useThemeStyle } from '../lib/estilo';
 import Game from './Game';
 import JoinForm from './JoinForm';
 import Lobby from './Lobby';
@@ -17,6 +18,7 @@ export default function RoomApp({ code }: { code: string }) {
   const [token, setToken] = useState<string | null>(null);
   const [online, setOnline] = useState<Set<string>>(new Set());
   const [connected, setConnected] = useState(false);
+  useThemeStyle(room?.theme);
   const [photos, setPhotos] = useState<Map<string, string>>(new Map());
   const versionRef = useRef(0);
   const knownIdsRef = useRef<Set<string>>(new Set());

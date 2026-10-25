@@ -2,7 +2,13 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-2xl bg-stone-900 p-5 shadow-lg ${className}`}>{children}</section>;
+  return (
+    <section
+      className={`rounded-2xl border border-stone-700/70 bg-gradient-to-b from-stone-900/95 to-stone-950/95 p-5 shadow-xl shadow-black/40 backdrop-blur-sm ${className}`}
+    >
+      {children}
+    </section>
+  );
 }
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' };
@@ -10,11 +16,11 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primar
 export function Button({ variant = 'primary', className = '', ...props }: ButtonProps) {
   const styles =
     variant === 'primary'
-      ? 'bg-amber-600 text-stone-950 hover:bg-amber-500'
-      : 'bg-stone-800 text-stone-100 hover:bg-stone-700';
+      ? 'bg-gradient-to-b from-amber-400 to-amber-600 text-stone-950 shadow-[var(--brillo)] hover:brightness-110'
+      : 'border border-stone-600 bg-stone-800/80 text-stone-100 hover:bg-stone-700';
   return (
     <button
-      className={`w-full rounded-xl px-4 py-3 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
+      className={`w-full rounded-xl px-4 py-3 font-semibold tracking-wide transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
       {...props}
     />
   );

@@ -1,9 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Aldeano">
-<!-- Icono «home» de Tabler Icons (MIT): https://tabler.io/icons -->
-<circle cx="48" cy="48" r="48" fill="#78350f"/>
-<g transform="translate(20 20) scale(2.333)" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-<path d="M5 12l-2 0l9 -9l9 9l-2 0" />
-<path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-<path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Aldeano">
+<!-- Ilustración original de Hombres lobo online (CC0 1.0, dominio público) -->
+<defs>
+<clipPath id="c"><circle cx="128" cy="128" r="124"/></clipPath>
+<radialGradient id="bg" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#33406b"/><stop offset="1" stop-color="#121729"/></radialGradient>
+</defs>
+<g clip-path="url(#c)">
+<rect width="256" height="256" fill="url(#bg)"/>
+<circle cx="202" cy="58" r="18" fill="#fdf3c7" opacity=".85"/><circle cx="202" cy="58" r="30" fill="#fdf3c7" opacity=".08"/>
+<g fill="#fff" opacity=".7"><circle cx="40" cy="50" r="1.6"/><circle cx="70" cy="28" r="1.2"/><circle cx="150" cy="30" r="1.4"/><circle cx="226" cy="110" r="1.2"/><circle cx="30" cy="110" r="1.1"/></g>
+<path d="M0 200 L20 186 L34 196 L52 176 L70 194 L90 182 L110 196 L130 184 L150 198 L172 178 L190 194 L210 182 L230 196 L256 184 V256 H0Z" fill="#0b0f1c" opacity=".85"/>
+<path d="M28 262 C30 206 70 184 128 184 C186 184 226 206 228 262Z" fill="#8a5a34"/>
+<path d="M128 184 C108 184 92 186 80 190 C96 206 112 214 128 214 C144 214 160 206 176 190 C164 186 148 184 128 184Z" fill="#6e4426"/>
+<path d="M96 192 L128 236 L160 192" fill="none" stroke="#e7d3a8" stroke-width="6" stroke-linejoin="round"/>
+<rect x="112" y="150" width="32" height="44" rx="12" fill="#d9a77f"/>
+<ellipse cx="86" cy="122" rx="9" ry="12" fill="#d9a77f"/>
+<ellipse cx="170" cy="122" rx="9" ry="12" fill="#d9a77f"/>
+<ellipse cx="128" cy="116" rx="42" ry="48" fill="#f1c9a5"/>
+<path d="M86 112 C84 74 104 62 128 62 C152 62 172 74 170 112 C162 92 150 84 128 84 C106 84 94 92 86 112Z" fill="#7c4a1e"/>
+<path d="M66 92 C70 70 96 54 128 54 C160 54 186 70 190 92 C170 84 150 80 128 80 C106 80 86 84 66 92Z" fill="#d6b36a"/>
+<path d="M86 68 C96 40 160 40 170 68 C150 62 106 62 86 68Z" fill="#c9a258"/>
+<path d="M74 88 C96 80 160 80 182 88" stroke="#8b6b2e" stroke-width="3" fill="none"/>
+<ellipse cx="100" cy="136" rx="8" ry="5" fill="#f87171" opacity=".35"/><ellipse cx="156" cy="136" rx="8" ry="5" fill="#f87171" opacity=".35"/><ellipse cx="112" cy="118" rx="5.5" ry="7" fill="#1b1424"/><ellipse cx="144" cy="118" rx="5.5" ry="7" fill="#1b1424"/>
+<circle cx="114" cy="115" r="2" fill="#fff"/><circle cx="146" cy="115" r="2" fill="#fff"/><path d="M116 142 q12 10 24 0" fill="none" stroke="#1b1424" stroke-width="3.5" stroke-linecap="round"/>
 </g>
+<circle cx="128" cy="128" r="122" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
+<circle cx="128" cy="128" r="125" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
 </svg>

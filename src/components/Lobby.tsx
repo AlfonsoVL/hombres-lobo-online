@@ -44,10 +44,13 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
   return (
     <div className="flex flex-col gap-6">
       <header className="text-center">
-        <p className="text-sm font-semibold" style={{ color: theme.color }}>
+        <p className="titulo text-sm font-semibold text-amber-400">
           {theme.nombre} · {room.mode === 'classic' ? 'Clásico' : 'Personalizado'}
         </p>
-        <h1 className="mt-1 font-mono text-4xl font-bold tracking-[0.3em]">{room.code}</h1>
+        <p className="mt-2 text-xs uppercase tracking-[0.3em] text-stone-400">Código de la sala</p>
+        <h1 className="mx-auto mt-1 w-fit rounded-2xl border border-amber-500/50 bg-stone-900/80 px-5 py-2 font-mono text-4xl font-bold tracking-[0.3em] text-amber-200 shadow-[var(--brillo)]">
+          {room.code}
+        </h1>
         {!connected && <p className="mt-2 text-sm text-amber-400">Conectando…</p>}
       </header>
 
@@ -76,7 +79,7 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
         </h2>
         <ul className="flex flex-col gap-2">
           {room.players.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
+            <li key={p.id} className="flex items-center gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 px-3 py-2">
               <span className="relative">
                 <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} />
                 <span

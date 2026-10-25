@@ -11,6 +11,7 @@ import {
   type PublicRoom,
 } from '../lib/realtime/rpc';
 import PlayerPicker from './PlayerPicker';
+import RoleAvatar from './RoleAvatar';
 import { Button, Card, ErrorText } from './ui';
 
 interface Props {
@@ -66,7 +67,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
     return <Quiet title="Estás muerto" text="Mantén los ojos cerrados y no hables." />;
   }
   if (night.state === 'sleep') {
-    return <Quiet title="😴 Duerme" text="Mantén los ojos cerrados. No es tu turno." />;
+    return <Quiet title="Duerme" text="Mantén los ojos cerrados. No es tu turno." />;
   }
   if (night.state === 'wait') {
     return <Quiet title="Espera tu turno" text="Tu rol actúa más tarde esta noche. Mantén los ojos cerrados." />;
@@ -157,9 +158,11 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
                   type="button"
                   disabled={busy}
                   onClick={() => void act('swap', { card })}
-                  className="rounded-xl bg-stone-800 p-4 text-center font-semibold"
-                  style={{ color: c.bando === 'bad' ? '#ef4444' : theme.color }}
+                  className={`flex flex-col items-center gap-2 rounded-xl border-2 bg-stone-800/80 p-4 text-center font-semibold ${
+                    c.bando === 'bad' ? 'border-red-800 text-red-400' : 'border-stone-600 text-amber-300'
+                  }`}
                 >
+                  <RoleAvatar role={c} size={72} />
                   {c.nombre}
                 </button>
               );
@@ -295,7 +298,10 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-xl font-bold">Es tu turno{role ? `, ${getRole(theme, role.role).nombre}` : ''}</h2>
+      <div className="flex items-center gap-3">
+        {role && <RoleAvatar role={getRole(theme, role.role)} size={56} />}
+        <h2 className="text-xl font-bold">Es tu turno{role ? `, ${getRole(theme, role.role).nombre}` : ''}</h2>
+      </div>
       {body}
       <ErrorText>{error}</ErrorText>
     </Card>
@@ -304,8 +310,11 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
 
 function Quiet({ title, text }: { title: string; text: string }) {
   return (
-    <Card className="text-center">
-      <p className="text-2xl font-bold">{title}</p>
+    <Card className="flex flex-col items-center py-8 text-center">
+      <span className="mb-3 text-5xl" aria-hidden>
+        🌙
+      </span>
+      <p className="titulo text-2xl font-bold">{title}</p>
       <p className="mt-2 text-stone-400">{text}</p>
     </Card>
   );

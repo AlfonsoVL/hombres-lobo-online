@@ -1,48 +1,16 @@
 # Licencias de los avatares
 
-Los avatares de rol se han hecho con iconos de [Tabler Icons](https://tabler.io/icons)
-(versión 3.49.0), con licencia MIT. Cada SVG indica en un comentario qué icono usa.
+Los avatares de rol y el del Alcalde son ilustraciones originales dibujadas para
+este proyecto, sin iconos ni imágenes de terceros. Se publican como
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/deed.es) (dominio público).
 
-| Rol | Icono |
-|---|---|
-| castronegro/werewolf | `paw` |
-| castronegro/villager | `home` |
-| castronegro/seer | `crystal-ball` |
-| castronegro/witch | `flask` |
-| castronegro/hunter | `target-arrow` |
-| castronegro/cupid | `hearts` |
-| castronegro/little_girl | `mood-kid` |
-| castronegro/thief | `mask` |
-| alien/xenomorph | `alien` |
-| alien/crew_member | `user` |
-| alien/scientist | `microscope` |
-| alien/medic | `first-aid-kit` |
-| alien/marine | `crosshair` |
-| alien/android | `robot` |
-| alcalde | `crown` |
+Se generan con `node scripts/generar-avatares.mjs`: para cambiar un avatar, edita
+ese script y vuelve a ejecutarlo.
 
-## Licencia de Tabler Icons
+## Fuentes
 
-```
-MIT License
+Las fuentes de los títulos se instalan con npm (`@fontsource`) y se sirven desde
+la propia web, sin llamar a Google:
 
-Copyright (c) 2020-2026 Paweł Kuna
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+- Cinzel (Castronegro y portada): SIL Open Font License 1.1.
+- Orbitron (Alien): SIL Open Font License 1.1.

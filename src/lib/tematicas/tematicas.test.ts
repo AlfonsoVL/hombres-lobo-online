@@ -56,12 +56,12 @@ it('los roles coinciden con los de la base de datos', () => {
 });
 
 describe('avatares de rol', () => {
-  it('cada rol tiene su SVG en public y declara el icono de Tabler (MIT) que usa', () => {
+  it('cada rol tiene su ilustración en public y declara su licencia', () => {
     for (const theme of Object.values(THEMES)) {
       for (const role of theme.roles) {
         const file = fileURLToPath(new URL(`../../../public${role.avatar}`, import.meta.url));
         expect(existsSync(file), role.avatar).toBe(true);
-        expect(readFileSync(file, 'utf8')).toContain('Tabler Icons (MIT)');
+        expect(readFileSync(file, 'utf8')).toContain('Ilustración original de Hombres lobo online (CC0 1.0');
       }
     }
   });

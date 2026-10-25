@@ -26,8 +26,11 @@ export default function JoinForm({ code, onJoin }: { code: string; onJoin: (name
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
       <header className="text-center">
-        <p className="text-sm uppercase tracking-widest text-stone-400">Sala</p>
-        <h1 className="font-mono text-4xl font-bold tracking-[0.3em]">{code}</h1>
+        <p className="titulo text-2xl font-bold text-amber-300">Te han invitado a jugar</p>
+        <p className="mt-3 text-xs uppercase tracking-[0.3em] text-stone-400">Sala</p>
+        <h1 className="mx-auto mt-1 w-fit rounded-2xl border border-amber-500/50 bg-stone-900/80 px-5 py-2 font-mono text-4xl font-bold tracking-[0.3em] text-amber-200 shadow-[var(--brillo)]">
+          {code}
+        </h1>
       </header>
       <AudioUnlock />
       <Card className="flex flex-col gap-4">

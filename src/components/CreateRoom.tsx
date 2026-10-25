@@ -1,11 +1,13 @@
 // Formulario para crear una sala: temática, modo y nombre del creador.
 import { useState } from 'react';
-import { THEMES, type ThemeId } from '../lib/tematicas';
+import { roleByKind, THEMES, type ThemeId } from '../lib/tematicas';
+import { useThemeStyle } from '../lib/estilo';
 import { createRoom, type Mode } from '../lib/realtime/rpc';
 import { newToken, saveToken } from '../lib/realtime/token';
 import { setOwnPhoto } from '../lib/foto/ownPhoto';
 import AudioUnlock from './AudioUnlock';
 import Camera from './Camera';
+import RoleAvatar from './RoleAvatar';
 import RoomApp from './RoomApp';
 import { Button, Card, ErrorText, NameField } from './ui';
 
@@ -22,6 +24,7 @@ export default function CreateRoom() {
   const [busy, setBusy] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [roomCode, setRoomCode] = useState<string | null>(null);
+  useThemeStyle(theme);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,6 +49,18 @@ export default function CreateRoom() {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
+      <header className="flex flex-col items-center gap-3 pt-4 text-center">
+        <RoleAvatar key={theme} role={roleByKind(THEMES[theme], 'bad')} size={120} className="aparecer" />
+        <h1 className="text-4xl font-extrabold leading-tight text-amber-300 [text-shadow:var(--brillo)]">
+          Hombres lobo
+          <span className="block text-lg font-semibold tracking-[0.3em] text-stone-300">online</span>
+        </h1>
+        <p className="text-stone-400">Crea una sala y comparte el enlace con tu grupo.</p>
+        <a href="/ayuda" className="text-sm text-amber-400 underline underline-offset-4">
+          Cómo se juega y roles
+        </a>
+      </header>
+
       <AudioUnlock />
 
       <Card>
@@ -57,12 +72,12 @@ export default function CreateRoom() {
               type="button"
               onClick={() => setTheme(t.id)}
               aria-pressed={theme === t.id}
-              className={`rounded-xl border-2 p-3 text-left transition ${
-                theme === t.id ? 'border-current' : 'border-stone-700 text-stone-400'
+              className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 text-center transition ${
+                theme === t.id ? 'border-amber-400 bg-stone-800/80' : 'border-stone-700 text-stone-400 opacity-80'
               }`}
-              style={theme === t.id ? { color: t.color } : undefined}
             >
-              <span className="block font-semibold">{t.nombre}</span>
+              <RoleAvatar role={roleByKind(t, 'bad')} size={56} />
+              <span className="block text-sm font-semibold">{t.nombre}</span>
             </button>
           ))}
         </div>

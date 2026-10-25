@@ -1,8 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Ladrón">
-<!-- Icono «mask» de Tabler Icons (MIT): https://tabler.io/icons -->
-<circle cx="48" cy="48" r="48" fill="#78350f"/>
-<g transform="translate(20 20) scale(2.333)" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-<path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-<path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Ladrón">
+<!-- Ilustración original de Hombres lobo online (CC0 1.0, dominio público) -->
+<defs>
+<clipPath id="c"><circle cx="128" cy="128" r="124"/></clipPath>
+<radialGradient id="bg" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#3f3f46"/><stop offset="1" stop-color="#111114"/></radialGradient>
+</defs>
+<g clip-path="url(#c)">
+<rect width="256" height="256" fill="url(#bg)"/>
+<circle cx="202" cy="58" r="18" fill="#fdf3c7" opacity=".85"/><circle cx="202" cy="58" r="30" fill="#fdf3c7" opacity=".08"/>
+<g fill="#fff" opacity=".7"><circle cx="40" cy="50" r="1.6"/><circle cx="70" cy="28" r="1.2"/><circle cx="150" cy="30" r="1.4"/><circle cx="226" cy="110" r="1.2"/><circle cx="30" cy="110" r="1.1"/></g>
+<path d="M0 200 L20 186 L34 196 L52 176 L70 194 L90 182 L110 196 L130 184 L150 198 L172 178 L190 194 L210 182 L230 196 L256 184 V256 H0Z" fill="#09090b" opacity=".85"/>
+<path d="M24 262 C28 194 70 164 128 164 C186 164 228 194 232 262Z" fill="#27272a"/>
+<path d="M60 150 C50 72 90 38 128 38 C166 38 206 72 196 150 C188 174 176 190 168 196 L88 196 C80 190 68 174 60 150Z" fill="#3f3f46"/>
+<ellipse cx="128" cy="124" rx="38" ry="44" fill="#f1c9a5"/>
+<path d="M90 112 C94 92 162 92 166 112 C154 100 102 100 90 112Z" fill="#18181b" opacity=".6"/>
+<path d="M84 108 C100 100 156 100 172 108 L170 130 C156 136 140 132 128 124 C116 132 100 136 86 130Z" fill="#18181b"/>
+<path d="M172 112 l16 -6 l-4 12z" fill="#18181b"/>
+<ellipse cx="110" cy="117" rx="9" ry="6" fill="#f1c9a5"/><ellipse cx="146" cy="117" rx="9" ry="6" fill="#f1c9a5"/>
+<circle cx="111" cy="117" r="4" fill="#1b1424"/><circle cx="147" cy="117" r="4" fill="#1b1424"/>
+<path d="M114 146 q14 6 26 -6" fill="none" stroke="#1b1424" stroke-width="3.5" stroke-linecap="round"/>
+<g transform="translate(-10 -12)"><circle cx="190" cy="214" r="24" fill="#facc15" stroke="#a16207" stroke-width="4"/>
+<path d="M190 202 v24M182 208 q8 -6 14 0 q-14 4 0 10 q-6 6 -14 0" stroke="#a16207" stroke-width="3" fill="none" stroke-linecap="round"/></g>
 </g>
+<circle cx="128" cy="128" r="122" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
+<circle cx="128" cy="128" r="125" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
 </svg>

@@ -1,8 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Cupido">
-<!-- Icono «hearts» de Tabler Icons (MIT): https://tabler.io/icons -->
-<circle cx="48" cy="48" r="48" fill="#78350f"/>
-<g transform="translate(20 20) scale(2.333)" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-<path d="M14.017 18l-2.017 2l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 0 1 8.153 5.784" />
-<path d="M15.99 20l4.197 -4.223a2.81 2.81 0 0 0 0 -3.948a2.747 2.747 0 0 0 -3.91 -.007l-.28 .282l-.279 -.283a2.747 2.747 0 0 0 -3.91 -.007a2.81 2.81 0 0 0 -.007 3.948l4.182 4.238l.007 0" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Cupido">
+<!-- Ilustración original de Hombres lobo online (CC0 1.0, dominio público) -->
+<defs>
+<clipPath id="c"><circle cx="128" cy="128" r="124"/></clipPath>
+<radialGradient id="bg" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#9d3b6b"/><stop offset="1" stop-color="#2a0c1e"/></radialGradient>
+</defs>
+<g clip-path="url(#c)">
+<rect width="256" height="256" fill="url(#bg)"/>
+<circle cx="202" cy="58" r="18" fill="#fdf3c7" opacity=".85"/><circle cx="202" cy="58" r="30" fill="#fdf3c7" opacity=".08"/>
+<g fill="#fff" opacity=".7"><circle cx="40" cy="50" r="1.6"/><circle cx="70" cy="28" r="1.2"/><circle cx="150" cy="30" r="1.4"/><circle cx="226" cy="110" r="1.2"/><circle cx="30" cy="110" r="1.1"/></g>
+<path d="M0 200 L20 186 L34 196 L52 176 L70 194 L90 182 L110 196 L130 184 L150 198 L172 178 L190 194 L210 182 L230 196 L256 184 V256 H0Z" fill="#1f0816" opacity=".85"/>
+<path d="M40 150 C10 120 16 80 40 70 C44 100 60 120 84 140Z" fill="#fff" opacity=".9"/>
+<path d="M216 150 C246 120 240 80 216 70 C212 100 196 120 172 140Z" fill="#fff" opacity=".9"/>
+<path d="M44 140 C28 120 30 98 40 88M212 140 C228 120 226 98 216 88" stroke="#fbcfe8" stroke-width="3" fill="none"/>
+<path d="M28 262 C30 206 70 184 128 184 C186 184 226 206 228 262Z" fill="#fbcfe8"/>
+<path d="M128 184 C108 184 92 186 80 190 C96 206 112 214 128 214 C144 214 160 206 176 190 C164 186 148 184 128 184Z" fill="#f9a8d4"/>
+<rect x="112" y="150" width="32" height="44" rx="12" fill="#d9a77f"/>
+<ellipse cx="86" cy="122" rx="9" ry="12" fill="#d9a77f"/>
+<ellipse cx="170" cy="122" rx="9" ry="12" fill="#d9a77f"/>
+<ellipse cx="128" cy="116" rx="42" ry="48" fill="#f1c9a5"/>
+<g fill="#fbbf24"><circle cx="96" cy="84" r="16"/><circle cx="116" cy="70" r="17"/><circle cx="140" cy="70" r="17"/><circle cx="160" cy="84" r="16"/><circle cx="88" cy="104" r="12"/><circle cx="168" cy="104" r="12"/></g>
+<g fill="#f59e0b"><circle cx="106" cy="78" r="6"/><circle cx="150" cy="78" r="6"/></g>
+<ellipse cx="100" cy="136" rx="8" ry="5" fill="#f87171" opacity=".35"/><ellipse cx="156" cy="136" rx="8" ry="5" fill="#f87171" opacity=".35"/><ellipse cx="112" cy="118" rx="5.5" ry="7" fill="#1b1424"/><ellipse cx="144" cy="118" rx="5.5" ry="7" fill="#1b1424"/>
+<circle cx="114" cy="115" r="2" fill="#fff"/><circle cx="146" cy="115" r="2" fill="#fff"/><path d="M118 142 q10 12 20 0z" fill="#1b1424"/>
+<path d="M70 222 C110 200 146 200 186 222" stroke="#facc15" stroke-width="6" fill="none" stroke-linecap="round"/>
+<path d="M60 246 L190 206" stroke="#78350f" stroke-width="4"/>
+<path d="M200 204 c-6 -10 -20 -4 -14 6 l10 10 l10 -10 c6 -10 -8 -16 -14 -6" fill="#ef4444" transform="translate(-6 -6)"/>
+<path d="M60 246 l-10 -2 l4 8z M60 246 l-4 -10 l-6 6z" fill="#fde68a"/>
 </g>
+<circle cx="128" cy="128" r="122" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="5"/>
+<circle cx="128" cy="128" r="125" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
 </svg>
