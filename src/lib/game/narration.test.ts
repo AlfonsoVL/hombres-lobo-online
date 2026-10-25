@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getTheme } from '../tematicas';
-import { narration, type NarrationState } from './narration';
+import { narration, PAUSA_TRAS_CERRAR_MS, type NarrationState } from './narration';
 
 const theme = getTheme('castronegro');
 const state = (s: Partial<NarrationState>): NarrationState => ({
@@ -51,6 +51,20 @@ describe('narración', () => {
     expect(narration(theme, null, state({ phase: 'finished', winner: 'lovers' }))).toEqual([
       theme.textos.victoria.lovers,
     ]);
+  });
+
+  it('deja una pausa tras cada cierre de ojos antes de llamar al siguiente', () => {
+    const start = narration(theme, state({ phase: 'role_reveal' }), state({ nightStep: 'link' }));
+    expect(start.map((l) => l.pausaMs)).toEqual([PAUSA_TRAS_CERRAR_MS, undefined]);
+    const between = narration(theme, state({ nightStep: 'bad' }), state({ nightStep: 'investigate' }));
+    expect(between.map((l) => l.pausaMs)).toEqual([PAUSA_TRAS_CERRAR_MS, undefined]);
+    const dawn = narration(theme, state({ nightStep: 'protect' }), state({ phase: 'dawn' }));
+    expect(dawn[0]!.pausaMs).toBe(PAUSA_TRAS_CERRAR_MS);
+  });
+
+  it('no deja pausa si después no se llama a nadie', () => {
+    const lines = narration(theme, state({ nightStep: 'bad' }), state({ phase: 'finished' }));
+    expect(lines).toEqual([theme.textos.malos_cerrad]);
   });
 
   it('no repite nada si el turno no cambia', () => {

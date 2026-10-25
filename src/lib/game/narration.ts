@@ -5,7 +5,15 @@ export interface Spoken {
   texto: string;
   /** MP3 de ElevenLabs; si falta o falla, se lee con la voz del navegador. */
   audio?: string;
+  /** Silencio después de la frase, en milisegundos. */
+  pausaMs?: number;
 }
+
+/**
+ * Silencio tras pedir que alguien cierre los ojos, antes de llamar al
+ * siguiente. Así nadie abre los ojos mientras otro todavía los tiene abiertos.
+ */
+export const PAUSA_TRAS_CERRAR_MS = 5000;
 
 export interface NarrationState {
   phase: string;
@@ -32,8 +40,9 @@ function deathLines(theme: Theme, deaths: NarrationState['deaths']): Spoken[] {
 /** Frases a narrar al pasar de `prev` a `next` (null = primera carga). */
 export function narration(theme: Theme, prev: NarrationState | null, next: NarrationState): Spoken[] {
   const lines: (Spoken | null)[] = [];
+  const close = (line: Spoken | null) => lines.push(line && { ...line, pausaMs: PAUSA_TRAS_CERRAR_MS });
   const closePrevStep = () => {
-    if (prev?.phase === 'night' && prev.nightStep) lines.push(stepLine(theme, prev.nightStep, false));
+    if (prev?.phase === 'night' && prev.nightStep) close(stepLine(theme, prev.nightStep, false));
   };
 
   switch (next.phase) {
@@ -43,7 +52,7 @@ export function narration(theme: Theme, prev: NarrationState | null, next: Narra
     case 'night':
       if (prev?.phase === 'night' && prev.nightStep === next.nightStep) break;
       closePrevStep();
-      if (prev?.phase !== 'night') lines.push(theme.textos.cerrad_ojos);
+      if (prev?.phase !== 'night') close(theme.textos.cerrad_ojos);
       if (next.nightStep) lines.push(stepLine(theme, next.nightStep, true));
       break;
     case 'dawn':
@@ -75,5 +84,9 @@ export function narration(theme: Theme, prev: NarrationState | null, next: Narra
       if (next.winner) lines.push(theme.textos.victoria[next.winner]);
       break;
   }
-  return lines.filter((l): l is Spoken => l !== null);
+  const result = lines.filter((l): l is Spoken => l !== null);
+  // La pausa solo hace falta si después se llama a alguien.
+  const last = result.at(-1);
+  if (last?.pausaMs) result[result.length - 1] = { texto: last.texto, ...(last.audio && { audio: last.audio }) };
+  return result;
 }
