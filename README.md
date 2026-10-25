@@ -41,4 +41,7 @@ npm run dev
 
 Abre http://localhost:4321, crea una sala y abre el enlace en otros móviles o pestañas.
 
-Las instrucciones para desplegar en Vercel se añadirán en el último paso.
+En Vercel, si el proyecto está conectado con la integración de Supabase, no hace falta crear
+variables: la app también lee las que crea la integración (`NEXT_PUBLIC_SUPABASE_URL`,
+`SUPABASE_ANON_KEY`, etc.). Las instrucciones completas de despliegue se añadirán en el
+último paso.

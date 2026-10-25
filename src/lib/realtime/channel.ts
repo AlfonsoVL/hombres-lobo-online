@@ -17,7 +17,13 @@ const SERVER_EVENTS: GameEvent['type'][] = [
   'partida_terminada',
 ];
 
-export function joinRoomChannel(code: string, playerId: string, handlers: RoomChannelHandlers): () => void {
+export interface RoomChannel {
+  /** Reenvía un aviso a los demás por si el del servidor no llega. */
+  announce: (event: GameEvent) => void;
+  leave: () => void;
+}
+
+export function joinRoomChannel(code: string, playerId: string, handlers: RoomChannelHandlers): RoomChannel {
   const channel: RealtimeChannel = getSupabase().channel(`sala:${code}`, {
     config: { presence: { key: playerId }, broadcast: { self: true } },
   });
@@ -38,8 +44,14 @@ export function joinRoomChannel(code: string, playerId: string, handlers: RoomCh
     if (connected) await channel.track({ online_at: new Date().toISOString() });
   });
 
-  return () => {
-    void getSupabase().removeChannel(channel);
+  return {
+    announce: (event) => {
+      const { type, ...payload } = event;
+      void channel.send({ type: 'broadcast', event: type, payload });
+    },
+    leave: () => {
+      void getSupabase().removeChannel(channel);
+    },
   };
 }
 
