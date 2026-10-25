@@ -39,6 +39,7 @@ export default function MyRoleCard({ theme, token }: { theme: Theme; token: stri
     >
       {visible ? (
         <span className="flex flex-col gap-3">
+          <img src={card.avatar} alt="" width={72} height={72} className="h-18 w-18" />
           <span className="text-sm text-stone-400">Eres</span>
           <span className="text-3xl font-bold" style={{ color: card.bando === 'bad' ? '#ef4444' : theme.color }}>
             {card.nombre}

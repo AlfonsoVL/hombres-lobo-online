@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -53,4 +53,16 @@ it('los roles coinciden con los de la base de datos', () => {
     .flatMap((t) => t.roles.map((r) => `${t.id}:${r.id}:${r.tipo}:${r.bando}`))
     .sort();
   expect(fromJson).toEqual(sqlRoles());
+});
+
+describe('avatares de rol', () => {
+  it('cada rol tiene su SVG en public y declara el icono de Tabler (MIT) que usa', () => {
+    for (const theme of Object.values(THEMES)) {
+      for (const role of theme.roles) {
+        const file = fileURLToPath(new URL(`../../../public${role.avatar}`, import.meta.url));
+        expect(existsSync(file), role.avatar).toBe(true);
+        expect(readFileSync(file, 'utf8')).toContain('Tabler Icons (MIT)');
+      }
+    }
+  });
 });

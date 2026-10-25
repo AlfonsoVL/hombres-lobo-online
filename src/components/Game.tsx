@@ -7,6 +7,7 @@ import { isAudioUnlocked } from '../lib/audio/unlock';
 import { findRoleByKind, getRole, getTheme, type Theme } from '../lib/tematicas';
 import { advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
 import AudioUnlock from './AudioUnlock';
+import { HelpButton } from './Help';
 import Avatar from './Avatar';
 import MyRoleCard from './MyRoleCard';
 import NightPanel from './NightPanel';
@@ -159,6 +160,7 @@ export default function Game({ room, token, photos, onAdvanced }: Props) {
         )}
       </header>
 
+      <HelpButton themeId={room.theme} />
       {room.me.is_creator && room.phase !== 'finished' && <AudioUnlock />}
 
       {room.phase === 'intro' && (
