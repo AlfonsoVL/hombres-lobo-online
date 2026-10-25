@@ -2,7 +2,7 @@
 
 /**
  * Modo pruebas: permite empezar en modo clásico con menos de 6 jugadores.
- * Está activado mientras la app está en desarrollo. Para desactivarlo, define
- * PUBLIC_MODO_PRUEBAS=false en el entorno (por ejemplo, en Vercel).
+ * Está desactivado por defecto. Para probar la app con pocos móviles, define
+ * PUBLIC_MODO_PRUEBAS=true en el entorno (en .env o en Vercel).
  */
-export const TEST_MODE = import.meta.env.PUBLIC_MODO_PRUEBAS !== 'false';
+export const TEST_MODE = import.meta.env.PUBLIC_MODO_PRUEBAS === 'true';
