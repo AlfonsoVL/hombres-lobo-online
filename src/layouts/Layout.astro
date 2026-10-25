@@ -1,0 +1,25 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Hombres lobo online' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0c0a09" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main class="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8">
+      <slot />
+    </main>
+  </body>
+</html>

@@ -1,0 +1,96 @@
+// Formulario para crear una sala: temática, modo y nombre del creador.
+import { useState } from 'react';
+import { THEMES, type ThemeId } from '../lib/tematicas';
+import { createRoom, type Mode } from '../lib/realtime/rpc';
+import { newToken, saveToken } from '../lib/realtime/token';
+import AudioUnlock from './AudioUnlock';
+import { Button, Card, ErrorText, NameField } from './ui';
+
+const MODES: { id: Mode; name: string; description: string }[] = [
+  { id: 'classic', name: 'Clásico', description: 'Los roles salen de la tabla según el número de jugadores.' },
+  { id: 'custom', name: 'Personalizado', description: 'Tú eliges los roles especiales y el número de malos.' },
+];
+
+export default function CreateRoom() {
+  const [theme, setTheme] = useState<ThemeId>('castronegro');
+  const [mode, setMode] = useState<Mode>('classic');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return setError('Escribe tu nombre.');
+    setBusy(true);
+    setError('');
+    try {
+      const token = newToken();
+      const { code } = await createRoom(theme, mode, name.trim(), token);
+      saveToken(code, token);
+      window.location.href = `/sala/${code}`;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se ha podido crear la sala.');
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-6">
+      <AudioUnlock />
+
+      <Card>
+        <h2 className="mb-3 text-lg font-semibold">Temática</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {Object.values(THEMES).map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTheme(t.id)}
+              aria-pressed={theme === t.id}
+              className={`rounded-xl border-2 p-3 text-left transition ${
+                theme === t.id ? 'border-current' : 'border-stone-700 text-stone-400'
+              }`}
+              style={theme === t.id ? { color: t.color } : undefined}
+            >
+              <span className="block font-semibold">{t.nombre}</span>
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-3 text-lg font-semibold">Modo</h2>
+        <div className="flex flex-col gap-3">
+          {MODES.map((m) => (
+            <label
+              key={m.id}
+              className={`flex cursor-pointer gap-3 rounded-xl border-2 p-3 ${
+                mode === m.id ? 'border-amber-500' : 'border-stone-700'
+              }`}
+            >
+              <input
+                type="radio"
+                name="mode"
+                className="mt-1 accent-amber-500"
+                checked={mode === m.id}
+                onChange={() => setMode(m.id)}
+              />
+              <span>
+                <span className="block font-semibold">{m.name}</span>
+                <span className="text-sm text-stone-400">{m.description}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4">
+        <NameField value={name} onChange={setName} />
+        <ErrorText>{error}</ErrorText>
+        <Button type="submit" disabled={busy}>
+          {busy ? 'Creando sala…' : 'Crear sala'}
+        </Button>
+      </Card>
+    </form>
+  );
+}
