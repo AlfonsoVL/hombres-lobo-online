@@ -17,6 +17,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - run: npm run build
+      - run: scripts/test-vercel-function.sh
 
   sql:
     runs-on: ubuntu-latest
