@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { getTheme } from '../lib/tematicas';
 import { MAX_PLAYERS } from '../lib/game';
 import type { PublicRoom } from '../lib/realtime/rpc';
+import Avatar from './Avatar';
 import GameSetup from './GameSetup';
 import { Button, Card } from './ui';
 
@@ -10,11 +11,12 @@ interface Props {
   room: PublicRoom;
   token: string;
   online: Set<string>;
+  photos: Map<string, string>;
   connected: boolean;
   onStarted: () => Promise<void>;
 }
 
-export default function Lobby({ room, token, online, connected, onStarted }: Props) {
+export default function Lobby({ room, token, online, photos, connected, onStarted }: Props) {
   const theme = getTheme(room.theme);
   const [copied, setCopied] = useState(false);
   const creator = room.players.find((p) => p.is_creator);
@@ -72,10 +74,15 @@ export default function Lobby({ room, token, online, connected, onStarted }: Pro
         <ul className="flex flex-col gap-2">
           {room.players.map((p) => (
             <li key={p.id} className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
-              <span
-                className={`h-2.5 w-2.5 rounded-full ${online.has(p.id) ? 'bg-emerald-400' : 'bg-stone-600'}`}
-                aria-label={online.has(p.id) ? 'Conectado' : 'Desconectado'}
-              />
+              <span className="relative">
+                <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} />
+                <span
+                  className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-stone-800 ${
+                    online.has(p.id) ? 'bg-emerald-400' : 'bg-stone-600'
+                  }`}
+                  aria-label={online.has(p.id) ? 'Conectado' : 'Desconectado'}
+                />
+              </span>
               <span className="flex-1 truncate">
                 {p.name}
                 {p.id === room.me.id && <span className="text-stone-400"> (tú)</span>}
