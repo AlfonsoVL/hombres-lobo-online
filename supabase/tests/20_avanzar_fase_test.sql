@@ -32,7 +32,7 @@ begin
 
   v_room := public.get_room(v_code, pg_temp.tok(0));
   perform pg_temp.expect_error(format('select public.avanzar_fase(%L, %L, %s)',
-    v_code, pg_temp.tok(0), v_room->>'version'), 'todavía no se puede avanzar');
+    v_code, pg_temp.tok(0), v_room->>'version'), 'no se puede avanzar');
 
   perform public.iniciar_partida(v_code, pg_temp.tok(0), '{scientist}', 1);
   v_room := public.get_room(v_code, pg_temp.tok(0));
@@ -52,9 +52,6 @@ begin
   if v_room->>'phase' <> 'night' or (v_room->>'round')::int <> 1 then
     raise exception 'Debería estar en la noche 1: %', v_room;
   end if;
-
-  perform pg_temp.expect_error(format('select public.avanzar_fase(%L, %L, %s)',
-    v_code, pg_temp.tok(0), v_room->>'version'), 'todavía no se puede avanzar');
 end;
 $$;
 

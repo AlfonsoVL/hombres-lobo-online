@@ -114,18 +114,21 @@ el plan gratuito.
   repartidos todos los roles, se sortea entre todos los jugadores (puede ser bueno o malo) y
   se anuncia públicamente quién es. Su único poder es deshacer los empates del día.
 - **Protección (Bruja / Médico).** No puede protegerse a sí mismo ni proteger al mismo
-  jugador dos noches seguidas.
+  jugador dos noches seguidas. La Bruja mantiene sus dos pociones de un solo uso (ve a la
+  víctima de la noche y la cura no puede ser para ella); el Médico protege cada noche.
+- **Empate en el día.** Si hay Alcalde vivo y votó a uno de los empatados, muere ese. Si no,
+  no muere nadie. Si el Alcalde muere, se sortea otro entre los vivos.
+- **Enamorados.** Si muere uno, muere el otro. Se conocen entre sí.
+- **Turnos de noche.** Los pasa el creador con un botón. El turno de un rol muerto no se narra,
+  porque al morir se revela su rol (también de noche).
+- **Decisiones mías, fáciles de cambiar:** si los malos empatan al elegir víctima, se elige una
+  al azar entre las empatadas; los votos del día son públicos; el Cazador dispara también si
+  muere por amor.
 
-## Reglas que te preguntaré antes del paso 5
+## Reglas pendientes
 
-- Empates en el voto de los malos y en el linchamiento.
 - Número mínimo de jugadores en modo personalizado.
-- Si se revela el rol de las víctimas de la noche, no solo de los linchados.
-- Bruja: si ve la víctima de esa noche, si puede curarse a sí misma y si puede usar las dos
-  pociones la misma noche. Médico: si puede salvarse a sí mismo.
-- Si el turno de un rol muerto se sigue anunciando para no dar pistas.
-- Si los turnos de noche avanzan solos cuando el rol actúa o los avanza el creador.
-- Enamorados: si saben quién es el otro y cómo ganan si son de bandos distintos.
+- Enamorados de bandos distintos: hoy ganan si solo quedan ellos (y Cupido).
 
 ## Motor (`src/lib/game`)
 

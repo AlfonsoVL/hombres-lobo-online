@@ -42,7 +42,7 @@
       "bando": "good",
       "avatar": "/avatares/alien/medic.svg",
       "cuando_actua": "Cada noche, en su turno.",
-      "poder": "Una vez por partida, salva a un jugador durante la noche.",
+      "poder": "Cada noche protege a un jugador de los xenomorfos. No puede protegerse a sí mismo ni proteger al mismo jugador dos noches seguidas.",
       "gana": "Cuando no queda ningún xenomorfo vivo."
     },
     {

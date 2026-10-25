@@ -75,6 +75,7 @@ export default function RoomApp({ code }: { code: string }) {
     if (ownPhoto) setPhotos((m) => new Map(m).set(playerId, ownPhoto));
     const channel = joinRoomChannel(code, playerId, {
       onEvent,
+      onRefresh: () => void refresh(token),
       onPhoto: (id, photo) => setPhotos((m) => (m.get(id) === photo ? m : new Map(m).set(id, photo))),
       onPresence: (ids) => {
         setOnline(ids);
