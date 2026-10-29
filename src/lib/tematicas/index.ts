@@ -21,6 +21,8 @@ export interface RoleCard {
   nombre: string;
   bando: Team;
   avatar: string;
+  /** El avatar es un retrato que ocupa todo el círculo (si no, es un emoji sobre un medallón). */
+  retrato?: boolean;
   cuando_actua: string;
   poder: string;
   gana: string;

@@ -10,7 +10,8 @@
       "tipo": "bad",
       "nombre": "Lobo",
       "bando": "bad",
-      "avatar": "/avatares/castronegro/werewolf.png",
+      "avatar": "/avatares/castronegro/werewolf.webp",
+      "retrato": true,
       "cuando_actua": "Cada noche, junto a los demás lobos.",
       "poder": "Con los demás lobos, elige en secreto a una víctima cada noche. Conoce a sus compañeros lobos.",
       "gana": "Cuando los lobos vivos igualan o superan en número al resto de vivos."
@@ -20,7 +21,8 @@
       "tipo": "plain_good",
       "nombre": "Aldeano",
       "bando": "good",
-      "avatar": "/avatares/castronegro/villager.png",
+      "avatar": "/avatares/castronegro/villager.webp",
+      "retrato": true,
       "cuando_actua": "Durante el día.",
       "poder": "No tiene poderes especiales. Su arma es el debate y su voto en el linchamiento.",
       "gana": "Cuando no queda ningún lobo vivo."
@@ -30,7 +32,8 @@
       "tipo": "investigate",
       "nombre": "Vidente",
       "bando": "good",
-      "avatar": "/avatares/castronegro/seer.png",
+      "avatar": "/avatares/castronegro/seer.webp",
+      "retrato": true,
       "cuando_actua": "Cada noche, en su turno.",
       "poder": "Elige a un jugador y ve su rol. Solo lo ve ella.",
       "gana": "Cuando no queda ningún lobo vivo."
@@ -40,7 +43,8 @@
       "tipo": "protect",
       "nombre": "Bruja",
       "bando": "good",
-      "avatar": "/avatares/castronegro/witch.png",
+      "avatar": "/avatares/castronegro/witch.webp",
+      "retrato": true,
       "cuando_actua": "Cada noche, en su turno.",
       "poder": "Tiene una poción de cura para salvar a un jugador y una de veneno para eliminar a otro. Cada poción se puede usar una vez por partida y la cura no puede usarla en sí misma.",
       "gana": "Cuando no queda ningún lobo vivo."
@@ -50,7 +54,8 @@
       "tipo": "shoot_on_death",
       "nombre": "Cazador",
       "bando": "good",
-      "avatar": "/avatares/castronegro/hunter.png",
+      "avatar": "/avatares/castronegro/hunter.webp",
+      "retrato": true,
       "cuando_actua": "En el momento de morir.",
       "poder": "Si muere, de noche o tras una votación, elimina en ese momento a un jugador.",
       "gana": "Cuando no queda ningún lobo vivo."
@@ -60,7 +65,8 @@
       "tipo": "link",
       "nombre": "Cupido",
       "bando": "good",
-      "avatar": "/avatares/castronegro/cupid.png",
+      "avatar": "/avatares/castronegro/cupid.webp",
+      "retrato": true,
       "cuando_actua": "Solo la primera noche.",
       "poder": "Elige a dos jugadores, que serán los Enamorados.",
       "gana": "Con la aldea, cuando no queda ningún lobo vivo. Si Cupido y los Enamorados son los últimos vivos, ganan los Enamorados."
@@ -70,7 +76,8 @@
       "tipo": "spy",
       "nombre": "Niña",
       "bando": "good",
-      "avatar": "/avatares/castronegro/little_girl.png",
+      "avatar": "/avatares/castronegro/little_girl.webp",
+      "retrato": true,
       "cuando_actua": "Durante el turno de los lobos.",
       "poder": "Puede pulsar «Espiar». Con un 50 % de probabilidad la descubren y muere en ese momento. Si no, ve el rol de un jugador al azar entre los lobos y los aldeanos. No puede espiar dos noches seguidas.",
       "gana": "Cuando no queda ningún lobo vivo."
@@ -80,7 +87,8 @@
       "tipo": "swap",
       "nombre": "Ladrón",
       "bando": "good",
-      "avatar": "/avatares/castronegro/thief.png",
+      "avatar": "/avatares/castronegro/thief.webp",
+      "retrato": true,
       "cuando_actua": "Solo la primera noche.",
       "poder": "Ve dos cartas que han quedado sin repartir y cambia su rol por una de ellas. Si las dos son de lobo, tiene que convertirse en lobo.",
       "gana": "Con el bando del rol que elija."

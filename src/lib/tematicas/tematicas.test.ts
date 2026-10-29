@@ -23,7 +23,7 @@ describe.each(Object.values(THEMES))('temática $id', (theme) => {
         expect(role[field], `${role.id}.${field}`).toBeTypeOf('string');
         expect(role[field].trim().length, `${role.id}.${field}`).toBeGreaterThan(0);
       }
-      expect(role.avatar).toBe(`/avatares/${theme.id}/${role.id}.png`);
+      expect(role.avatar).toMatch(new RegExp(`^/avatares/${theme.id}/${role.id}\\.(png|webp)$`));
     }
   });
 
@@ -63,7 +63,7 @@ describe('avatares de rol', () => {
       for (const role of theme.roles) {
         const file = fileURLToPath(new URL(`../../../public${role.avatar}`, import.meta.url));
         expect(existsSync(file), role.avatar).toBe(true);
-        expect(licences, role.avatar).toContain(`| ${theme.id}/${role.id}.png |`);
+        expect(licences, role.avatar).toContain(`| ${role.avatar.replace('/avatares/', '')} |`);
       }
     }
   });
