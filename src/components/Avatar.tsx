@@ -8,10 +8,12 @@ interface Props {
   size?: number;
   /** Aro dorado alrededor, como en la sala y la votación. */
   ring?: boolean;
+  /** Fondo de las iniciales; si no se da, uno estable según el id. */
+  color?: string;
   className?: string;
 }
 
-export default function Avatar({ id, name, photo, size = 40, ring = false, className = '' }: Props) {
+export default function Avatar({ id, name, photo, size = 40, ring = false, color, className = '' }: Props) {
   const style = { width: size, height: size };
   const frame = `${ring ? 'ring-2 ring-amber-500/80 ring-offset-2 ring-offset-stone-950' : ''} ${className}`;
   if (photo) {
@@ -20,7 +22,7 @@ export default function Avatar({ id, name, photo, size = 40, ring = false, class
   return (
     <span
       aria-label={name}
-      style={{ ...style, backgroundColor: initialsColor(id), fontSize: size * 0.4 }}
+      style={{ ...style, backgroundColor: color ?? initialsColor(id), fontSize: size * 0.4 }}
       className={`titulo flex shrink-0 items-center justify-center rounded-full font-semibold text-white ${frame}`}
     >
       {initials(name)}

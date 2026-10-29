@@ -4,6 +4,7 @@ import { roleByKind, THEMES, type ThemeId } from '../lib/tematicas';
 import { useThemeStyle } from '../lib/estilo';
 import { createRoom, type Mode } from '../lib/realtime/rpc';
 import { newToken, saveToken } from '../lib/realtime/token';
+import { initialsPhoto } from '../lib/foto/foto';
 import { setOwnPhoto } from '../lib/foto/ownPhoto';
 import AudioUnlock from './AudioUnlock';
 import Camera from './Camera';
@@ -23,6 +24,7 @@ export default function CreateRoom() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
   const [roomCode, setRoomCode] = useState<string | null>(null);
   useThemeStyle(theme);
 
@@ -35,7 +37,7 @@ export default function CreateRoom() {
       const token = newToken();
       const { code } = await createRoom(theme, mode, name.trim(), token);
       saveToken(code, token);
-      setOwnPhoto(code, photo);
+      setOwnPhoto(code, photo ?? (color ? initialsPhoto(name.trim(), color) : null));
       // Se cambia la URL sin recargar para no perder la foto, que solo está en memoria.
       window.history.pushState(null, '', `/sala/${code}`);
       setRoomCode(code);
@@ -119,7 +121,7 @@ export default function CreateRoom() {
       </section>
 
       <NameField value={name} onChange={setName} />
-      <Camera name={name} photo={photo} onChange={setPhoto} />
+      <Camera name={name} photo={photo} onChange={setPhoto} color={color} onColor={setColor} />
       <ErrorText>{error}</ErrorText>
       <Button type="submit" disabled={busy}>
         {busy ? 'Creando sala…' : 'Crear sala'}

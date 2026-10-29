@@ -1,6 +1,6 @@
 // Foto con la cámara frontal. Sin permiso de cámara se usan las iniciales.
 import { useEffect, useRef, useState } from 'react';
-import { captureSquarePhoto } from '../lib/foto/foto';
+import { captureSquarePhoto, INITIALS_COLORS } from '../lib/foto/foto';
 import Avatar from './Avatar';
 import { Button } from './ui';
 
@@ -8,11 +8,14 @@ interface Props {
   name: string;
   photo: string | null;
   onChange: (photo: string | null) => void;
+  /** Color elegido para el fondo de las iniciales (sin foto). */
+  color: string | null;
+  onColor: (color: string | null) => void;
 }
 
 type State = 'idle' | 'starting' | 'live' | 'denied';
 
-export default function Camera({ name, photo, onChange }: Props) {
+export default function Camera({ name, photo, onChange, color, onColor }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [state, setState] = useState<State>('idle');
@@ -66,7 +69,14 @@ export default function Camera({ name, photo, onChange }: Props) {
             className="h-36 w-36 -scale-x-100 rounded-full bg-stone-800 object-cover ring-2 ring-amber-500/80 ring-offset-2 ring-offset-stone-950"
           />
         ) : (
-          <Avatar id={name || 'sin-nombre'} name={name || '?'} photo={photo ?? undefined} size={136} ring />
+          <Avatar
+            id={name || 'sin-nombre'}
+            name={name || '?'}
+            photo={photo ?? undefined}
+            color={color ?? undefined}
+            size={136}
+            ring
+          />
         )}
         {state !== 'live' && (
           <button
@@ -95,6 +105,28 @@ export default function Camera({ name, photo, onChange }: Props) {
         >
           {photo ? 'Repetir foto' : state === 'starting' ? 'Abriendo cámara…' : 'Hazte una foto'}
         </Button>
+      )}
+
+      {!photo && state !== 'live' && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-xs text-stone-400">Sin foto, elige el color de fondo de tus iniciales:</p>
+          <div className="flex flex-wrap justify-center gap-2" role="radiogroup" aria-label="Color de las iniciales">
+            {INITIALS_COLORS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="radio"
+                aria-checked={color === c}
+                aria-label={`Color ${c}`}
+                onClick={() => onColor(color === c ? null : c)}
+                style={{ backgroundColor: c }}
+                className={`h-8 w-8 rounded-full border-2 transition ${
+                  color === c ? 'scale-110 border-amber-300 shadow-[var(--brillo)]' : 'border-stone-700'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {state === 'denied' && (

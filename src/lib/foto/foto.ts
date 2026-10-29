@@ -53,3 +53,36 @@ export function initialsColor(id: string): string {
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
   return `hsl(${hash % 360} 45% 35%)`;
 }
+
+/** Colores que puede elegir quien no sube foto para el fondo de sus iniciales. */
+export const INITIALS_COLORS = [
+  '#7f1d1d',
+  '#9a3412',
+  '#a16207',
+  '#3f6212',
+  '#0f766e',
+  '#1e40af',
+  '#6b21a8',
+  '#9d174d',
+] as const;
+
+/**
+ * Avatar de iniciales con el color elegido, como JPEG del mismo tamaño que
+ * una foto. Así viaja a los demás móviles igual que una foto (solo por
+ * Broadcast y en memoria).
+ */
+export function initialsPhoto(name: string, color: string): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = PHOTO_SIZE;
+  canvas.height = PHOTO_SIZE;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('El navegador no permite crear el avatar');
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, PHOTO_SIZE, PHOTO_SIZE);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `600 ${Math.round(PHOTO_SIZE * 0.4)}px Cinzel, Georgia, serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(initials(name), PHOTO_SIZE / 2, PHOTO_SIZE / 2 + 2);
+  return canvas.toDataURL('image/jpeg', 0.85);
+}
