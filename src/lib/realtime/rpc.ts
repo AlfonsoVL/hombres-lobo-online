@@ -23,9 +23,10 @@ export interface PublicRoom {
   night_step: RoleKind | null;
   /** Si ya ha actuado quien tiene el turno de noche. */
   step_done: boolean;
-  /** Fin del turno de los malos (solo durante su turno) y hora del servidor al leer la sala. */
+  /** Fin del turno de los malos o de la votación del día, y hora del servidor al leer la sala. */
   step_ends_at: string | null;
   server_time: string;
+  day_minutes: DayMinutes;
   round: number;
   version: number;
   winner: 'bad' | 'good' | 'lovers' | null;
@@ -48,12 +49,16 @@ async function call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   return data as T;
 }
 
-export async function createRoom(theme: ThemeId, mode: Mode, name: string, token: string) {
+/** Minutos de la votación del día; null es sin límite. */
+export type DayMinutes = 3 | 5 | null;
+
+export async function createRoom(theme: ThemeId, mode: Mode, name: string, token: string, dayMinutes: DayMinutes) {
   const rows = await call<{ room_code: string; player_id: string }[]>('create_room', {
     p_theme: theme,
     p_mode: mode,
     p_name: name,
     p_token: token,
+    p_day_minutes: dayMinutes,
   });
   const row = rows[0];
   if (!row) throw new RpcError('No se ha podido crear la sala.');

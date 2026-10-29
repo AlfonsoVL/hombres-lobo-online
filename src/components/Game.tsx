@@ -74,9 +74,10 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   const byId = (id: string | null | undefined) => room.players.find((p) => p.id === id);
   const alive = room.players.filter((p) => p.is_alive);
   const me = byId(room.me.id);
-  // El turno de los malos también está hecho cuando se acaba su tiempo.
+  // Cuenta atrás del turno de los malos o de la votación del día. El turno de
+  // los malos también está hecho cuando se acaba su tiempo.
   const left = useSecondsLeft(room);
-  const stepDone = room.step_done || left === 0;
+  const stepDone = room.phase === 'night' && (room.step_done || left === 0);
   const next = nextLabel(theme, room, stepDone);
   const mayor = byId(room.mayor_id);
   const shooter = byId(room.pending_shot);
@@ -118,6 +119,15 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       setBusy(false);
     }
   }
+
+  // Al acabarse el tiempo de votar, el móvil del creador cierra la votación.
+  const closedRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!room.me.is_creator || room.phase !== 'day' || left !== 0 || closedRef.current === room.version) return;
+    closedRef.current = room.version;
+    void advance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room.me.is_creator, room.phase, left, room.version]);
 
   async function run(fn: () => Promise<void>) {
     setBusy(true);
@@ -288,7 +298,18 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               <h1 className="text-3xl font-extrabold text-amber-300">Discusión</h1>
               <p className="text-sm text-stone-300">{theme.textos.dia.texto}</p>
             </div>
-            <Stopwatch key={room.round} />
+            {left === null ? (
+              <Stopwatch key={room.round} />
+            ) : (
+              <span
+                className={`rounded-xl border border-amber-500/40 bg-stone-950/80 px-3 py-1.5 font-mono text-2xl font-bold tabular-nums ${
+                  left <= 30 ? 'text-red-400' : 'text-stone-100'
+                }`}
+                aria-label="Tiempo para votar"
+              >
+                {formatSeconds(left)}
+              </span>
+            )}
           </div>
           {!me?.is_alive && <p className="text-sm text-stone-400">Los muertos no votan.</p>}
           <ul className="flex flex-col gap-2">
@@ -325,7 +346,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
                         type="button"
                         variant="small"
                         className="w-20"
-                        disabled={busy}
+                        disabled={busy || left === 0}
                         onClick={() => void run(() => vote(room.code, token, p.id))}
                       >
                         Votar
@@ -335,7 +356,13 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               );
             })}
           </ul>
-          <p className="text-center text-xs text-stone-400">Puedes cambiar tu voto hasta que se cierre la votación.</p>
+          <p className="text-center text-xs text-stone-400">
+            {left === 0
+              ? 'Se ha acabado el tiempo: se cierra la votación.'
+              : left === null
+                ? 'Puedes cambiar tu voto hasta que se cierre la votación.'
+                : 'Puedes cambiar tu voto hasta que se acabe el tiempo.'}
+          </p>
         </section>
       )}
 

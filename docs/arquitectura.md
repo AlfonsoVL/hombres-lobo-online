@@ -139,6 +139,9 @@ el plan gratuito.
   antes si todos coinciden y, si se acaba el tiempo, se cierran votos y reacciones y gana la
   más votada (empate: al azar; sin votos no hay víctima). Lo mismo si el creador lo salta.
   Su pantalla es discreta: fondo negro, sin animaciones y botones grandes.
+- **Tiempo de votación del día.** Al crear la sala se elige 3 o 5 minutos, o sin límite
+  (`rooms.day_minutes`). Con límite, todos ven la cuenta atrás; al acabarse ya no se puede
+  votar y el móvil del creador cierra la votación solo.
 - **Decisiones mías, fáciles de cambiar:** los votos del día son públicos; el Cazador dispara también si
   muere por amor.
 

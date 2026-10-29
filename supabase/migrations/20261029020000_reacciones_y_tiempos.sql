@@ -8,26 +8,116 @@
 --     antes, el turno ya está hecho como hasta ahora. Al acabarse el tiempo se
 --     cierran votos y reacciones, el turno cuenta como hecho y, al pasarlo, gana
 --     la más votada (empate: al azar; sin votos no hay víctima).
+--   * Votación del día: al crear la sala se elige si dura 3 o 5 minutos (o sin
+--     límite). Al acabarse el tiempo ya no se puede votar y el móvil del
+--     creador cierra la votación.
 
+-- Cuándo empezó la fase o el turno de noche actual.
 alter table public.rooms add column step_started_at timestamptz;
+-- Minutos de la votación del día; null es sin límite.
+alter table public.rooms add column day_minutes smallint check (day_minutes in (3, 5));
 
--- Cada vez que cambia el turno de noche se apunta cuándo empieza.
+-- Cada vez que cambia la fase o el turno de noche se apunta cuándo empieza.
 create function public._step_started()
 returns trigger
 language plpgsql
 set search_path = ''
 as $$
 begin
-  if new.night_step is distinct from old.night_step then
-    new.step_started_at := case when new.night_step is null then null else now() end;
+  if new.phase is distinct from old.phase or new.night_step is distinct from old.night_step then
+    new.step_started_at := now();
   end if;
   return new;
 end;
 $$;
 
 create trigger rooms_step_started
-before update of night_step on public.rooms
+before update of phase, night_step on public.rooms
 for each row execute function public._step_started();
+
+-- create_room con la duración de la votación del día.
+drop function public.create_room(text, text, text, text);
+
+create function public.create_room(
+  p_theme text,
+  p_mode text,
+  p_name text,
+  p_token text,
+  p_day_minutes integer default null
+)
+returns table (room_code text, player_id uuid)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_room public.rooms;
+  v_player_id uuid;
+begin
+  perform public._cleanup_old_rooms();
+
+  if p_day_minutes is not null and p_day_minutes not in (3, 5) then
+    raise exception 'La votación dura 3 o 5 minutos' using errcode = '22023';
+  end if;
+
+  insert into public.rooms (code, theme, mode, day_minutes)
+  values (public._new_room_code(), p_theme, p_mode, p_day_minutes)
+  returning * into v_room;
+
+  insert into public.players (room_id, name, token_hash, is_creator)
+  values (v_room.id, btrim(p_name), public._token_hash(p_token), true)
+  returning id into v_player_id;
+
+  return query select v_room.code, v_player_id;
+end;
+$$;
+
+-- Cuándo se acaba la votación del día (null si no es de día o no tiene límite).
+create function public._day_ends_at(p_room public.rooms)
+returns timestamptz
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select case when p_room.phase = 'day' and p_room.day_minutes is not null
+              then p_room.step_started_at + make_interval(mins => p_room.day_minutes) end;
+$$;
+
+-- votar: igual que antes, pero no se puede votar con el tiempo acabado.
+create or replace function public.votar(p_room_code text, p_token text, p_target uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_me public.players;
+  v_room public.rooms;
+begin
+  v_me := public._player_by_token(p_room_code, p_token);
+  select * into v_room from public.rooms where id = v_me.room_id for update;
+  if v_room.phase <> 'day' then
+    raise exception 'Ahora no se puede votar' using errcode = 'P0001';
+  end if;
+  if now() >= public._day_ends_at(v_room) then
+    raise exception 'Se ha acabado el tiempo de votar' using errcode = 'P0001';
+  end if;
+  if not v_me.is_alive then
+    raise exception 'Los muertos no pueden votar' using errcode = 'P0001';
+  end if;
+  if not exists (select 1 from public.players
+                 where id = p_target and room_id = v_room.id and is_alive) then
+    raise exception 'Elige a un jugador vivo de la partida' using errcode = '22023';
+  end if;
+
+  insert into public.day_votes (room_id, round, voter_id, target_id)
+  values (v_room.id, v_room.round, v_me.id, p_target)
+  on conflict (room_id, round, voter_id) do update set target_id = excluded.target_id;
+
+  perform public._touch(v_room.id);
+end;
+$$;
 
 -- Cuándo se acaba el turno de los malos (null si no es su turno).
 create function public._bad_ends_at(p_room public.rooms)
@@ -274,9 +364,9 @@ begin
 end;
 $$;
 
--- get_room: igual que antes, más cuándo se acaba el turno de los malos y la
--- hora del servidor, para que cada móvil muestre la cuenta atrás aunque su
--- reloj vaya desfasado.
+-- get_room: igual que antes, más cuándo se acaba el turno de los malos o la
+-- votación del día y la hora del servidor, para que cada móvil muestre la
+-- cuenta atrás aunque su reloj vaya desfasado.
 create or replace function public.get_room(p_room_code text, p_token text)
 returns jsonb
 language plpgsql
@@ -298,7 +388,8 @@ begin
     'phase', v_room.phase,
     'night_step', v_room.night_step,
     'step_done', v_room.phase = 'night' and public._step_done(v_room),
-    'step_ends_at', public._bad_ends_at(v_room),
+    'step_ends_at', coalesce(public._bad_ends_at(v_room), public._day_ends_at(v_room)),
+    'day_minutes', v_room.day_minutes,
     'server_time', now(),
     'round', v_room.round,
     'version', v_room.version,
@@ -330,10 +421,16 @@ $$;
 revoke all on function
   public._step_started(),
   public._bad_ends_at(public.rooms),
+  public._day_ends_at(public.rooms),
   public._good_roles_dealt(public.rooms),
   public._bad_time_up(public.rooms),
   public._bad_vote_in_time(),
   public.reaccion_malos(text, text, uuid, text)
 from public, anon, authenticated;
 
-grant execute on function public.reaccion_malos(text, text, uuid, text) to anon, authenticated;
+revoke all on function public.create_room(text, text, text, text, integer) from public;
+
+grant execute on function
+  public.reaccion_malos(text, text, uuid, text),
+  public.create_room(text, text, text, text, integer)
+to anon, authenticated;

@@ -151,3 +151,49 @@ begin
   perform pg_temp.check((pg_temp.room(c, 'v')->>'step_done')::boolean, 'coinciden');
 end;
 $$;
+
+-- Votación del día con tiempo.
+do $$
+declare
+  c text;
+  r jsonb;
+begin
+  perform pg_temp.expect_error(
+    format('select public.create_room(%L, %L, %L, %L, 4)', 'castronegro', 'custom', 'X', pg_temp.tok('d', 9)),
+    '3 o 5 minutos');
+  c := pg_temp.setup('d', '{villager,werewolf,seer,witch,hunter,villager}', false);
+  update public.rooms set day_minutes = 3 where code = c;
+  perform pg_temp.advance(c, 'd');
+  r := pg_temp.advance(c, 'd');
+  perform pg_temp.check(r->>'night_step' = 'bad', 'noche ' || r::text);
+  perform public.accion_nocturna(c, pg_temp.tok('d', 1), 'kill', pg_temp.pid(c, 'J5'));
+  while (pg_temp.room(c, 'd')->>'phase') = 'night' loop
+    perform pg_temp.advance(c, 'd');
+  end loop;
+  r := pg_temp.advance(c, 'd');
+  perform pg_temp.check(r->>'phase' = 'day' and (r->>'day_minutes')::int = 3, 'día ' || r::text);
+  perform pg_temp.check((r->>'step_ends_at')::timestamptz between now() + interval '179 seconds'
+    and now() + interval '181 seconds', 'la votación dura 3 minutos ' || r::text);
+  perform public.votar(c, pg_temp.tok('d', 0), pg_temp.pid(c, 'J1'));
+  update public.rooms set step_started_at = now() - interval '181 seconds' where code = c;
+  perform pg_temp.expect_error(format('select public.votar(%L, %L, %L)',
+    c, pg_temp.tok('d', 2), pg_temp.pid(c, 'J1')), 'acabado el tiempo');
+  r := pg_temp.advance(c, 'd');
+  -- Linchan al único lobo: gana la aldea.
+  perform pg_temp.check(r->>'winner' = 'good'
+    and not (select is_alive from public.players where id = pg_temp.pid(c, 'J1')),
+    'gana el más votado ' || r::text);
+end;
+$$;
+
+-- Sin límite, como hasta ahora.
+do $$
+declare
+  c text;
+begin
+  select room_code into c from public.create_room('castronegro', 'classic', 'Ana', pg_temp.tok('s', 0));
+  perform pg_temp.check((select day_minutes from public.rooms where code = c) is null, 'sin límite');
+  select room_code into c from public.create_room('castronegro', 'classic', 'Ana', pg_temp.tok('t', 0), 5);
+  perform pg_temp.check((select day_minutes from public.rooms where code = c) = 5, '5 minutos');
+end;
+$$;
