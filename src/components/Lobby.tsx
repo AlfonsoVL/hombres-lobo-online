@@ -6,6 +6,7 @@ import type { PublicRoom } from '../lib/realtime/rpc';
 import Avatar from './Avatar';
 import GameSetup from './GameSetup';
 import { HelpButton } from './Help';
+import SoundToggle from './SoundToggle';
 import { Ornament } from './ui';
 
 interface Props {
@@ -126,7 +127,10 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
         </ul>
       </section>
 
-      <HelpButton themeId={room.theme} />
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <HelpButton themeId={room.theme} />
+        <SoundToggle code={room.code} />
+      </div>
 
       {room.me.is_creator ? (
         <GameSetup room={room} token={token} onStarted={onStarted} />

@@ -1,18 +1,20 @@
 // Partida en curso: introducción, reparto, noche por turnos, amanecer, día,
-// linchamiento y final. El creador la dirige y su móvil narra.
+// linchamiento y final. El creador la dirige. Narra cada móvil con el sonido
+// activado: el del creador por defecto y el resto si lo activan.
 import { useEffect, useRef, useState } from 'react';
 import { narration, type NarrationState } from '../lib/game';
 import { isNarrating, narrate, onNarrating, stopNarration } from '../lib/audio/narrate';
+import { isSoundOn, onSoundChange } from '../lib/audio/sonido';
 import { isAudioUnlocked } from '../lib/audio/unlock';
 import { findRoleByKind, getRole, getTheme, roleByKind, type RoleCard, type RoleKind, type Theme } from '../lib/tematicas';
 import { advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
-import AudioUnlock from './AudioUnlock';
 import { HelpButton } from './Help';
 import Avatar from './Avatar';
 import MyRoleCard from './MyRoleCard';
 import NightPanel from './NightPanel';
 import PlayerPicker from './PlayerPicker';
 import RoleAvatar from './RoleAvatar';
+import SoundToggle from './SoundToggle';
 import { Button, Card, ErrorText, Ornament, Scene, Title } from './ui';
 
 interface Props {
@@ -22,6 +24,8 @@ interface Props {
   online: Set<string>;
   connected: boolean;
   onAdvanced: () => Promise<void>;
+  /** La partida acaba de empezar ante este móvil (no es una recarga). */
+  justStarted: boolean;
 }
 
 function stepRole(theme: Theme, room: PublicRoom): RoleCard | undefined {
@@ -60,7 +64,7 @@ function nextLabel(theme: Theme, room: PublicRoom): string | null {
   }
 }
 
-export default function Game({ room, token, photos, online, connected, onAdvanced }: Props) {
+export default function Game({ room, token, photos, online, connected, onAdvanced, justStarted }: Props) {
   const theme = getTheme(room.theme);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -73,7 +77,10 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   const shooter = byId(room.pending_shot);
   const deaths = room.last_deaths.map(byId).filter((p): p is PublicPlayer => !!p);
 
-  // Narración en el móvil del creador en cada cambio de fase o de turno.
+  const [soundOn, setSoundOn] = useState(isSoundOn());
+  useEffect(() => onSoundChange(setSoundOn), []);
+
+  // Narración en cada cambio de fase o de turno, en los móviles con sonido.
   const prevRef = useRef<NarrationState | null>(null);
   const lastLinesRef = useRef<ReturnType<typeof narration>>([]);
   const narrationState: NarrationState = {
@@ -86,10 +93,10 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   useEffect(() => {
     const prev = prevRef.current;
     prevRef.current = narrationState;
-    if (!room.me.is_creator) return;
-    // Al abrir la página no se narra solo, pero el botón permite escucharlo.
+    // Al recargar la página no se narra solo, pero el botón permite escucharlo.
     lastLinesRef.current = narration(theme, prev, narrationState);
-    if (prev && isAudioUnlocked()) void narrate(lastLinesRef.current);
+    const changed = prev !== null || (justStarted && room.phase === 'intro');
+    if (changed && isSoundOn() && isAudioUnlocked()) void narrate(lastLinesRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [narrationKey]);
 
@@ -198,7 +205,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       )}
       <div className="flex flex-wrap items-center justify-center gap-2">
         <HelpButton themeId={room.theme} />
-        {room.me.is_creator && room.phase !== 'finished' && <AudioUnlock />}
+        {room.phase !== 'finished' && <SoundToggle code={room.code} />}
       </div>
 
       {room.phase === 'intro' && (
@@ -208,7 +215,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
           <p className="text-lg leading-relaxed text-stone-100 [text-shadow:0_1px_3px_rgb(0_0_0)]">
             {theme.textos.introduccion.texto}
           </p>
-          {room.me.is_creator && <NarrationPlayer lines={lastLinesRef} />}
+          {soundOn && <NarrationPlayer lines={lastLinesRef} />}
         </section>
       )}
 

@@ -1,7 +1,6 @@
 // Formulario para unirse a una sala con el enlace.
 import { useState } from 'react';
 import { initialsPhoto } from '../lib/foto/foto';
-import AudioUnlock from './AudioUnlock';
 import Camera from './Camera';
 import { Button, Card, ErrorText, NameField, Ornament, Title } from './ui';
 
@@ -32,9 +31,6 @@ export default function JoinForm({ code, onJoin }: { code: string; onJoin: (name
         <p className="text-stone-200">Te han invitado a jugar a Hombres lobo online.</p>
         <Ornament>SALA {code}</Ornament>
       </header>
-      <div className="self-center">
-        <AudioUnlock />
-      </div>
       <Card className="flex flex-col gap-5">
         <NameField value={name} onChange={setName} />
         <Camera name={name} photo={photo} onChange={setPhoto} color={color} onColor={setColor} />

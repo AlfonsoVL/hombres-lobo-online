@@ -123,6 +123,10 @@ el plan gratuito.
   porque al morir se revela su rol (también de noche).
   Tras cada «cerrad los ojos» la narración espera 5 segundos antes de llamar al siguiente
   (`PAUSA_TRAS_CERRAR_MS`), para que nadie abra los ojos mientras otro aún los tiene abiertos.
+- **Sonido.** Cada móvil narra por su cuenta en cada cambio de fase o de turno si tiene el
+  sonido activado: el del creador por defecto y el resto solo si lo activan (se recuerda por
+  sala en `localStorage`). Como el navegador exige un toque para sonar, «Crear sala» o el
+  primer toque en la página desbloquean el audio.
 - **Víctima de los malos.** Ven en directo los votos de sus compañeros y el turno solo termina
   cuando todos coinciden. Si el creador lo salta antes, gana la más votada (empate: al azar).
 - **Decisiones mías, fáciles de cambiar:** los votos del día son públicos; el Cazador dispara también si

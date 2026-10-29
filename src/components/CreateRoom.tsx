@@ -4,9 +4,9 @@ import { roleByKind, THEMES, type ThemeId } from '../lib/tematicas';
 import { useThemeStyle } from '../lib/estilo';
 import { createRoom, type Mode } from '../lib/realtime/rpc';
 import { newToken, saveToken } from '../lib/realtime/token';
+import { unlockAudio } from '../lib/audio/unlock';
 import { initialsPhoto } from '../lib/foto/foto';
 import { setOwnPhoto } from '../lib/foto/ownPhoto';
-import AudioUnlock from './AudioUnlock';
 import Camera from './Camera';
 import RoleAvatar from './RoleAvatar';
 import RoomApp from './RoomApp';
@@ -31,6 +31,8 @@ export default function CreateRoom() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return setError('Escribe tu nombre.');
+    // El toque en «Crear sala» desbloquea el audio: el creador narra por defecto.
+    void unlockAudio();
     setBusy(true);
     setError('');
     try {
@@ -75,9 +77,6 @@ export default function CreateRoom() {
         </a>
       </header>
 
-      <div className="self-center">
-        <AudioUnlock />
-      </div>
 
       <section>
         <Label>Temática</Label>

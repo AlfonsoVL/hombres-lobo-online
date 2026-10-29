@@ -1,5 +1,7 @@
 // Pantalla de la sala: unirse, lobby y (más adelante) la partida.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { isSoundOn, loadSound } from '../lib/audio/sonido';
+import { isAudioUnlocked, unlockAudio } from '../lib/audio/unlock';
 import { getOwnPhoto, setOwnPhoto } from '../lib/foto/ownPhoto';
 import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
@@ -28,6 +30,23 @@ export default function RoomApp({ code }: { code: string }) {
   const connectedRef = useRef(false);
   // Cambia para volver a crear el canal si no se recupera solo.
   const [channelKey, setChannelKey] = useState(0);
+
+  // Sonido: activado por defecto en el móvil del creador y desactivado en el
+  // resto. El navegador necesita un toque para sonar, así que con el sonido
+  // activado (el creador tras recargar, por ejemplo) vale el primer toque.
+  const isCreator = room?.me.is_creator;
+  useEffect(() => {
+    if (isCreator === undefined) return;
+    loadSound(code, isCreator);
+    const unlockOnTouch = () => {
+      if (isSoundOn() && !isAudioUnlocked()) void unlockAudio();
+    };
+    document.addEventListener('pointerdown', unlockOnTouch);
+    return () => document.removeEventListener('pointerdown', unlockOnTouch);
+  }, [code, isCreator]);
+  // Si este móvil vio la sala de espera, la introducción se narra al empezar.
+  const sawLobbyRef = useRef(false);
+  if (room?.phase === 'lobby') sawLobbyRef.current = true;
 
   const refresh = useCallback(async (t: string) => {
     const r = await getRoom(code, t);
@@ -167,5 +186,5 @@ export default function RoomApp({ code }: { code: string }) {
   if (room.phase === 'lobby') {
     return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} />;
   }
-  return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} />;
+  return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} justStarted={sawLobbyRef.current} />;
 }
