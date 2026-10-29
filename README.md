@@ -51,6 +51,7 @@ con las reglas y la ficha de cada rol.
    4. `20261025030000_lobos_acuerdo.sql`
    5. `20261029000000_cancelar_sala.sql`
    6. `20261029010000_historial.sql`
+   7. `20261029020000_lobos_reacciones_tiempo.sql`
 
    Con la [CLI de Supabase](https://supabase.com/docs/guides/cli) también puedes hacer
    `supabase link` y `supabase db push`.

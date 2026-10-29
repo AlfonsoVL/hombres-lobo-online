@@ -132,8 +132,13 @@ el plan gratuito.
   sonido activado: el del creador por defecto y el resto solo si lo activan (se recuerda por
   sala en `localStorage`). Como el navegador exige un toque para sonar, «Crear sala» o el
   primer toque en la página desbloquean el audio.
-- **Víctima de los malos.** Ven en directo los votos de sus compañeros y el turno solo termina
-  cuando todos coinciden. Si el creador lo salta antes, gana la más votada (empate: al azar).
+- **Víctima de los malos.** Como están en la misma habitación que los demás, se ponen de
+  acuerdo sin hablar: ven en directo los votos de sus compañeros y pueden marcar a cada
+  candidato con una reacción fija (👍 a por él, 👎 este no, 🔮 creo que es vidente, ⚠️ sospecha
+  de nosotros; tabla `bad_reactions`). Su turno dura 60 s (`rooms.step_started_at`): termina
+  antes si todos coinciden y, si se acaba el tiempo, se cierran votos y reacciones y gana la
+  más votada (empate: al azar; sin votos no hay víctima). Lo mismo si el creador lo salta.
+  Su pantalla es discreta: fondo negro, sin animaciones y botones grandes.
 - **Decisiones mías, fáciles de cambiar:** los votos del día son públicos; el Cazador dispara también si
   muere por amor.
 

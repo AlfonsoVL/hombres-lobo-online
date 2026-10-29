@@ -10,3 +10,4 @@ export * from './victory';
 export * from './visibility';
 export * from './narration';
 export * from './historial';
+export * from './badTurn';
