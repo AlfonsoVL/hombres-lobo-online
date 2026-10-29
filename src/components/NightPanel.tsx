@@ -1,6 +1,16 @@
 // Lo que ve cada jugador de noche: su turno, «Espera tu turno» o «Duerme».
 import { useEffect, useState } from 'react';
-import { badReactions, formatSeconds, reactionsFor, type BadReaction, type ReactionEntry } from '../lib/game';
+import {
+  BAD_REACTIONS,
+  GUESS_EMOJI,
+  formatSeconds,
+  guessReaction,
+  guessedRole,
+  reactionText,
+  reactionsFor,
+  type BadReaction,
+  type ReactionEntry,
+} from '../lib/game';
 import { getRole, type Theme } from '../lib/tematicas';
 import {
   getMyNight,
@@ -131,9 +141,9 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
           </p>
           {mates.size > 0 && (
             <p className="text-sm text-stone-400">
-              {badReactions(theme)
-                .map((r) => `${r.emoji} ${r.label.toLowerCase()}`)
-                .join(' · ')}
+              {[...BAD_REACTIONS.map((r) => `${r.emoji} ${r.label.toLowerCase()}`), `${GUESS_EMOJI} creo que es…`].join(
+                ' · ',
+              )}
             </p>
           )}
           {mates.size > 0 && night.my_target && !over && (
@@ -151,6 +161,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
                 selected={night.my_target === p.id}
                 voters={(night.votes ?? []).filter((v) => v.target === p.id).map((v) => v.voter)}
                 reactions={mates.size ? (night.reactions ?? []) : null}
+                goodRoles={night.good_roles ?? []}
                 disabled={busy || over}
                 onVote={() => void act('kill', { target: p.id })}
                 onReact={(reaction, mine) => void react(p.id, reaction, mine)}
@@ -374,6 +385,7 @@ function BadCandidate({
   selected,
   voters,
   reactions,
+  goodRoles,
   disabled,
   onVote,
   onReact,
@@ -385,18 +397,25 @@ function BadCandidate({
   voters: string[];
   /** null si no hay compañeros con quien hablar. */
   reactions: ReactionEntry[] | null;
+  /** Roles del bando bueno repartidos, para «creo que es…». */
+  goodRoles: string[];
   disabled: boolean;
   onVote: () => void;
   onReact: (reaction: BadReaction, mine: boolean) => void;
 }) {
-  const options = badReactions(theme);
+  const [guessing, setGuessing] = useState(false);
   const groups = reactions ? reactionsFor(reactions, player.id) : [];
+  const isMine = (reaction: BadReaction) => groups.some((g) => g.reaction === reaction && g.mine);
+  const myGuess = groups.some((g) => g.mine && guessedRole(g.reaction));
   const who = groups
-    .map((g) => {
-      const names = g.mine ? ['tú', ...g.voters] : g.voters;
-      return `${options.find((o) => o.id === g.reaction)?.emoji} ${names.join(', ')}`;
-    })
+    .map((g) => `${reactionText(theme, g.reaction)}: ${(g.mine ? ['tú', ...g.voters] : g.voters).join(', ')}`)
     .join(' · ');
+  // Los roles en el orden de la temática.
+  const roles = theme.roles.filter((r) => goodRoles.includes(r.id));
+  const chip = (active: boolean) =>
+    `flex items-center justify-center rounded-lg border disabled:opacity-60 ${
+      active ? 'border-stone-300 bg-stone-700' : 'border-stone-800 bg-stone-950'
+    }`;
   return (
     <li className={`rounded-xl border-2 p-2 ${selected ? 'border-stone-300 bg-stone-900' : 'border-stone-800'}`}>
       <button
@@ -418,8 +437,8 @@ function BadCandidate({
       {reactions && (
         <>
           <div className="mt-2 grid grid-cols-4 gap-2">
-            {options.map((o) => {
-              const mine = groups.some((g) => g.reaction === o.id && g.mine);
+            {BAD_REACTIONS.map((o) => {
+              const mine = isMine(o.id);
               return (
                 <button
                   key={o.id}
@@ -429,15 +448,52 @@ function BadCandidate({
                   aria-label={o.label}
                   title={o.label}
                   onClick={() => onReact(o.id, mine)}
-                  className={`flex h-12 items-center justify-center rounded-lg border text-2xl disabled:opacity-60 ${
-                    mine ? 'border-stone-300 bg-stone-700' : 'border-stone-800 bg-stone-950'
-                  }`}
+                  className={`h-12 text-2xl ${chip(mine)}`}
                 >
                   {o.emoji}
                 </button>
               );
             })}
+            {roles.length > 0 && (
+              <button
+                type="button"
+                disabled={disabled}
+                aria-expanded={guessing}
+                aria-label="Creo que es…"
+                title="Creo que es…"
+                onClick={() => setGuessing((g) => !g)}
+                className={`h-12 text-2xl ${chip(guessing || myGuess)}`}
+              >
+                {GUESS_EMOJI}
+              </button>
+            )}
           </div>
+          {guessing && (
+            <div className="mt-2 flex flex-col gap-2">
+              <p className="px-1 text-sm text-stone-400">Creo que es…</p>
+              <div className="grid grid-cols-2 gap-2">
+                {roles.map((r) => {
+                  const reaction = guessReaction(r.id);
+                  const mine = isMine(reaction);
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      disabled={disabled}
+                      aria-pressed={mine}
+                      onClick={() => {
+                        onReact(reaction, mine);
+                        setGuessing(false);
+                      }}
+                      className={`min-h-12 px-2 text-base font-semibold text-stone-200 ${chip(mine)}`}
+                    >
+                      {r.nombre}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {who && <p className="mt-2 px-1 text-sm text-stone-300">{who}</p>}
         </>
       )}

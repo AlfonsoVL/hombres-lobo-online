@@ -134,8 +134,8 @@ el plan gratuito.
   primer toque en la página desbloquean el audio.
 - **Víctima de los malos.** Como están en la misma habitación que los demás, se ponen de
   acuerdo sin hablar: ven en directo los votos de sus compañeros y pueden marcar a cada
-  candidato con una reacción fija (👍 a por él, 👎 este no, 🔮 creo que es vidente, ⚠️ sospecha
-  de nosotros; tabla `bad_reactions`). Su turno dura 60 s (`rooms.step_started_at`): termina
+  candidato con una reacción (👍 a por él, 👎 este no, ⚠️ sospecha de nosotros o 🔮 creo que
+  es… con uno de los roles del bando bueno repartidos; tabla `bad_reactions`). Su turno dura 60 s (`rooms.step_started_at`): termina
   antes si todos coinciden y, si se acaba el tiempo, se cierran votos y reacciones y gana la
   más votada (empate: al azar; sin votos no hay víctima). Lo mismo si el creador lo salta.
   Su pantalla es discreta: fondo negro, sin animaciones y botones grandes.

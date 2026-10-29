@@ -95,8 +95,15 @@ begin
     c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J2'), 'yes'), 'no sea de tu bando');
   perform pg_temp.expect_error(format('select public.reaccion_malos(%L, %L, %L, %L)',
     c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J3'), 'hola'), 'Reacción no válida');
+  -- «Creo que es…» solo con roles buenos repartidos.
+  perform pg_temp.expect_error(format('select public.reaccion_malos(%L, %L, %L, %L)',
+    c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J3'), 'role:hunter'), 'Reacción no válida');
+  perform pg_temp.expect_error(format('select public.reaccion_malos(%L, %L, %L, %L)',
+    c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J3'), 'role:werewolf'), 'Reacción no válida');
+  n := public.mi_noche(c, pg_temp.tok('w', 1));
+  perform pg_temp.check(n->'good_roles' = '["seer", "villager", "witch"]'::jsonb, 'roles buenos ' || n::text);
 
-  perform public.reaccion_malos(c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J3'), 'seer');
+  perform public.reaccion_malos(c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J3'), 'role:seer');
   perform public.reaccion_malos(c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J3'), 'yes');
   perform public.reaccion_malos(c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J4'), 'no');
   perform public.reaccion_malos(c, pg_temp.tok('w', 1), pg_temp.pid(c, 'J4'), null);

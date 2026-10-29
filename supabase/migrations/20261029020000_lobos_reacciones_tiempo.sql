@@ -1,8 +1,9 @@
 -- Los malos se ponen de acuerdo sin hablar: reacciones rápidas y tiempo límite.
 --
 --   * Reacciones: cada malo puede marcar a cada candidato con una etiqueta fija
---     (yes «a por él», no «este no», seer «creo que es vidente», suspect
---     «sospecha de nosotros»). Sus compañeros las ven en directo junto al nombre.
+--     (yes «a por él», no «este no», suspect «sospecha de nosotros») o con
+--     «creo que es…» y uno de los roles del bando bueno repartidos en la partida.
+--     Sus compañeros las ven en directo junto al nombre.
 --   * Tiempo: el turno de los malos dura 60 s desde que empieza. Si coinciden
 --     antes, el turno ya está hecho como hasta ahora. Al acabarse el tiempo se
 --     cierran votos y reacciones, el turno cuenta como hecho y, al pasarlo, gana
@@ -92,13 +93,29 @@ create trigger night_actions_bad_in_time
 before insert or update on public.night_actions
 for each row execute function public._bad_vote_in_time();
 
+-- Roles del bando bueno repartidos al empezar la partida, sin repetir. Es lo
+-- que se anuncia al repartir, así que no da más pistas a los malos.
+create function public._good_roles_dealt(p_room public.rooms)
+returns text[]
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce(array_agg(distinct rp.initial_role order by rp.initial_role), '{}')
+  from public.roles_privados rp
+  join public.theme_roles t on t.theme = p_room.theme and t.role = rp.initial_role
+  where rp.room_id = p_room.id and t.team = 'good';
+$$;
+
 -- Reacciones de los malos a cada candidato. Una por malo y candidato.
+-- reaction: yes, no, suspect o el rol que creen que tiene (role:<rol>).
 create table public.bad_reactions (
   room_id    uuid not null references public.rooms (id) on delete cascade,
   round      integer not null,
   actor_id   uuid not null references public.players (id) on delete cascade,
   target_id  uuid not null references public.players (id) on delete cascade,
-  reaction   text not null check (reaction in ('yes', 'no', 'seer', 'suspect')),
+  reaction   text not null,
   created_at timestamptz not null default now(),
   primary key (room_id, round, actor_id, target_id)
 );
@@ -137,7 +154,9 @@ begin
      or public._kind_of(p_target) = 'bad' then
     raise exception 'Elige a una víctima que no sea de tu bando' using errcode = '22023';
   end if;
-  if p_reaction is not null and p_reaction not in ('yes', 'no', 'seer', 'suspect') then
+  if p_reaction is not null and p_reaction not in ('yes', 'no', 'suspect')
+     and not (p_reaction like 'role:%'
+              and substr(p_reaction, 6) = any (public._good_roles_dealt(v_room))) then
     raise exception 'Reacción no válida' using errcode = '22023';
   end if;
 
@@ -217,6 +236,7 @@ begin
                  order by r.created_at)
           from public.bad_reactions r join public.players p on p.id = r.actor_id
           where r.room_id = v_room.id and r.round = v_room.round), '[]'::jsonb),
+        'good_roles', to_jsonb(public._good_roles_dealt(v_room)),
         'time_up', public._bad_time_up(v_room))
       when 'spy' then jsonb_build_object(
         'can_spy', v_action.id is null
@@ -310,6 +330,7 @@ $$;
 revoke all on function
   public._step_started(),
   public._bad_ends_at(public.rooms),
+  public._good_roles_dealt(public.rooms),
   public._bad_time_up(public.rooms),
   public._bad_vote_in_time(),
   public.reaccion_malos(text, text, uuid, text)

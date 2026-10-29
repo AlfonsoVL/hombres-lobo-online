@@ -141,6 +141,8 @@ export interface MyNight {
   my_target?: string | null;
   votes?: { voter: string; target: string }[];
   reactions?: ReactionEntry[];
+  /** Roles del bando bueno repartidos, para «creo que es…». */
+  good_roles?: string[];
   time_up?: boolean;
   // Niña
   can_spy?: boolean;

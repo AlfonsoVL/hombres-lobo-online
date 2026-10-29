@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { getTheme } from '../tematicas';
-import { badReactions, formatSeconds, reactionsFor, secondsLeft, type ReactionEntry } from './badTurn';
+import { formatSeconds, guessReaction, guessedRole, reactionText, reactionsFor, secondsLeft, type ReactionEntry } from './badTurn';
 
-describe('badReactions', () => {
-  it('usa el nombre del rol que investiga en cada temática', () => {
-    expect(badReactions(getTheme('castronegro')).find((r) => r.id === 'seer')?.label).toMatch(/vidente/);
-    expect(badReactions(getTheme('alien')).map((r) => r.id)).toEqual(['yes', 'no', 'seer', 'suspect']);
+describe('reacciones', () => {
+  const theme = getTheme('castronegro');
+
+  it('«creo que es…» guarda el rol y lo muestra con su nombre en la temática', () => {
+    expect(guessedRole(guessReaction('seer'))).toBe('seer');
+    expect(guessedRole('yes')).toBeNull();
+    expect(reactionText(theme, guessReaction('seer'))).toBe(`🔮 ${theme.roles.find((r) => r.id === 'seer')?.nombre}`);
+    expect(reactionText(theme, 'no')).toBe('👎 Este no');
   });
 });
 
@@ -13,14 +17,14 @@ describe('reactionsFor', () => {
   const reactions: ReactionEntry[] = [
     { voter: 'Ana', mine: false, target: 'x', reaction: 'yes' },
     { voter: 'Yo', mine: true, target: 'x', reaction: 'yes' },
-    { voter: 'Bea', mine: false, target: 'x', reaction: 'seer' },
+    { voter: 'Bea', mine: false, target: 'x', reaction: 'role:seer' },
     { voter: 'Bea', mine: false, target: 'y', reaction: 'no' },
   ];
 
   it('agrupa por reacción las del candidato y marca la propia', () => {
     expect(reactionsFor(reactions, 'x')).toEqual([
       { reaction: 'yes', voters: ['Ana'], mine: true },
-      { reaction: 'seer', voters: ['Bea'], mine: false },
+      { reaction: 'role:seer', voters: ['Bea'], mine: false },
     ]);
     expect(reactionsFor(reactions, 'z')).toEqual([]);
   });
