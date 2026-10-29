@@ -297,10 +297,12 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        {role && <RoleAvatar role={getRole(theme, role.role)} size={56} />}
-        <h2 className="text-xl font-bold">Es tu turno{role ? `, ${getRole(theme, role.role).nombre}` : ''}</h2>
+    <Card className="mt-14 flex flex-col gap-4">
+      <div className="-mt-[76px] flex flex-col items-center gap-2 text-center">
+        {role && <RoleAvatar role={getRole(theme, role.role)} size={128} />}
+        <h2 className="text-2xl font-bold text-amber-300">
+          Es tu turno{role ? `, ${getRole(theme, role.role).nombre}` : ''}
+        </h2>
       </div>
       {body}
       <ErrorText>{error}</ErrorText>
@@ -310,7 +312,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
 
 function Quiet({ title, text }: { title: string; text: string }) {
   return (
-    <Card className="flex flex-col items-center py-8 text-center">
+    <Card className="flex flex-col items-center bg-stone-950/60 py-8 text-center">
       <span className="mb-3 text-5xl" aria-hidden>
         🌙
       </span>

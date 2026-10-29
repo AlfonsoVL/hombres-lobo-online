@@ -16,6 +16,11 @@ recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retra
 | castronegro/little_girl.webp | Lámina de retratos del proyecto |
 | castronegro/thief.webp | Lámina de retratos del proyecto |
 
+## Fondos de pantalla
+
+`public/fondos/castronegro/` (portada, intro y resultado) también los ha aportado el
+propietario del proyecto. La portada es el retrato del lobo de la misma lámina.
+
 ## Alien y Alcalde
 
 Son los emojis 3D de [Fluent Emoji](https://github.com/microsoft/fluentui-emoji)

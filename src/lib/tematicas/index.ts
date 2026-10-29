@@ -53,6 +53,10 @@ export interface Theme {
     victoria: Record<'bad' | 'good' | 'lovers', Line>;
   };
   reglas: string[];
+  /** Título de la pantalla de introducción. */
+  titulo_intro: string;
+  /** Ilustraciones de fondo de algunas pantallas (opcionales). */
+  fondos?: { portada?: string; intro?: string; resultado?: string };
 }
 
 export const THEMES: Record<ThemeId, Theme> = {

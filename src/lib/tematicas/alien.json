@@ -119,6 +119,7 @@
       "lovers": { "texto": "Solo los vinculados han sobrevivido. Ganan los vinculados.", "audio": "/audio/alien/victoria_vinculados.mp3" }
     }
   },
+  "titulo_intro": "Silencio en la nave Sigma-7",
   "reglas": [
     "Cada jugador recibe un rol secreto en su móvil. Nadie debe enseñarlo.",
     "Hay dos bandos: los xenomorfos, que se conocen entre sí, y la tripulación, que no sabe quién es quién.",
