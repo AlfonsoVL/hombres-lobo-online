@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { roleByKind, THEMES, type ThemeId } from '../lib/tematicas';
 import { useThemeStyle } from '../lib/estilo';
-import { createRoom, type Mode } from '../lib/realtime/rpc';
+import { createRoom, type DayMinutes, type Mode } from '../lib/realtime/rpc';
 import { newToken, saveToken } from '../lib/realtime/token';
 import { unlockAudio } from '../lib/audio/unlock';
 import { initialsPhoto } from '../lib/foto/foto';
@@ -18,9 +18,16 @@ const MODES: { id: Mode; name: string; description: string }[] = [
   { id: 'custom', name: 'Personalizado', description: 'Tú eliges los roles y el número de malos.' },
 ];
 
+const DAY_TIMES: { minutes: DayMinutes; name: string }[] = [
+  { minutes: 3, name: '3 minutos' },
+  { minutes: 5, name: '5 minutos' },
+  { minutes: null, name: 'Sin límite' },
+];
+
 export default function CreateRoom() {
   const [theme, setTheme] = useState<ThemeId>('castronegro');
   const [mode, setMode] = useState<Mode>('classic');
+  const [dayMinutes, setDayMinutes] = useState<DayMinutes>(5);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -38,7 +45,7 @@ export default function CreateRoom() {
     setError('');
     try {
       const token = newToken();
-      const { code } = await createRoom(theme, mode, name.trim(), token);
+      const { code } = await createRoom(theme, mode, name.trim(), token, dayMinutes);
       saveToken(code, token);
       setOwnPhoto(code, photo ?? (color ? initialsPhoto(name.trim(), color) : null));
       // Se cambia la URL sin recargar para no perder la foto, que solo está en memoria.
@@ -103,6 +110,25 @@ export default function CreateRoom() {
             </label>
           ))}
         </div>
+      </section>
+
+      <section>
+        <Label>Tiempo para votar de día</Label>
+        <div className="grid grid-cols-3 gap-3">
+          {DAY_TIMES.map((t) => (
+            <label key={t.name} className="flex cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name="day-minutes"
+                className="h-5 w-5 shrink-0 accent-amber-500"
+                checked={dayMinutes === t.minutes}
+                onChange={() => setDayMinutes(t.minutes)}
+              />
+              <span className="font-semibold">{t.name}</span>
+            </label>
+          ))}
+        </div>
+        <p className="mt-1 text-xs text-stone-400">Al acabarse el tiempo se cierra la votación sola.</p>
       </section>
 
       <NameField value={name} onChange={setName} />

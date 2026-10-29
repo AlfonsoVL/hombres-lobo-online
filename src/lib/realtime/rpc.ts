@@ -1,6 +1,7 @@
 // Llamadas a las funciones SQL. Los errores de Postgres ya vienen en español.
 import type { RoleKind, ThemeId } from '../tematicas';
 import type { GameHistory } from '../game/historial';
+import type { BadReaction, ReactionEntry } from '../game/badTurn';
 import { getSupabase } from './client';
 
 export type Mode = 'classic' | 'custom';
@@ -22,6 +23,10 @@ export interface PublicRoom {
   night_step: RoleKind | null;
   /** Si ya ha actuado quien tiene el turno de noche. */
   step_done: boolean;
+  /** Fin del turno de los malos o de la votación del día, y hora del servidor al leer la sala. */
+  step_ends_at: string | null;
+  server_time: string;
+  day_minutes: DayMinutes;
   round: number;
   version: number;
   winner: 'bad' | 'good' | 'lovers' | null;
@@ -44,12 +49,16 @@ async function call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   return data as T;
 }
 
-export async function createRoom(theme: ThemeId, mode: Mode, name: string, token: string) {
+/** Minutos de la votación del día; null es sin límite. */
+export type DayMinutes = 3 | 5 | null;
+
+export async function createRoom(theme: ThemeId, mode: Mode, name: string, token: string, dayMinutes: DayMinutes) {
   const rows = await call<{ room_code: string; player_id: string }[]>('create_room', {
     p_theme: theme,
     p_mode: mode,
     p_name: name,
     p_token: token,
+    p_day_minutes: dayMinutes,
   });
   const row = rows[0];
   if (!row) throw new RpcError('No se ha podido crear la sala.');
@@ -136,6 +145,10 @@ export interface MyNight {
   // Malos
   my_target?: string | null;
   votes?: { voter: string; target: string }[];
+  reactions?: ReactionEntry[];
+  /** Roles del bando bueno repartidos, para «creo que es…». */
+  good_roles?: string[];
+  time_up?: boolean;
   // Niña
   can_spy?: boolean;
   caught?: boolean;
@@ -169,6 +182,16 @@ export function nightAction(
     p_target: args.target ?? null,
     p_target2: args.target2 ?? null,
     p_card: args.card ?? null,
+  });
+}
+
+/** Reacción propia a un candidato en el turno de los malos; null la quita. */
+export function reactBad(code: string, token: string, target: string, reaction: BadReaction | null) {
+  return call<MyNight>('reaccion_malos', {
+    p_room_code: code,
+    p_token: token,
+    p_target: target,
+    p_reaction: reaction,
   });
 }
 

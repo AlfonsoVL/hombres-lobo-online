@@ -2,7 +2,7 @@
 // linchamiento y final. El creador la dirige. Narra cada móvil con el sonido
 // activado: el del creador por defecto y el resto si lo activan.
 import { useEffect, useRef, useState } from 'react';
-import { narration, type NarrationState } from '../lib/game';
+import { formatSeconds, narration, type NarrationState } from '../lib/game';
 import { isNarrating, narrate, onNarrating, stopNarration } from '../lib/audio/narrate';
 import { isSoundOn, onSoundChange } from '../lib/audio/sonido';
 import { isAudioUnlocked } from '../lib/audio/unlock';
@@ -17,6 +17,7 @@ import PlayerPicker from './PlayerPicker';
 import RoleAvatar from './RoleAvatar';
 import SoundToggle from './SoundToggle';
 import { Button, Card, ErrorText, Ornament, Scene, Title } from './ui';
+import { useSecondsLeft } from './useSecondsLeft';
 
 interface Props {
   room: PublicRoom;
@@ -46,14 +47,14 @@ function stepName(theme: Theme, room: PublicRoom): string {
 }
 
 /** Texto del botón del creador para pasar a lo siguiente. */
-function nextLabel(theme: Theme, room: PublicRoom): string | null {
+function nextLabel(theme: Theme, room: PublicRoom, stepDone: boolean): string | null {
   switch (room.phase) {
     case 'intro':
       return 'Repartir los roles';
     case 'role_reveal':
       return 'Todos han visto su rol: empezar la noche';
     case 'night':
-      return room.step_done ? 'Siguiente turno' : `Saltar el turno (${stepName(theme, room)} no ha terminado)`;
+      return stepDone ? 'Siguiente turno' : `Saltar el turno (${stepName(theme, room)} no ha terminado)`;
     case 'dawn':
       return 'Empezar el día';
     case 'day':
@@ -73,7 +74,11 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   const byId = (id: string | null | undefined) => room.players.find((p) => p.id === id);
   const alive = room.players.filter((p) => p.is_alive);
   const me = byId(room.me.id);
-  const next = nextLabel(theme, room);
+  // Cuenta atrás del turno de los malos o de la votación del día. El turno de
+  // los malos también está hecho cuando se acaba su tiempo.
+  const left = useSecondsLeft(room);
+  const stepDone = room.phase === 'night' && (room.step_done || left === 0);
+  const next = nextLabel(theme, room, stepDone);
   const mayor = byId(room.mayor_id);
   const shooter = byId(room.pending_shot);
   const deaths = room.last_deaths.map(byId).filter((p): p is PublicPlayer => !!p);
@@ -102,7 +107,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   }, [narrationKey]);
 
   async function advance() {
-    if (room.phase === 'night' && !room.step_done && !confirm('Aún no ha terminado este turno. ¿Saltarlo?')) return;
+    if (room.phase === 'night' && !stepDone && !confirm('Aún no ha terminado este turno. ¿Saltarlo?')) return;
     setBusy(true);
     setError('');
     try {
@@ -114,6 +119,15 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       setBusy(false);
     }
   }
+
+  // Al acabarse el tiempo de votar, el móvil del creador cierra la votación.
+  const closedRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!room.me.is_creator || room.phase !== 'day' || left !== 0 || closedRef.current === room.version) return;
+    closedRef.current = room.version;
+    void advance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room.me.is_creator, room.phase, left, room.version]);
 
   async function run(fn: () => Promise<void>) {
     setBusy(true);
@@ -247,12 +261,17 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               {stepRole(theme, room) && <RoleAvatar role={stepRole(theme, room)!} size={96} className="mb-2" />}
               <p className="text-sm text-stone-400">Turno de</p>
               <p className="titulo text-2xl font-bold text-amber-300">{stepName(theme, room)}</p>
-              <p className={`mt-1 text-sm ${room.step_done ? 'text-emerald-400' : 'text-stone-400'}`}>
-                {room.step_done
-                  ? '✓ Ya ha actuado'
-                  : room.night_step === 'bad'
-                    ? 'Esperando a que se pongan de acuerdo…'
-                    : 'Esperando a que actúe…'}
+              {left !== null && (
+                <p className="mt-1 font-mono text-2xl tabular-nums text-stone-300">{formatSeconds(left)}</p>
+              )}
+              <p className={`mt-1 text-sm ${stepDone ? 'text-emerald-400' : 'text-stone-400'}`}>
+                {left === 0
+                  ? '✓ Se ha acabado el tiempo: gana la víctima más votada'
+                  : stepDone
+                    ? '✓ Ya ha actuado'
+                    : room.night_step === 'bad'
+                      ? 'Esperando a que se pongan de acuerdo…'
+                      : 'Esperando a que actúe…'}
               </p>
               <NarrationPlayer lines={lastLinesRef} />
             </Card>
@@ -279,7 +298,18 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               <h1 className="text-3xl font-extrabold text-amber-300">Discusión</h1>
               <p className="text-sm text-stone-300">{theme.textos.dia.texto}</p>
             </div>
-            <Stopwatch key={room.round} />
+            {left === null ? (
+              <Stopwatch key={room.round} />
+            ) : (
+              <span
+                className={`rounded-xl border border-amber-500/40 bg-stone-950/80 px-3 py-1.5 font-mono text-2xl font-bold tabular-nums ${
+                  left <= 30 ? 'text-red-400' : 'text-stone-100'
+                }`}
+                aria-label="Tiempo para votar"
+              >
+                {formatSeconds(left)}
+              </span>
+            )}
           </div>
           {!me?.is_alive && <p className="text-sm text-stone-400">Los muertos no votan.</p>}
           <ul className="flex flex-col gap-2">
@@ -316,7 +346,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
                         type="button"
                         variant="small"
                         className="w-20"
-                        disabled={busy}
+                        disabled={busy || left === 0}
                         onClick={() => void run(() => vote(room.code, token, p.id))}
                       >
                         Votar
@@ -326,7 +356,13 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               );
             })}
           </ul>
-          <p className="text-center text-xs text-stone-400">Puedes cambiar tu voto hasta que se cierre la votación.</p>
+          <p className="text-center text-xs text-stone-400">
+            {left === 0
+              ? 'Se ha acabado el tiempo: se cierra la votación.'
+              : left === null
+                ? 'Puedes cambiar tu voto hasta que se cierre la votación.'
+                : 'Puedes cambiar tu voto hasta que se acabe el tiempo.'}
+          </p>
         </section>
       )}
 
