@@ -8,9 +8,10 @@ import { unlockAudio } from '../lib/audio/unlock';
 import { initialsPhoto } from '../lib/foto/foto';
 import { setOwnPhoto } from '../lib/foto/ownPhoto';
 import Camera from './Camera';
+import Logo from './Logo';
 import RoleAvatar from './RoleAvatar';
 import RoomApp from './RoomApp';
-import { Button, ErrorText, Label, NameField, Ornament } from './ui';
+import { Button, ErrorText, Label, NameField } from './ui';
 
 const MODES: { id: Mode; name: string; description: string }[] = [
   { id: 'classic', name: 'Clásico', description: 'Los roles se eligen solos según el número de jugadores.' },
@@ -52,25 +53,10 @@ export default function CreateRoom() {
   if (roomCode) return <RoomApp code={roomCode} />;
 
   const current = THEMES[theme];
-  const hero = current.fondos?.portada;
-
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
       <header className="-mt-4 flex flex-col items-center text-center">
-        {hero ? (
-          <img
-            key={theme}
-            src={hero}
-            alt=""
-            className="aparecer -mb-6 w-72 [mask-image:radial-gradient(circle_at_50%_45%,#000_55%,transparent_72%)]"
-          />
-        ) : (
-          <RoleAvatar key={theme} role={roleByKind(current, 'bad')} size={150} className="aparecer mb-4" />
-        )}
-        <h1 className="whitespace-nowrap text-[clamp(2rem,10.5vw,3rem)] font-extrabold leading-none text-amber-300 [text-shadow:0_3px_0_rgb(0_0_0/0.7),var(--brillo)]">
-          Hombres lobo
-        </h1>
-        <Ornament className="mt-2">ONLINE</Ornament>
+        <Logo theme={current} />
         <p className="mt-3 text-lg text-stone-200">Crea una sala y comparte el enlace con tu grupo.</p>
         <a href="/ayuda" className="mt-2 text-sm text-amber-400 underline underline-offset-4">
           📖 Cómo se juega y roles

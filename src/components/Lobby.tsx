@@ -7,7 +7,8 @@ import Avatar from './Avatar';
 import GameSetup from './GameSetup';
 import { HelpButton } from './Help';
 import SoundToggle from './SoundToggle';
-import { Ornament } from './ui';
+import Logo from './Logo';
+import { ErrorText, Ornament } from './ui';
 
 interface Props {
   room: PublicRoom;
@@ -16,11 +17,14 @@ interface Props {
   photos: Map<string, string>;
   connected: boolean;
   onStarted: () => Promise<void>;
+  onCancel: () => Promise<void>;
 }
 
-export default function Lobby({ room, token, online, photos, connected, onStarted }: Props) {
+export default function Lobby({ room, token, online, photos, connected, onStarted, onCancel }: Props) {
   const theme = getTheme(room.theme);
   const [copied, setCopied] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState('');
   const creator = room.players.find((p) => p.is_creator);
 
   const url = `${window.location.origin}/sala/${room.code}`;
@@ -42,6 +46,18 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
     }
   }
 
+  async function cancel() {
+    if (!confirm('¿Cancelar la sala? Se cerrará para todos los jugadores.')) return;
+    setCancelling(true);
+    setCancelError('');
+    try {
+      await onCancel();
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : 'No se ha podido cancelar la sala.');
+      setCancelling(false);
+    }
+  }
+
   const total = room.players.length;
   const connectedCount = room.players.filter((p) => online.has(p.id)).length;
   const slots = Math.min(MAX_PLAYERS, Math.max(6, Math.ceil((total + 1) / 3) * 3));
@@ -49,7 +65,8 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col items-center gap-2 text-center">
-        <p className="titulo text-xs font-semibold text-amber-400">
+        <Logo theme={theme} small />
+        <p className="titulo mt-2 text-xs font-semibold text-amber-400">
           {theme.nombre} · {room.mode === 'classic' ? 'Clásico' : 'Personalizado'}
         </p>
         <Ornament>SALA</Ornament>
@@ -138,6 +155,20 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
         <p className="text-center text-stone-300">
           Esperando a que {creator?.name ?? 'el creador'} inicie la partida…
         </p>
+      )}
+
+      {room.me.is_creator && (
+        <div className="flex flex-col gap-2">
+          <ErrorText>{cancelError}</ErrorText>
+          <button
+            type="button"
+            onClick={() => void cancel()}
+            disabled={cancelling}
+            className="self-center rounded-full border border-red-400/40 bg-stone-950/70 px-5 py-2 text-sm text-red-300 disabled:opacity-50"
+          >
+            {cancelling ? 'Cancelando…' : '✕ Cancelar la sala y volver al inicio'}
+          </button>
+        </div>
       )}
     </div>
   );

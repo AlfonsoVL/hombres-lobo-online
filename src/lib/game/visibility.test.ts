@@ -32,6 +32,7 @@ describe('eventos de Broadcast', () => {
       { type: 'partida_iniciada', version: 2 },
       { type: 'fase_cambiada', version: 3, phase: 'night', round: 1, nightStep: 'bad' },
       { type: 'jugador_eliminado', version: 4, id: 'p2', revealedRole: 'seer' },
+      { type: 'sala_cancelada', version: 5 },
     ];
     for (const e of events) expect(() => assertNoRoleData(theme, e)).not.toThrow();
   });
