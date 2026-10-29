@@ -16,7 +16,21 @@ recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retra
 | castronegro/little_girl.webp | Lámina de retratos del proyecto |
 | castronegro/thief.webp | Lámina de retratos del proyecto |
 
-## Alien y Alcalde
+## Alcalde
+
+`alcalde.webp` es una ilustración aportada por el propietario del proyecto, recortada
+en círculo.
+
+| Archivo | Origen |
+|---|---|
+| alcalde.webp | Ilustración del Alcalde del proyecto |
+
+## Fondos de pantalla
+
+`public/fondos/castronegro/` (portada, intro y resultado) también los ha aportado el
+propietario del proyecto. La portada es el retrato del lobo de la misma lámina.
+
+## Alien
 
 Son los emojis 3D de [Fluent Emoji](https://github.com/microsoft/fluentui-emoji)
 de Microsoft, con licencia MIT (copiada abajo). Los PNG están sin modificar; el
@@ -30,7 +44,6 @@ medallón de color de fondo se dibuja con CSS en `src/components/RoleAvatar.tsx`
 | alien/medic.png | Health worker |
 | alien/marine.png | Military helmet |
 | alien/android.png | Robot |
-| alcalde.png | Person with crown |
 
 ## Licencia de Fluent Emoji
 

@@ -8,9 +8,10 @@ import {
   type Result,
 } from '../lib/game';
 import { TEST_MODE } from '../lib/config';
-import { getTheme } from '../lib/tematicas';
+import { getRole, getTheme, roleByKind } from '../lib/tematicas';
 import { startGame, type PublicRoom } from '../lib/realtime/rpc';
-import { Button, Card, ErrorText } from './ui';
+import RoleAvatar from './RoleAvatar';
+import { Button, Card, ErrorText, Toggle } from './ui';
 
 interface Props {
   room: PublicRoom;
@@ -63,10 +64,13 @@ export default function GameSetup({ room, token, onStarted }: Props) {
     }
   }
 
+  const row = 'flex items-center gap-3 rounded-xl border border-stone-700/60 bg-stone-900/70 px-3 py-2';
+  const badRole = roleByKind(theme, 'bad');
+
   if (confirming && composition.ok) {
     return (
       <Card className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Confirma la partida</h2>
+        <h2 className="text-lg font-semibold text-amber-300">Confirma la partida</h2>
         <p>{compositionSummary(theme, composition.value)}</p>
         {mayor && <p className="text-sm text-stone-400">Con Alcalde, que se sorteará entre todos.</p>}
         <ErrorText>{error}</ErrorText>
@@ -81,8 +85,11 @@ export default function GameSetup({ room, token, onStarted }: Props) {
   }
 
   return (
-    <Card className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">Configurar partida</h2>
+    <Card className="flex flex-col gap-3">
+      <div>
+        <h2 className="text-lg font-semibold text-amber-300">Configuración de la partida</h2>
+        <p className="text-sm text-stone-400">Modo: {room.mode === 'classic' ? 'Clásico' : 'Personalizado'}</p>
+      </div>
       {TEST_MODE && players < 6 && (
         <p className="rounded-lg bg-amber-950 px-3 py-2 text-sm text-amber-200">
           Modo pruebas: se puede empezar con menos de 6 jugadores.
@@ -91,69 +98,66 @@ export default function GameSetup({ room, token, onStarted }: Props) {
 
       {room.mode === 'custom' && (
         <>
-          <div className="flex items-center justify-between">
-            <span>{theme.nombres_grupo.bad}</span>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="h-9 w-9 rounded-lg bg-stone-800 text-xl"
-                onClick={() => setBad((b) => Math.max(1, b - 1))}
-                aria-label="Quitar un malo"
-              >
-                −
-              </button>
-              <span className="w-6 text-center text-lg font-semibold">{bad}</span>
-              <button
-                type="button"
-                className="h-9 w-9 rounded-lg bg-stone-800 text-xl"
-                onClick={() => setBad((b) => b + 1)}
-                aria-label="Añadir un malo"
-              >
-                +
-              </button>
-            </div>
+          <div className={row}>
+            <RoleAvatar role={badRole} size={36} />
+            <span className="flex-1">{theme.nombres_grupo.bad}</span>
+            <button
+              type="button"
+              className="h-8 w-8 rounded-lg bg-stone-800 text-xl"
+              onClick={() => setBad((b) => Math.max(1, b - 1))}
+              aria-label="Quitar un malo"
+            >
+              −
+            </button>
+            <span className="w-5 text-center text-lg font-semibold">{bad}</span>
+            <button
+              type="button"
+              className="h-8 w-8 rounded-lg bg-stone-800 text-xl"
+              onClick={() => setBad((b) => b + 1)}
+              aria-label="Añadir un malo"
+            >
+              +
+            </button>
           </div>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-2 text-sm text-stone-400">Roles especiales</legend>
-            {specialRoles.map((r) => (
-              <label key={r.id} className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4"
-                  style={{ accentColor: theme.color }}
-                  checked={specials.includes(r.id)}
-                  onChange={() => toggle(r.id)}
-                />
-                <span className="flex-1">{r.nombre}</span>
-              </label>
-            ))}
-          </fieldset>
+          {specialRoles.map((r) => (
+            <div key={r.id} className={row}>
+              <RoleAvatar role={r} size={36} />
+              <span className="flex-1">{r.nombre}</span>
+              <Toggle label={r.nombre} checked={specials.includes(r.id)} onChange={() => toggle(r.id)} />
+            </div>
+          ))}
           {suggestion.ok && (
-            <button type="button" className="text-sm text-stone-400 underline" onClick={applySuggestion}>
+            <button type="button" className="text-sm text-amber-400 underline" onClick={applySuggestion}>
               Usar la composición sugerida para {players} jugadores
             </button>
           )}
         </>
       )}
 
-      <label className="flex items-start gap-3 rounded-lg bg-stone-800 px-3 py-2">
-        <input
-          type="checkbox"
-          className="mt-1 h-4 w-4"
-          style={{ accentColor: theme.color }}
-          checked={mayor}
-          onChange={(e) => setMayor(e.target.checked)}
-        />
-        <span>
+      {room.mode === 'classic' &&
+        composition.ok &&
+        composition.value.specials.map((id) => {
+          const r = getRole(theme, id);
+          return (
+            <div key={id} className={row}>
+              <RoleAvatar role={r} size={36} />
+              <span className="flex-1">{r.nombre}</span>
+              <span className="text-sm text-emerald-400">Incluido</span>
+            </div>
+          );
+        })}
+
+      <div className={row}>
+        <RoleAvatar role="alcalde" size={36} />
+        <span className="flex-1">
           <span className="block">Alcalde</span>
-          <span className="text-sm text-stone-400">
-            Se sortea entre todos al repartir y es público. Deshace los empates del día.
-          </span>
+          <span className="text-xs text-stone-400">Se sortea entre todos y deshace los empates del día.</span>
         </span>
-      </label>
+        <Toggle label="Alcalde" checked={mayor} onChange={setMayor} />
+      </div>
 
       {composition.ok ? (
-        <p className="text-stone-300">{compositionSummary(theme, composition.value)}</p>
+        <p className="text-sm text-stone-300">{compositionSummary(theme, composition.value)}</p>
       ) : (
         <ErrorText>{composition.error}</ErrorText>
       )}

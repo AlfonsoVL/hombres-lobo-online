@@ -151,6 +151,12 @@
       "lovers": { "texto": "Solo el amor ha sobrevivido. Ganan los Enamorados.", "audio": "/audio/castronegro/victoria_enamorados.mp3" }
     }
   },
+  "titulo_intro": "La noche cae sobre Castronegro",
+  "fondos": {
+    "portada": "/fondos/castronegro/portada.webp",
+    "intro": "/fondos/castronegro/intro.webp",
+    "resultado": "/fondos/castronegro/resultado.webp"
+  },
   "reglas": [
     "Cada jugador recibe un rol secreto en su móvil. Nadie debe enseñarlo.",
     "Hay dos bandos: los lobos, que se conocen entre sí, y la aldea, que no sabe quién es quién.",

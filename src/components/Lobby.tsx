@@ -6,7 +6,8 @@ import type { PublicRoom } from '../lib/realtime/rpc';
 import Avatar from './Avatar';
 import GameSetup from './GameSetup';
 import { HelpButton } from './Help';
-import { Button, Card } from './ui';
+import SoundToggle from './SoundToggle';
+import { Ornament } from './ui';
 
 interface Props {
   room: PublicRoom;
@@ -41,68 +42,100 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
     }
   }
 
+  const total = room.players.length;
+  const connectedCount = room.players.filter((p) => online.has(p.id)).length;
+  const slots = Math.min(MAX_PLAYERS, Math.max(6, Math.ceil((total + 1) / 3) * 3));
+
   return (
     <div className="flex flex-col gap-6">
-      <header className="text-center">
-        <p className="titulo text-sm font-semibold text-amber-400">
+      <header className="flex flex-col items-center gap-2 text-center">
+        <p className="titulo text-xs font-semibold text-amber-400">
           {theme.nombre} · {room.mode === 'classic' ? 'Clásico' : 'Personalizado'}
         </p>
-        <p className="mt-2 text-xs uppercase tracking-[0.3em] text-stone-400">Código de la sala</p>
-        <h1 className="mx-auto mt-1 w-fit rounded-2xl border border-amber-500/50 bg-stone-900/80 px-5 py-2 font-mono text-4xl font-bold tracking-[0.3em] text-amber-200 shadow-[var(--brillo)]">
-          {room.code}
-        </h1>
-        {!connected && <p className="mt-2 text-sm text-amber-400">Conectando…</p>}
+        <Ornament>SALA</Ornament>
+        <div className="flex items-center gap-2">
+          <h1 className="rounded-xl border border-amber-500/50 bg-stone-950/80 px-6 py-1.5 font-mono text-4xl font-bold tracking-[0.25em] text-amber-200 shadow-[var(--brillo)]">
+            {room.code}
+          </h1>
+          <button
+            type="button"
+            onClick={() => void share()}
+            aria-label="Copiar el enlace"
+            className="flex h-12 w-12 items-center justify-center rounded-xl border border-amber-500/30 bg-stone-950/80 text-xl"
+          >
+            {copied ? '✓' : '⧉'}
+          </button>
+        </div>
+        {!connected && <p className="text-sm text-amber-400">Conectando…</p>}
       </header>
 
-      <HelpButton themeId={room.theme} />
-
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <a
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full rounded-xl bg-[#25D366] px-4 py-3 text-center font-semibold text-stone-950 transition hover:brightness-110"
+          className="rounded-xl bg-[#25D366] px-3 py-2.5 text-center text-sm font-semibold text-stone-950 transition hover:brightness-110"
         >
-          Compartir por WhatsApp
+          WhatsApp
         </a>
-        <Button type="button" variant="secondary" onClick={() => void share()}>
+        <button
+          type="button"
+          onClick={() => void share()}
+          className="rounded-xl border border-teal-400/40 bg-teal-950/60 px-3 py-2.5 text-sm font-semibold text-teal-100"
+        >
           {copied ? 'Enlace copiado' : 'Compartir enlace'}
-        </Button>
+        </button>
       </div>
 
-      <Card>
-        <h2 className="mb-3 flex justify-between text-lg font-semibold">
-          <span>Jugadores</span>
-          <span className="text-stone-400">
-            {room.players.length}/{MAX_PLAYERS}
-          </span>
-        </h2>
-        <ul className="flex flex-col gap-2">
+      <section>
+        <p className="mb-4 flex items-center justify-center gap-2 text-sm font-semibold text-emerald-400">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          {connectedCount}/{total} jugadores conectados
+        </p>
+        <ul className="grid grid-cols-3 gap-x-3 gap-y-5">
           {room.players.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 px-3 py-2">
+            <li key={p.id} className="flex flex-col items-center gap-1.5 text-center">
               <span className="relative">
-                <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} />
+                <Avatar id={p.id} name={p.name} photo={photos.get(p.id)} size={68} ring />
+                {p.is_creator && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl" aria-label="Dirige la partida">
+                    👑
+                  </span>
+                )}
                 <span
-                  className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-stone-800 ${
+                  className={`absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-stone-950 ${
                     online.has(p.id) ? 'bg-emerald-400' : 'bg-stone-600'
                   }`}
                   aria-label={online.has(p.id) ? 'Conectado' : 'Desconectado'}
                 />
               </span>
-              <span className="flex-1 truncate">
+              <span className="w-full truncate text-sm font-semibold">
                 {p.name}
-                {p.id === room.me.id && <span className="text-stone-400"> (tú)</span>}
+                {p.id === room.me.id && <span className="font-normal text-stone-400"> (tú)</span>}
               </span>
-              {p.is_creator && <span className="text-xs text-amber-400">Dirige la partida</span>}
+              {p.is_creator && <span className="-mt-1.5 text-xs text-stone-400">(Creador)</span>}
+            </li>
+          ))}
+          {Array.from({ length: slots - total }, (_, i) => (
+            <li key={`hueco-${i}`} className="flex flex-col items-center gap-1.5 text-center" aria-hidden>
+              <span className="flex h-[68px] w-[68px] items-center justify-center rounded-full border-2 border-dashed border-stone-600 text-2xl text-stone-600">
+                +
+              </span>
+              <span className="text-xs text-stone-500">Esperando…</span>
             </li>
           ))}
         </ul>
-      </Card>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <HelpButton themeId={room.theme} />
+        <SoundToggle code={room.code} />
+      </div>
 
       {room.me.is_creator ? (
         <GameSetup room={room} token={token} onStarted={onStarted} />
       ) : (
-        <p className="text-center text-stone-400">
+        <p className="text-center text-stone-300">
           Esperando a que {creator?.name ?? 'el creador'} inicie la partida…
         </p>
       )}

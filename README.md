@@ -3,7 +3,8 @@
 Web app de partidas sociales de deducción con varias temáticas (Castronegro y Alien),
 inspirada en «Los Hombres Lobo de Castronegro». Cada jugador usa su móvil: recibe su rol en
 secreto, actúa de noche cuando le toca y vota de día. Quien crea la sala también juega, pasa
-los turnos y su móvil hace de narrador.
+los turnos y su móvil hace de narrador. El sonido viene activado en su móvil y desactivado en
+el de los demás, que pueden activarlo para oír también la narración en cada fase.
 
 Funciona solo con servicios gratuitos: Astro + React + Tailwind en Vercel (plan Hobby) y
 Supabase (plan Free). El diseño y las reglas confirmadas están en
