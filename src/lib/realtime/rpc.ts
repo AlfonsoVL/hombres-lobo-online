@@ -63,6 +63,10 @@ export function getRoom(code: string, token: string) {
   return call<PublicRoom>('get_room', { p_room_code: code, p_token: token });
 }
 
+export function cancelRoom(code: string, token: string) {
+  return call<void>('cancel_room', { p_room_code: code, p_token: token });
+}
+
 export function startGame(
   code: string,
   token: string,

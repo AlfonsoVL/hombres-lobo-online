@@ -22,6 +22,7 @@ const SERVER_EVENTS: GameEvent['type'][] = [
   'fase_cambiada',
   'jugador_eliminado',
   'partida_terminada',
+  'sala_cancelada',
 ];
 
 export interface RoomChannel {

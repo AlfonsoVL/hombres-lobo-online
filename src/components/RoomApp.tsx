@@ -5,14 +5,15 @@ import { isAudioUnlocked, unlockAudio } from '../lib/audio/unlock';
 import { getOwnPhoto, setOwnPhoto } from '../lib/foto/ownPhoto';
 import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
-import { getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
-import { loadToken, newToken, saveToken } from '../lib/realtime/token';
+import { cancelRoom, getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
+import { clearToken, loadToken, newToken, saveToken } from '../lib/realtime/token';
 import { useThemeStyle } from '../lib/estilo';
 import Game from './Game';
 import JoinForm from './JoinForm';
 import Lobby from './Lobby';
+import { Button, Card, Title } from './ui';
 
-type Status = 'loading' | 'join' | 'ready';
+type Status = 'loading' | 'join' | 'ready' | 'cancelled';
 
 export default function RoomApp({ code }: { code: string }) {
   const [status, setStatus] = useState<Status>('loading');
@@ -76,6 +77,11 @@ export default function RoomApp({ code }: { code: string }) {
   useEffect(() => {
     if (!playerId || !token) return;
     const onEvent = (event: GameEvent) => {
+      if (event.type === 'sala_cancelada') {
+        clearToken(code);
+        setStatus('cancelled');
+        return;
+      }
       if (!isNewer(event, versionRef.current)) return;
       if (event.type === 'jugador_unido') {
         versionRef.current = event.version;
@@ -177,6 +183,24 @@ export default function RoomApp({ code }: { code: string }) {
     setStatus('ready');
   }
 
+  // El creador cancela la sala: se borra en el servidor, se avisa a los demás
+  // y vuelve a la portada.
+  async function onCancel() {
+    await cancelRoom(code, token!);
+    channelRef.current?.announce({ type: 'sala_cancelada', version: versionRef.current + 1 });
+    clearToken(code);
+    window.location.href = '/';
+  }
+
+  if (status === 'cancelled') {
+    return (
+      <Card className="mt-10 flex flex-col items-center gap-4 text-center">
+        <Title>Sala cancelada</Title>
+        <p className="text-stone-300">Quien creó la sala la ha cancelado.</p>
+        <Button onClick={() => (window.location.href = '/')}>Volver al inicio</Button>
+      </Card>
+    );
+  }
   if (status === 'loading') {
     return <p className="text-center text-stone-400">Cargando sala…</p>;
   }
@@ -184,7 +208,7 @@ export default function RoomApp({ code }: { code: string }) {
     return <JoinForm code={code} onJoin={join} />;
   }
   if (room.phase === 'lobby') {
-    return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} />;
+    return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} onCancel={onCancel} />;
   }
   return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} justStarted={sawLobbyRef.current} />;
 }

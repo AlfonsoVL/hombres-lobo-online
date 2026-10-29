@@ -33,6 +33,16 @@ export function saveToken(roomCode: string, token: string, storage: Storage | un
   }
 }
 
+export function clearToken(roomCode: string, storage: Storage | undefined = safeStorage()): void {
+  const key = KEY_PREFIX + roomCode.toUpperCase();
+  memory.delete(key);
+  try {
+    storage?.removeItem(key);
+  } catch {
+    // Sin localStorage no hay nada más que borrar.
+  }
+}
+
 function safeStorage(): Storage | undefined {
   try {
     return typeof localStorage === 'undefined' ? undefined : localStorage;
