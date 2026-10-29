@@ -1,8 +1,9 @@
-// Ilustración de un rol (o del Alcalde) sobre un medallón del color de su bando.
+// Avatar de un rol (o del Alcalde): un retrato a círculo completo o un emoji
+// sobre un medallón del color de su bando.
 import type { RoleCard } from '../lib/tematicas';
 
 interface Props {
-  role: Pick<RoleCard, 'avatar' | 'bando'> | 'alcalde';
+  role: Pick<RoleCard, 'avatar' | 'bando' | 'retrato'> | 'alcalde';
   size?: number;
   className?: string;
 }
@@ -16,6 +17,20 @@ const MEDALLION = {
 export default function RoleAvatar({ role, size = 56, className = '' }: Props) {
   const src = role === 'alcalde' ? '/avatares/alcalde.png' : role.avatar;
   const tone = role === 'alcalde' ? 'alcalde' : role.bando;
+  if (role !== 'alcalde' && role.retrato) {
+    return (
+      <img
+        src={src}
+        alt=""
+        width={320}
+        height={320}
+        style={{ width: size, height: size }}
+        className={`shrink-0 rounded-full border-2 shadow-lg ${
+          role.bando === 'bad' ? 'border-red-800 shadow-red-500/40' : 'border-amber-700/70 shadow-amber-400/25'
+        } ${className}`}
+      />
+    );
+  }
   return (
     <span
       style={{ width: size, height: size }}

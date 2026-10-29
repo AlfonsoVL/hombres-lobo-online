@@ -1,20 +1,29 @@
 # Licencias de los avatares
 
-Los avatares de rol y el del Alcalde son los emojis 3D de
-[Fluent Emoji](https://github.com/microsoft/fluentui-emoji) de Microsoft, con
-licencia MIT (copiada abajo). Los PNG están sin modificar; el medallón de color
-de fondo se dibuja con CSS en `src/components/RoleAvatar.tsx`.
+## Castronegro
+
+Los retratos de Castronegro los ha aportado el propietario del proyecto. Están
+recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retrato": true` en `castronegro.json`.
+
+| Archivo | Origen |
+|---|---|
+| castronegro/werewolf.webp | Lámina de retratos del proyecto |
+| castronegro/villager.webp | Lámina de retratos del proyecto |
+| castronegro/seer.webp | Lámina de retratos del proyecto |
+| castronegro/witch.webp | Lámina de retratos del proyecto |
+| castronegro/hunter.webp | Lámina de retratos del proyecto |
+| castronegro/cupid.webp | Lámina de retratos del proyecto |
+| castronegro/little_girl.webp | Lámina de retratos del proyecto |
+| castronegro/thief.webp | Lámina de retratos del proyecto |
+
+## Alien y Alcalde
+
+Son los emojis 3D de [Fluent Emoji](https://github.com/microsoft/fluentui-emoji)
+de Microsoft, con licencia MIT (copiada abajo). Los PNG están sin modificar; el
+medallón de color de fondo se dibuja con CSS en `src/components/RoleAvatar.tsx`.
 
 | Archivo | Emoji de Fluent |
 |---|---|
-| castronegro/werewolf.png | Wolf |
-| castronegro/villager.png | Farmer |
-| castronegro/seer.png | Crystal ball |
-| castronegro/witch.png | Woman mage |
-| castronegro/hunter.png | Bow and arrow |
-| castronegro/cupid.png | Baby angel |
-| castronegro/little_girl.png | Girl |
-| castronegro/thief.png | Ninja |
 | alien/xenomorph.png | Alien |
 | alien/crew_member.png | Astronaut |
 | alien/scientist.png | Scientist |
