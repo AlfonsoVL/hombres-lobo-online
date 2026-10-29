@@ -9,3 +9,4 @@ export * from './thief';
 export * from './victory';
 export * from './visibility';
 export * from './narration';
+export * from './historial';

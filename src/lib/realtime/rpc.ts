@@ -1,5 +1,6 @@
 // Llamadas a las funciones SQL. Los errores de Postgres ya vienen en español.
 import type { RoleKind, ThemeId } from '../tematicas';
+import type { GameHistory } from '../game/historial';
 import { getSupabase } from './client';
 
 export type Mode = 'classic' | 'custom';
@@ -61,6 +62,22 @@ export function joinRoom(code: string, name: string, token: string) {
 
 export function getRoom(code: string, token: string) {
   return call<PublicRoom>('get_room', { p_room_code: code, p_token: token });
+}
+
+export function getHistory(code: string, token: string) {
+  return call<GameHistory>('historial_partida', { p_room_code: code, p_token: token });
+}
+
+/** Estado público de una sala para quien abre el enlace sin estar dentro. */
+export interface RoomStatus {
+  exists: boolean;
+  theme?: ThemeId;
+  phase?: 'lobby' | 'playing' | 'finished';
+  winner?: 'bad' | 'good' | 'lovers' | null;
+}
+
+export function getRoomStatus(code: string) {
+  return call<RoomStatus>('estado_sala', { p_room_code: code });
 }
 
 export function cancelRoom(code: string, token: string) {

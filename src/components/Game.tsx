@@ -8,6 +8,7 @@ import { isSoundOn, onSoundChange } from '../lib/audio/sonido';
 import { isAudioUnlocked } from '../lib/audio/unlock';
 import { findRoleByKind, getRole, getTheme, roleByKind, type RoleCard, type RoleKind, type Theme } from '../lib/tematicas';
 import { advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
+import GameHistory from './GameHistory';
 import { HelpButton } from './Help';
 import Avatar from './Avatar';
 import MyRoleCard from './MyRoleCard';
@@ -370,6 +371,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
           <RoleAvatar role={winnerRole(theme, room.winner)} size={160} />
           <p className="titulo text-2xl font-bold text-amber-300">{theme.textos.victoria[room.winner].texto}</p>
           {deathList && <div className="w-full text-left">{deathList}</div>}
+          <GameHistory code={room.code} token={token} theme={theme} photos={photos} />
           <a href="/" className="text-amber-400 underline underline-offset-4">
             Nueva partida
           </a>

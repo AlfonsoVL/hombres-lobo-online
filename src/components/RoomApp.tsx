@@ -5,13 +5,16 @@ import { isAudioUnlocked, unlockAudio } from '../lib/audio/unlock';
 import { getOwnPhoto, setOwnPhoto } from '../lib/foto/ownPhoto';
 import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
-import { cancelRoom, getRoom, joinRoom, type PublicRoom } from '../lib/realtime/rpc';
+import { cancelRoom, getRoom, getRoomStatus, joinRoom, type PublicRoom, type RoomStatus } from '../lib/realtime/rpc';
+import { winnerName } from '../lib/game/historial';
+import { getTheme } from '../lib/tematicas';
 import { clearToken, loadToken, newToken, saveToken } from '../lib/realtime/token';
 import { useThemeStyle } from '../lib/estilo';
 import Game from './Game';
 import JoinForm from './JoinForm';
 import Lobby from './Lobby';
-import { Button, Card, Title } from './ui';
+import RoleAvatar from './RoleAvatar';
+import { Button, Card, Ornament, Title } from './ui';
 
 type Status = 'loading' | 'join' | 'ready' | 'cancelled';
 
@@ -19,6 +22,8 @@ export default function RoomApp({ code }: { code: string }) {
   const [status, setStatus] = useState<Status>('loading');
   const [room, setRoom] = useState<PublicRoom | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  // Sala a la que ya no se puede entrar: no existe, está en juego o ha terminado.
+  const [closed, setClosed] = useState<RoomStatus | null>(null);
   const [online, setOnline] = useState<Set<string>>(new Set());
   const [connected, setConnected] = useState(false);
   useThemeStyle(room?.theme);
@@ -59,9 +64,17 @@ export default function RoomApp({ code }: { code: string }) {
 
   // Al entrar: si ya hay token para esta sala, se recupera la sesión.
   useEffect(() => {
+    // Sin sesión en la sala: antes del formulario se mira si aún se puede entrar.
+    const toJoin = () =>
+      getRoomStatus(code)
+        .then((s) => {
+          if (!s.exists || s.phase !== 'lobby') setClosed(s);
+        })
+        .catch(() => undefined)
+        .finally(() => setStatus('join'));
     const saved = loadToken(code);
     if (!saved) {
-      setStatus('join');
+      void toJoin();
       return;
     }
     refresh(saved)
@@ -69,7 +82,7 @@ export default function RoomApp({ code }: { code: string }) {
         setToken(saved);
         setStatus('ready');
       })
-      .catch(() => setStatus('join'));
+      .catch(() => void toJoin());
   }, [code, refresh]);
 
   // Canal en tiempo real, una vez dentro de la sala.
@@ -204,6 +217,9 @@ export default function RoomApp({ code }: { code: string }) {
   if (status === 'loading') {
     return <p className="text-center text-stone-400">Cargando sala…</p>;
   }
+  if (status === 'join' && closed) {
+    return <ClosedRoom status={closed} />;
+  }
   if (status === 'join' || !room || !token) {
     return <JoinForm code={code} onJoin={join} />;
   }
@@ -211,4 +227,38 @@ export default function RoomApp({ code }: { code: string }) {
     return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} onCancel={onCancel} />;
   }
   return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} justStarted={sawLobbyRef.current} />;
+}
+
+/** Aviso para quien abre el enlace de una sala en la que ya no puede entrar. */
+function ClosedRoom({ status }: { status: RoomStatus }) {
+  const theme = status.theme ? getTheme(status.theme) : null;
+  useThemeStyle(status.theme);
+  const home = (
+    <Button onClick={() => (window.location.href = '/')}>Volver al inicio</Button>
+  );
+  if (status.phase === 'finished' && theme && status.winner) {
+    const winner = status.winner;
+    const role = theme.roles.find((r) => r.tipo === (winner === 'bad' ? 'bad' : winner === 'lovers' ? 'link' : 'plain_good'));
+    return (
+      <Card className="mt-10 flex flex-col items-center gap-4 text-center">
+        <Title>La partida ha terminado</Title>
+        <Ornament>VICTORIA</Ornament>
+        {role && <RoleAvatar role={role} size={120} />}
+        <p className="titulo text-2xl font-bold text-amber-300">{winnerName(theme, winner)}</p>
+        <p className="text-stone-300">{theme.textos.victoria[winner].texto}</p>
+        {home}
+      </Card>
+    );
+  }
+  return (
+    <Card className="mt-10 flex flex-col items-center gap-4 text-center">
+      <Title>{status.exists ? 'La partida ya ha empezado' : 'La sala no existe'}</Title>
+      <p className="text-stone-300">
+        {status.exists
+          ? 'Ya no se puede entrar en esta sala. Crea una nueva o pide el enlace de otra.'
+          : 'Puede que la hayan cancelado o que haya caducado.'}
+      </p>
+      {home}
+    </Card>
+  );
 }

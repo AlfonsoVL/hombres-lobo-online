@@ -123,6 +123,11 @@ el plan gratuito.
   porque al morir se revela su rol (también de noche).
   Tras cada «cerrad los ojos» la narración espera 5 segundos antes de llamar al siguiente
   (`PAUSA_TRAS_CERRAR_MS`), para que nadie abra los ojos mientras otro aún los tiene abiertos.
+- **Fin de la partida.** La sala queda cerrada: quien abre el enlace sin estar dentro ve
+  que la partida terminó y qué bando ganó (`estado_sala`, sin jugadores ni roles). Los
+  jugadores ven el salón de la fama, los roles de todos y la crónica ronda a ronda
+  (`historial_partida`, que solo responde con la partida terminada). Para la crónica,
+  `game_log` guarda el ataque de los malos de cada noche y cada muerte con su causa.
 - **Sonido.** Cada móvil narra por su cuenta en cada cambio de fase o de turno si tiene el
   sonido activado: el del creador por defecto y el resto solo si lo activan (se recuerda por
   sala en `localStorage`). Como el navegador exige un toque para sonar, «Crear sala» o el
