@@ -27,6 +27,11 @@ describe.each(Object.values(THEMES))('temática $id', (theme) => {
     }
   });
 
+  it('tiene la guía narrada de las rondas', () => {
+    expect(theme.guia_rondas.texto.length).toBeGreaterThan(0);
+    expect(theme.guia_rondas.audio).toBe(`/audio/${theme.id}/como_se_juega.mp3`);
+  });
+
   it('tiene exactamente un malo y un bueno sin rol', () => {
     expect(theme.roles.filter((r) => r.tipo === 'bad')).toHaveLength(1);
     expect(theme.roles.filter((r) => r.tipo === 'plain_good')).toHaveLength(1);

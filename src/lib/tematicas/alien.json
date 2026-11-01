@@ -120,6 +120,20 @@
     }
   },
   "titulo_intro": "Silencio en la nave Sigma-7",
+  "guia_rondas": {
+    "texto": [
+      "Así funcionan las rondas en la nave Sigma-7. Cada jugador juega con su propio móvil. Quien crea la sala también juega: su móvil hace de narrador y es quien da paso al día y a la noche.",
+      "Al empezar, cada uno mira su rol en secreto. Mantén pulsada la carta para verla, y que nadie vea tu pantalla.",
+      "Cuando cae la noche, todos cerráis los ojos. El narrador irá nombrando a cada rol, uno detrás de otro. Solo abre los ojos quien sea nombrado. Los demás seguís con los ojos cerrados.",
+      "Cuando el narrador llame a los xenomorfos, abrid los ojos y reconoceos. Para elegir a la víctima, tocad a un jugador en el móvil: ese es vuestro voto, y podéis cambiarlo. No habléis en voz alta: debatid dentro de la app con las reacciones que aparecen debajo de cada jugador, o marcad qué rol creéis que tiene. En cuanto todos votéis a la misma persona, vuestro turno termina. Si se acaba el tiempo sin acuerdo, muere la más votada, y si hay empate, se decide al azar.",
+      "Cualquier otro rol es más sencillo: cuando el narrador diga tu nombre, abre los ojos, haz tu acción en el móvil y confírmala. Al confirmarla, tu turno queda cerrado y la noche sigue sola. Si tu rol solo mira, como el Científico, pulsa «Ya lo he visto» para cerrarlo. Y si no quieres hacer nada, pulsa «Pasar el turno sin actuar».",
+      "Cada turno de noche dura sesenta segundos, con una cuenta atrás en la pantalla. Si se acaba el tiempo, ya no puedes actuar y el narrador llama al siguiente. Cuando te pida que cierres los ojos, hazlo enseguida: esperará unos segundos antes de nombrar al siguiente rol.",
+      "Al amanecer, el narrador anuncia quién ha muerto esa noche y qué rol tenía. Los muertos ya no pueden hablar ni votar.",
+      "Después empieza el día. Reuníos en el puente de mando, debatid en voz alta y votad en la app a quién expulsar de la nave. Podéis cambiar el voto hasta que se cierre la votación, porque se acaba el tiempo o porque la cierra quien creó la sala. El expulsado revela su rol. Si hay empate, decide el voto del Alcalde, si jugáis con él; si no, nadie muere.",
+      "Y vuelve a caer la noche. Así, ronda tras ronda, hasta que no quede ningún xenomorfo… o hasta que los xenomorfos sean tantos como el resto de la tripulación. Si tienes dudas sobre un rol, toca su nombre o mira su ficha en la Ayuda."
+    ],
+    "audio": "/audio/alien/como_se_juega.mp3"
+  },
   "reglas": [
     "Cada jugador recibe un rol secreto en su móvil. Nadie debe enseñarlo.",
     "Hay dos bandos: los xenomorfos, que se conocen entre sí, y la tripulación, que no sabe quién es quién.",

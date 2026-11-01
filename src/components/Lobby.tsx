@@ -9,6 +9,7 @@ import { HelpButton } from './Help';
 import AmbientControl from './AmbientControl';
 import SoundToggle from './SoundToggle';
 import Logo from './Logo';
+import RoundsGuide from './RoundsGuide';
 import { ErrorText, Ornament } from './ui';
 
 interface Props {
@@ -177,6 +178,8 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
         <SoundToggle code={room.code} />
         <AmbientControl />
       </div>
+
+      <RoundsGuide theme={theme} collapsed />
 
       {room.me.is_creator ? (
         <GameSetup room={room} token={token} onStarted={onStarted} />
