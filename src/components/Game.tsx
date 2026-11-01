@@ -23,6 +23,7 @@ import MyRoleCard from './MyRoleCard';
 import NightPanel from './NightPanel';
 import PlayerPicker from './PlayerPicker';
 import RoleAvatar from './RoleAvatar';
+import RoleInfo from './RoleInfo';
 import AmbientControl from './AmbientControl';
 import SoundToggle from './SoundToggle';
 import { Button, Card, ErrorText, Ornament, Scene, Title } from './ui';
@@ -577,7 +578,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               </span>
               <span className="w-full truncate text-center text-xs">{p.name}</span>
               {roleOf(p) && (
-                <span className="w-full truncate text-center text-[10px] text-stone-400">{roleOf(p)!.nombre}</span>
+                <RoleInfo theme={theme} role={roleOf(p)!} className="w-full justify-center text-[10px] text-stone-400" />
               )}
             </li>
           ))}

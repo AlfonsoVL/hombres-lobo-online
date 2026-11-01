@@ -48,6 +48,27 @@ export function RoleFicha({ theme, role }: { theme: Theme; role: RoleCard }) {
   );
 }
 
+/** Ficha del Alcalde, que no es una carta pero se explica igual que un rol. */
+export function AlcaldeFicha() {
+  return (
+    <article className="flex gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 p-3">
+      <RoleAvatar role="alcalde" size={64} />
+      <div className="flex flex-col gap-1 text-sm">
+        <h3 className="text-base font-semibold">Alcalde (opcional)</h3>
+        <p className="text-stone-300">
+          No es una carta: se sortea entre todos al repartir los roles y todos saben quién es. Puede ser
+          de cualquier bando.
+        </p>
+        <p className="text-stone-400">
+          Si hay empate en la votación del día, muere el empatado al que votó el Alcalde. Si no votó a
+          ninguno, no muere nadie (o muere el Chivo Expiatorio, si está en juego). Si el Alcalde muere, se
+          sortea otro entre los vivos.
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export default function Help({ themeId }: { themeId?: ThemeId }) {
   const [selected, setSelected] = useState<ThemeId>(themeId ?? 'castronegro');
   const theme = THEMES[selected];
@@ -90,21 +111,7 @@ export default function Help({ themeId }: { themeId?: ThemeId }) {
         {theme.roles.map((role) => (
           <RoleFicha key={role.id} theme={theme} role={role} />
         ))}
-        <article className="flex gap-3 rounded-xl border border-stone-700/60 bg-stone-800/70 p-3">
-          <RoleAvatar role="alcalde" size={64} />
-          <div className="flex flex-col gap-1 text-sm">
-            <h3 className="text-base font-semibold">Alcalde (opcional)</h3>
-            <p className="text-stone-300">
-              No es una carta: se sortea entre todos al repartir los roles y todos saben quién es. Puede ser
-              de cualquier bando.
-            </p>
-            <p className="text-stone-400">
-              Si hay empate en la votación del día, muere el empatado al que votó el Alcalde. Si no votó a
-              ninguno, no muere nadie (o muere el Chivo Expiatorio, si está en juego). Si el Alcalde muere, se
-              sortea otro entre los vivos.
-            </p>
-          </div>
-        </article>
+        <AlcaldeFicha />
       </section>
     </div>
   );

@@ -5,6 +5,7 @@ import type { Theme } from '../lib/tematicas';
 import { getHistory } from '../lib/realtime/rpc';
 import Avatar from './Avatar';
 import RoleAvatar from './RoleAvatar';
+import RoleInfo from './RoleInfo';
 import { Card, Ornament } from './ui';
 
 interface Props {
@@ -68,7 +69,7 @@ export default function GameHistory({ code, token, theme, photos }: Props) {
                     {p.name}
                   </span>
                   <span className="truncate text-xs text-stone-400">
-                    {role?.nombre}
+                    {role && <RoleInfo theme={theme} role={role} />}
                     {initial && ` (antes ${initial.nombre})`}
                   </span>
                 </span>

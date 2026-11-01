@@ -11,6 +11,7 @@ import { TEST_MODE } from '../lib/config';
 import { getRole, getTheme, roleByKind } from '../lib/tematicas';
 import { startGame, type PublicRoom } from '../lib/realtime/rpc';
 import RoleAvatar from './RoleAvatar';
+import RoleInfo from './RoleInfo';
 import { Button, Card, ErrorText, Toggle } from './ui';
 
 interface Props {
@@ -102,7 +103,11 @@ export default function GameSetup({ room, token, onStarted }: Props) {
         <>
           <div className={row}>
             <RoleAvatar role={badRole} size={36} />
-            <span className="flex-1">{theme.nombres_grupo.bad}</span>
+            <span className="min-w-0 flex-1">
+              <RoleInfo theme={theme} role={badRole}>
+                {theme.nombres_grupo.bad}
+              </RoleInfo>
+            </span>
             <button
               type="button"
               className="h-8 w-8 rounded-lg bg-stone-800 text-xl"
@@ -124,8 +129,8 @@ export default function GameSetup({ room, token, onStarted }: Props) {
           {specialRoles.map((r) => (
             <div key={r.id} className={row}>
               <RoleAvatar role={r} size={36} />
-              <span className="flex-1">
-                {r.nombre}
+              <span className="min-w-0 flex-1">
+                <RoleInfo theme={theme} role={r} />
                 {r.bando === 'bad' && <span className="block text-xs text-red-400">Se suma a los {theme.nombres_grupo.bad.toLowerCase()}</span>}
               </span>
               <Toggle label={r.nombre} checked={specials.includes(r.id)} onChange={() => toggle(r.id)} />
@@ -146,7 +151,9 @@ export default function GameSetup({ room, token, onStarted }: Props) {
           return (
             <div key={id} className={row}>
               <RoleAvatar role={r} size={36} />
-              <span className="flex-1">{r.nombre}</span>
+              <span className="min-w-0 flex-1">
+                <RoleInfo theme={theme} role={r} />
+              </span>
               <span className="text-sm text-emerald-400">Incluido</span>
             </div>
           );
@@ -154,9 +161,9 @@ export default function GameSetup({ room, token, onStarted }: Props) {
 
       <div className={row}>
         <RoleAvatar role="alcalde" size={36} />
-        <span className="flex-1">
-          <span className="block">Alcalde</span>
-          <span className="text-xs text-stone-400">Se sortea entre todos y deshace los empates del día.</span>
+        <span className="min-w-0 flex-1">
+          <RoleInfo theme={theme} role="alcalde" />
+          <span className="block text-xs text-stone-400">Se sortea entre todos y deshace los empates del día.</span>
         </span>
         <Toggle label="Alcalde" checked={mayor} onChange={setMayor} />
       </div>
