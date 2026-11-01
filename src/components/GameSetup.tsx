@@ -66,6 +66,8 @@ export default function GameSetup({ room, token, onStarted }: Props) {
 
   const row = 'flex items-center gap-3 rounded-xl border border-stone-700/60 bg-stone-900/70 px-3 py-2';
   const badRole = roleByKind(theme, 'bad');
+  // Con algún lobo especial, los lobos normales pueden ser 0.
+  const minBad = specials.some((id) => getRole(theme, id).bando === 'bad') ? 0 : 1;
 
   if (confirming && composition.ok) {
     return (
@@ -104,7 +106,7 @@ export default function GameSetup({ room, token, onStarted }: Props) {
             <button
               type="button"
               className="h-8 w-8 rounded-lg bg-stone-800 text-xl"
-              onClick={() => setBad((b) => Math.max(1, b - 1))}
+              onClick={() => setBad((b) => Math.max(minBad, b - 1))}
               aria-label="Quitar un malo"
             >
               −
@@ -122,7 +124,10 @@ export default function GameSetup({ room, token, onStarted }: Props) {
           {specialRoles.map((r) => (
             <div key={r.id} className={row}>
               <RoleAvatar role={r} size={36} />
-              <span className="flex-1">{r.nombre}</span>
+              <span className="flex-1">
+                {r.nombre}
+                {r.bando === 'bad' && <span className="block text-xs text-red-400">Se suma a los {theme.nombres_grupo.bad.toLowerCase()}</span>}
+              </span>
               <Toggle label={r.nombre} checked={specials.includes(r.id)} onChange={() => toggle(r.id)} />
             </div>
           ))}

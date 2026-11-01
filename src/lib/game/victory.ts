@@ -1,8 +1,8 @@
 // Condiciones de victoria.
-import type { Theme } from '../tematicas';
+import type { Theme, Winner } from '../tematicas';
 import { kindOf, teamOf, type GamePlayer, type Link } from './state';
 
-export type Winner = 'bad' | 'good' | 'lovers';
+export type { Winner };
 
 /**
  * Devuelve el bando ganador o null si la partida sigue.
@@ -10,9 +10,12 @@ export type Winner = 'bad' | 'good' | 'lovers';
  *    (o el Androide).
  *  - Buenos: no queda ningún malo vivo.
  *  - Malos: igualan o superan en número a los vivos no malos.
+ *  - Lobo Blanco: es el único vivo. Mientras viva, los malos no ganan por número.
  */
 export function checkVictory(theme: Theme, players: GamePlayer[], link: Link | null): Winner | null {
   const alive = players.filter((p) => p.alive);
+  const white = alive.some((p) => kindOf(theme, p) === 'white');
+  if (white && alive.length === 1) return 'white_wolf';
 
   if (link) {
     const [a, b] = link;
@@ -25,6 +28,7 @@ export function checkVictory(theme: Theme, players: GamePlayer[], link: Link | n
 
   const bad = alive.filter((p) => teamOf(theme, p) === 'bad').length;
   if (bad === 0) return 'good';
+  if (white) return null;
   if (bad >= alive.length - bad) return 'bad';
   return null;
 }

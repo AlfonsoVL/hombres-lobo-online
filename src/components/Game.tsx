@@ -2,11 +2,18 @@
 // linchamiento y final. El creador la dirige. Narra cada móvil con el sonido
 // activado: el del creador por defecto y el resto si lo activan.
 import { useEffect, useRef, useState } from 'react';
-import { formatSeconds, narration, shouldAutoAdvanceNight, type NarrationState } from '../lib/game';
+import {
+  SPECIAL_BAD_STEPS,
+  formatSeconds,
+  narration,
+  shouldAutoAdvanceNight,
+  winnerRole,
+  type NarrationState,
+} from '../lib/game';
 import { isNarrating, narrate, onNarrating, stopNarration } from '../lib/audio/narrate';
 import { isSoundOn, onSoundChange } from '../lib/audio/sonido';
 import { isAudioUnlocked } from '../lib/audio/unlock';
-import { findRoleByKind, getRole, getTheme, roleByKind, type RoleCard, type RoleKind, type Theme } from '../lib/tematicas';
+import { findRoleByKind, getRole, getTheme, victoryLine, type RoleCard, type RoleKind, type Theme } from '../lib/tematicas';
 import { advanceNight, advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
 import GameHistory from './GameHistory';
 import { HelpButton } from './Help';
@@ -34,12 +41,6 @@ interface Props {
 
 function stepRole(theme: Theme, room: PublicRoom): RoleCard | undefined {
   return room.night_step ? findRoleByKind(theme, room.night_step) : undefined;
-}
-
-/** Ilustración de quien gana: los malos, la aldea o Cupido por los enamorados. */
-function winnerRole(theme: Theme, winner: 'bad' | 'good' | 'lovers'): RoleCard {
-  if (winner === 'bad') return roleByKind(theme, 'bad');
-  return (winner === 'lovers' && findRoleByKind(theme, 'link')) || roleByKind(theme, 'plain_good');
 }
 
 function stepName(theme: Theme, room: PublicRoom): string {
@@ -437,7 +438,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
           <Title className="text-4xl">Fin de la partida</Title>
           <Ornament />
           <RoleAvatar role={winnerRole(theme, room.winner)} size={160} />
-          <p className="titulo text-2xl font-bold text-amber-300">{theme.textos.victoria[room.winner].texto}</p>
+          <p className="titulo text-2xl font-bold text-amber-300">{victoryLine(theme, room.winner).texto}</p>
           {deathList && <div className="w-full text-left">{deathList}</div>}
           <GameHistory code={room.code} token={token} theme={theme} photos={photos} />
           {room.me.is_creator ? (
@@ -514,7 +515,9 @@ export default function Game({ room, token, photos, online, connected, onAdvance
 function nightSteps(theme: Theme, room: PublicRoom): { done: boolean; current: boolean }[] {
   const order: RoleKind[] = room.round === 1 ? ['swap', 'link', 'bad', 'investigate', 'protect'] : ['bad', 'investigate', 'protect'];
   const kinds = order.filter((k) => k === 'bad' || findRoleByKind(theme, k));
-  const at = room.night_step ? kinds.indexOf(room.night_step) : -1;
+  // Los turnos de los lobos especiales cuentan como parte del de la manada.
+  const step = room.night_step && SPECIAL_BAD_STEPS.includes(room.night_step) ? 'bad' : room.night_step;
+  const at = step ? kinds.indexOf(step) : -1;
   return kinds.map((_, i) => ({ done: i < at, current: i === at }));
 }
 

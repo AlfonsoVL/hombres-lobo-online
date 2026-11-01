@@ -1,10 +1,11 @@
 // Crónica y salón de la fama de una partida terminada, a partir del histórico
 // que devuelve el servidor (historial_partida). Solo se usa con todos los roles
 // ya revelados.
-import { findRoleByKind, type RoleCard, type Team, type Theme } from '../tematicas';
+import { findRoleByKind, roleByKind, type RoleCard, type Team, type Theme } from '../tematicas';
 import type { Winner } from './victory';
 
-export type DeathCause = 'bad' | 'poisoned' | 'spied' | 'lynched' | 'shot' | 'lover';
+/** Causas de muerte. fierce: devorado por el Lobo Feroz; white: eliminado por el Lobo Blanco. */
+export type DeathCause = 'bad' | 'poisoned' | 'spied' | 'lynched' | 'shot' | 'lover' | 'fierce' | 'white';
 
 export interface GameHistory {
   winner: Winner;
@@ -32,7 +33,15 @@ export interface Award {
 export function winnerName(theme: Theme, winner: Winner): string {
   if (winner === 'bad') return theme.nombres_grupo.bad;
   if (winner === 'lovers') return theme.nombres_grupo.lovers;
+  if (winner === 'white_wolf') return findRoleByKind(theme, 'white')?.nombre ?? theme.nombres_grupo.bad;
   return theme.bandos.good;
+}
+
+/** Ilustración de quien gana: los malos, la aldea, Cupido por los enamorados o el Lobo Blanco. */
+export function winnerRole(theme: Theme, winner: Winner): RoleCard {
+  if (winner === 'bad') return roleByKind(theme, 'bad');
+  if (winner === 'white_wolf') return findRoleByKind(theme, 'white') ?? roleByKind(theme, 'bad');
+  return (winner === 'lovers' && findRoleByKind(theme, 'link')) || roleByKind(theme, 'plain_good');
 }
 
 function helpers(theme: Theme, h: GameHistory) {
@@ -68,7 +77,7 @@ function partnerOf(h: GameHistory, id: string): string | undefined {
 
 /** Crónica ronda a ronda: qué pasó de noche y de día. */
 export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
-  const { name, roleName, player } = helpers(theme, h);
+  const { name, roleName, player, role } = helpers(theme, h);
   const bad = theme.nombres_grupo.bad;
   const shotBy = shooters(theme, h);
   const rounds = new Set<number>([...h.night.map((a) => a.round), ...h.votes.map((v) => v.round), ...h.log.map((e) => e.round)]);
@@ -90,6 +99,10 @@ export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
       }
       case 'lover':
         return `💔 ${who} murió con su pareja, ${name(partnerOf(h, e.player) ?? null)}.`;
+      case 'fierce':
+        return `🐺 El ${findRoleByKind(theme, 'fierce')?.nombre ?? 'Lobo Feroz'} devoró también a ${who}.`;
+      case 'white':
+        return `🤍 El ${findRoleByKind(theme, 'white')?.nombre ?? 'Lobo Blanco'} traicionó a la manada y acabó con ${who}.`;
       default:
         return `☠ Murió ${who}.`;
     }
@@ -115,7 +128,20 @@ export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
             night.push(`💘 ${actor} unió a ${name(a.target)} y ${name(a.target2)}.`);
             break;
           case 'see':
-            night.push(`🔮 ${actor} investigó a ${name(a.target)}: era ${roleName(a.target)}.`);
+            night.push(
+              `🔮 ${actor} investigó a ${name(a.target)}: era ${roleName(a.target)}${
+                role(a.target)?.tipo === 'disguised' ? `, pero le pareció ${roleByKind(theme, 'plain_good').nombre}` : ''
+              }.`,
+            );
+            break;
+          case 'infect':
+            night.push(`🦠 ${actor} infectó a ${name(a.target)}, que se convirtió en uno de los ${bad}.`);
+            break;
+          case 'devour':
+            night.push(`🐺 ${actor} eligió a ${name(a.target)} como segunda víctima.`);
+            break;
+          case 'white_kill':
+            night.push(`🤍 ${actor} atacó a ${name(a.target)}, de su propia manada.`);
             break;
           case 'spy':
             night.push(
@@ -184,7 +210,10 @@ export function hallOfFame(theme: Theme, h: GameHistory): Award[] {
   const attackOf = (round: number) => h.log.find((e) => e.round === round && e.event === 'attack')?.player;
 
   // Investigaciones que dieron con un malo.
-  const hits = count(h.night.filter((a) => a.action === 'see' && isBad(a.target)), (a) => a.actor);
+  const hits = count(
+    h.night.filter((a) => a.action === 'see' && isBad(a.target) && role(a.target)?.tipo !== 'disguised'),
+    (a) => a.actor,
+  );
   for (const [id, n] of hits) {
     awards.push({
       emoji: '🔮',
@@ -246,7 +275,7 @@ export function hallOfFame(theme: Theme, h: GameHistory): Award[] {
   }
 
   // Ataques de los malos que acabaron en muerte.
-  const kills = h.log.filter((e) => e.event === 'death' && e.cause === 'bad').length;
+  const kills = h.log.filter((e) => e.event === 'death' && (e.cause === 'bad' || e.cause === 'fierce')).length;
   if (kills) {
     awards.push({
       emoji: '🐺',
@@ -270,7 +299,11 @@ export function hallOfFame(theme: Theme, h: GameHistory): Award[] {
   // Supervivientes del bando ganador.
   const winners = h.players.filter((p) =>
     p.alive &&
-    (h.winner === 'lovers' ? h.links.some(([x, y]) => x === p.id || y === p.id) || role(p.id)?.tipo === 'link' : p.team === h.winner),
+    (h.winner === 'lovers'
+      ? h.links.some(([x, y]) => x === p.id || y === p.id) || role(p.id)?.tipo === 'link'
+      : h.winner === 'white_wolf'
+        ? role(p.id)?.tipo === 'white'
+        : p.team === h.winner),
   );
   if (winners.length) {
     awards.push({ emoji: '🏆', title: 'Supervivientes', players: winners.map((p) => p.name), text: 'Siguen en pie al final de la partida.' });

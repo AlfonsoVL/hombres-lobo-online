@@ -1,5 +1,5 @@
 // Qué narra el móvil del creador en cada cambio de la partida.
-import { findRoleByKind, getRole, type RoleKind, type Theme } from '../tematicas';
+import { findRoleByKind, getRole, victoryLine, type RoleKind, type Theme, type Winner } from '../tematicas';
 
 export interface Spoken {
   texto: string;
@@ -18,7 +18,7 @@ export const PAUSA_TRAS_CERRAR_MS = 5000;
 export interface NarrationState {
   phase: string;
   nightStep: RoleKind | null;
-  winner: 'bad' | 'good' | 'lovers' | null;
+  winner: Winner | null;
   /** Muertos de la última resolución, con su rol ya revelado. */
   deaths: { name: string; role: string | null }[];
 }
@@ -81,7 +81,7 @@ export function narration(theme: Theme, prev: NarrationState | null, next: Narra
     case 'finished':
       closePrevStep();
       if (next.deaths.length && prev?.phase !== 'finished') lines.push(...deathLines(theme, next.deaths));
-      if (next.winner) lines.push(theme.textos.victoria[next.winner]);
+      if (next.winner) lines.push(victoryLine(theme, next.winner));
       break;
   }
   const result = lines.filter((l): l is Spoken => l !== null);

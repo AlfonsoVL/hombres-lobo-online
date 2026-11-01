@@ -74,3 +74,27 @@ describe('la noche avanza sola', () => {
     expect(shouldAutoAdvanceNight(null, true, 0)).toBe(false);
   });
 });
+
+describe('lobos especiales', () => {
+  // p1 Lobo Feroz, p2 Lobo Infecto, p3 Lobo Blanco, p4 Gran Lobo Malvado, p5 vidente, p6 bruja, p7 aldeano
+  const wolves = playersWith(['fierce_wolf', 'infect_wolf', 'white_wolf', 'big_bad_wolf', 'seer', 'witch', 'villager']);
+
+  it('tienen turno propio después de la manada; el Blanco solo las noches pares', () => {
+    expect(nightSteps(theme, wolves, 1)).toEqual(['bad', 'infect', 'fierce', 'investigate', 'protect']);
+    expect(nightSteps(theme, wolves, 2)).toEqual(['bad', 'infect', 'fierce', 'white', 'investigate', 'protect']);
+  });
+
+  it('el Feroz pierde su turno en cuanto muere un lobo', () => {
+    const oneDead = playersWith(['fierce_wolf', 'werewolf', 'seer', 'villager'], [2]);
+    expect(nightSteps(theme, oneDead, 2)).toEqual(['bad', 'investigate']);
+  });
+
+  it('todos votan con la manada y los especiales esperan su turno', () => {
+    for (const id of ['p1', 'p2', 'p3', 'p4']) expect(powerButton(theme, wolves, id, 2, 'bad')).toBe('act');
+    expect(powerButton(theme, wolves, 'p1', 2, 'infect')).toBe('wait');
+    expect(powerButton(theme, wolves, 'p1', 2, 'fierce')).toBe('act');
+    expect(powerButton(theme, wolves, 'p4', 2, 'infect')).toBe('sleep');
+    expect(powerButton(theme, wolves, 'p3', 1, 'infect')).toBe('sleep');
+    expect(powerButton(theme, wolves, 'p3', 2, 'infect')).toBe('wait');
+  });
+});

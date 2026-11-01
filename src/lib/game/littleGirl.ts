@@ -1,7 +1,7 @@
 // Niña: espiar durante el turno de los malos.
 import type { Theme } from '../tematicas';
 import { defaultRng, pick, type Rng } from './random';
-import { kindOf, type GamePlayer } from './state';
+import { kindOf, teamOf, type GamePlayer } from './state';
 
 export const LITTLE_GIRL_DISCOVERY_CHANCE = 0.5;
 
@@ -29,8 +29,14 @@ export function spy(
 
   const candidates = players.filter((p) => {
     const kind = kindOf(theme, p);
-    return p.alive && (kind === 'bad' || kind === 'plain_good');
+    return p.alive && (teamOf(theme, p) === 'bad' || kind === 'plain_good');
   });
   const seen = pick(candidates, rng);
-  return { ok: true, discovered: false, seen: { playerId: seen.id, role: seen.role } };
+  return { ok: true, discovered: false, seen: { playerId: seen.id, role: seenRole(theme, seen) } };
+}
+
+/** Rol que ven la Vidente y la Niña: el Gran Lobo Malvado parece un bueno sin rol. */
+export function seenRole(theme: Theme, p: GamePlayer): string {
+  if (kindOf(theme, p) !== 'disguised') return p.role;
+  return theme.roles.find((r) => r.tipo === 'plain_good')?.id ?? p.role;
 }

@@ -17,6 +17,50 @@
       "gana": "Cuando los lobos vivos igualan o superan en número al resto de vivos."
     },
     {
+      "id": "fierce_wolf",
+      "tipo": "fierce",
+      "nombre": "Lobo Feroz",
+      "bando": "bad",
+      "avatar": "/avatares/castronegro/fierce_wolf.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche con los demás lobos y, mientras no haya muerto ningún lobo, también a solas.",
+      "poder": "Elige a la víctima con los demás lobos. Mientras no haya muerto ningún lobo, después se despierta solo y puede devorar a una segunda víctima. La Bruja puede curar a cualquiera de las dos.",
+      "gana": "Cuando los lobos vivos igualan o superan en número al resto de vivos."
+    },
+    {
+      "id": "infect_wolf",
+      "tipo": "infect",
+      "nombre": "Lobo Infecto",
+      "bando": "bad",
+      "avatar": "/avatares/castronegro/infect_wolf.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche con los demás lobos y, después, a solas.",
+      "poder": "Elige a la víctima con los demás lobos. Una vez por partida, después, puede infectarla en vez de matarla: no muere y al amanecer se convierte en Lobo (pierde su rol y se une a la manada). Esa noche la Bruja no ve víctima.",
+      "gana": "Cuando los lobos vivos igualan o superan en número al resto de vivos."
+    },
+    {
+      "id": "white_wolf",
+      "tipo": "white",
+      "nombre": "Lobo Blanco",
+      "bando": "bad",
+      "avatar": "/avatares/castronegro/white_wolf.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche con los demás lobos y, una noche sí y otra no (las pares), también a solas.",
+      "poder": "Elige a la víctima con los demás lobos, que lo tienen por uno más. Cada dos noches se despierta solo y puede eliminar a otro lobo.",
+      "gana": "Solo, si es el único superviviente. Mientras viva, los lobos no ganan por igualar en número a la aldea."
+    },
+    {
+      "id": "big_bad_wolf",
+      "tipo": "disguised",
+      "nombre": "Gran Lobo Malvado",
+      "bando": "bad",
+      "avatar": "/avatares/castronegro/big_bad_wolf.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche, junto a los demás lobos.",
+      "poder": "Elige a la víctima con los demás lobos. Es el lobo mejor escondido: si la Vidente o la Niña lo ven, les parece un Aldeano.",
+      "gana": "Cuando los lobos vivos igualan o superan en número al resto de vivos."
+    },
+    {
       "id": "villager",
       "tipo": "plain_good",
       "nombre": "Aldeano",
@@ -127,6 +171,18 @@
       "thief": {
         "abrir": { "texto": "Ladrón, abre los ojos y elige la carta que te quedas.", "audio": "/audio/castronegro/thief_abrir.mp3" },
         "cerrar": { "texto": "Ladrón, cierra los ojos.", "audio": "/audio/castronegro/thief_cerrar.mp3" }
+      },
+      "infect_wolf": {
+        "abrir": { "texto": "Lobo Infecto, abre los ojos. ¿Infectarás a la víctima de esta noche?", "audio": "/audio/castronegro/infect_wolf_abrir.mp3" },
+        "cerrar": { "texto": "Lobo Infecto, cierra los ojos.", "audio": "/audio/castronegro/infect_wolf_cerrar.mp3" }
+      },
+      "fierce_wolf": {
+        "abrir": { "texto": "Lobo Feroz, abre los ojos y elige a tu segunda víctima.", "audio": "/audio/castronegro/fierce_wolf_abrir.mp3" },
+        "cerrar": { "texto": "Lobo Feroz, cierra los ojos.", "audio": "/audio/castronegro/fierce_wolf_cerrar.mp3" }
+      },
+      "white_wolf": {
+        "abrir": { "texto": "Lobo Blanco, abre los ojos. ¿Eliminarás a otro lobo?", "audio": "/audio/castronegro/white_wolf_abrir.mp3" },
+        "cerrar": { "texto": "Lobo Blanco, cierra los ojos.", "audio": "/audio/castronegro/white_wolf_cerrar.mp3" }
       }
     },
     "amanecer": {
@@ -148,7 +204,8 @@
     "victoria": {
       "bad": { "texto": "Los lobos se han hecho con Castronegro. Ganan los lobos.", "audio": "/audio/castronegro/victoria_lobos.mp3" },
       "good": { "texto": "No queda ningún lobo en Castronegro. Gana la aldea.", "audio": "/audio/castronegro/victoria_aldea.mp3" },
-      "lovers": { "texto": "Solo el amor ha sobrevivido. Ganan los Enamorados.", "audio": "/audio/castronegro/victoria_enamorados.mp3" }
+      "lovers": { "texto": "Solo el amor ha sobrevivido. Ganan los Enamorados.", "audio": "/audio/castronegro/victoria_enamorados.mp3" },
+      "white_wolf": { "texto": "Solo queda en pie el Lobo Blanco. Gana el Lobo Blanco.", "audio": "/audio/castronegro/victoria_lobo_blanco.mp3" }
     }
   },
   "titulo_intro": "La noche cae sobre Castronegro",
@@ -164,6 +221,7 @@
     "Al amanecer se anuncia quién ha muerto esa noche, si es que ha muerto alguien.",
     "Durante el día, todos debaten y votan a quién linchar. El linchado revela su rol.",
     "Los muertos no pueden hablar ni votar.",
-    "Los lobos ganan cuando igualan o superan en número al resto de vivos. La aldea gana cuando no queda ningún lobo."
+    "Los lobos ganan cuando igualan o superan en número al resto de vivos. La aldea gana cuando no queda ningún lobo.",
+    "En el modo personalizado se pueden añadir lobos especiales: Lobo Feroz, Lobo Infecto, Lobo Blanco y Gran Lobo Malvado. Votan con la manada y tienen además un poder propio, que explica su ficha."
   ]
 }

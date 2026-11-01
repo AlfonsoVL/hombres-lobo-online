@@ -15,6 +15,10 @@ recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retra
 | castronegro/cupid.webp | Lámina de retratos del proyecto |
 | castronegro/little_girl.webp | Lámina de retratos del proyecto |
 | castronegro/thief.webp | Lámina de retratos del proyecto |
+| castronegro/fierce_wolf.webp | Lámina de los lobos legendarios del proyecto |
+| castronegro/infect_wolf.webp | Lámina de los lobos legendarios del proyecto |
+| castronegro/white_wolf.webp | Lámina de los lobos legendarios del proyecto |
+| castronegro/big_bad_wolf.webp | Lámina de los lobos legendarios del proyecto |
 
 ## Alcalde
 
