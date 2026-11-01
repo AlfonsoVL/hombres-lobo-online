@@ -7,7 +7,8 @@ export type GameEvent =
   | { type: 'fase_cambiada'; version: number; phase: string; round: number; nightStep: string | null }
   | { type: 'jugador_eliminado'; version: number; id: string; revealedRole: string | null }
   | { type: 'partida_terminada'; version: number; winner: string }
-  | { type: 'sala_cancelada'; version: number };
+  | { type: 'sala_cancelada'; version: number }
+  | { type: 'jugador_quitado'; version: number; id: string };
 
 /**
  * Lanza un error si un evento contiene datos de rol que no estén revelados.

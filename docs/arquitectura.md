@@ -123,6 +123,11 @@ el plan gratuito.
   porque al morir se revela su rol (también de noche).
   Tras cada «cerrad los ojos» la narración espera 5 segundos antes de llamar al siguiente
   (`PAUSA_TRAS_CERRAR_MS`), para que nadie abra los ojos mientras otro aún los tiene abiertos.
+- **Volver a jugar.** Con la partida terminada, el creador puede volver a la sala de espera
+  con los mismos jugadores (`volver_a_jugar`): se borra todo lo de la partida y se conservan
+  la sala, el enlace, los jugadores y el tiempo de votación. En la sala de espera pueden
+  entrar más con el mismo enlace y el creador puede quitar a quien no vaya a jugar
+  (`quitar_jugador`, que avisa con `jugador_quitado` para que su móvil salga de la sala).
 - **Fin de la partida.** La sala queda cerrada: quien abre el enlace sin estar dentro ve
   que la partida terminó y qué bando ganó (`estado_sala`, sin jugadores ni roles). Los
   jugadores ven el salón de la fama, los roles de todos y la crónica ronda a ronda

@@ -93,6 +93,16 @@ export function cancelRoom(code: string, token: string) {
   return call<void>('cancel_room', { p_room_code: code, p_token: token });
 }
 
+/** Solo el creador, con la partida terminada: vuelve a la sala de espera con los mismos jugadores. */
+export function playAgain(code: string, token: string) {
+  return call<void>('volver_a_jugar', { p_room_code: code, p_token: token });
+}
+
+/** Solo el creador, en la sala de espera. */
+export function removePlayer(code: string, token: string, playerId: string) {
+  return call<void>('quitar_jugador', { p_room_code: code, p_token: token, p_player: playerId });
+}
+
 export function startGame(
   code: string,
   token: string,
