@@ -76,6 +76,8 @@ export interface Theme {
     /** La aldea ha matado al Anciano: los aldeanos pierden sus poderes. */
     poderes_perdidos?: Line;
   };
+  /** Guía narrada de cómo funcionan las rondas en la app (sin explicar cada rol). */
+  guia_rondas: { texto: string[]; audio: string };
   reglas: string[];
   /** Título de la pantalla de introducción. */
   titulo_intro: string;

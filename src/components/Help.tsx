@@ -1,8 +1,9 @@
-// Ayuda: reglas de la temática, Alcalde y la ficha de cada rol.
+// Ayuda: guía narrada de las rondas, reglas de la temática, Alcalde y la ficha de cada rol.
 import { useState } from 'react';
 import { useThemeStyle } from '../lib/estilo';
 import { THEMES, findRoleByKind, roleByKind, type RoleCard, type RoleKind, type Theme, type ThemeId } from '../lib/tematicas';
 import RoleAvatar from './RoleAvatar';
+import RoundsGuide from './RoundsGuide';
 
 /** Orden de la noche con los nombres de la temática. */
 function nightOrderText(theme: Theme): string {
@@ -96,6 +97,8 @@ export default function Help({ themeId }: { themeId?: ThemeId }) {
           ))}
         </div>
       )}
+
+      <RoundsGuide key={theme.id} theme={theme} collapsed />
 
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">Cómo se juega</h2>

@@ -59,9 +59,12 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 /** Narra las frases en orden, con sus pausas. Una narración nueva corta la anterior. */
 export async function narrate(lines: Spoken[]): Promise<void> {
   stopNarration();
-  const id = queueId;
   if (!lines.length) return;
   setPlaying(true);
+  await playLines(queueId, lines);
+}
+
+async function playLines(id: number, lines: Spoken[]): Promise<void> {
   for (const line of lines) {
     if (id !== queueId) return;
     const played = line.audio ? await playMp3(line.audio) : false;
@@ -69,4 +72,25 @@ export async function narrate(lines: Spoken[]): Promise<void> {
     if (line.pausaMs && id === queueId) await wait(line.pausaMs);
   }
   if (id === queueId) setPlaying(false);
+}
+
+/**
+ * Reproduce un MP3 largo de una pieza y, si falta o falla, lee los párrafos
+ * con la voz del navegador (uno a uno, porque algunos navegadores cortan las
+ * frases muy largas).
+ */
+export async function narrateLong(audio: string, paragraphs: string[]): Promise<void> {
+  stopNarration();
+  const id = queueId;
+  setPlaying(true);
+  const played = await playMp3(audio);
+  if (id !== queueId) return;
+  if (played) {
+    setPlaying(false);
+    return;
+  }
+  await playLines(
+    id,
+    paragraphs.map((texto) => ({ texto, pausaMs: 400 })),
+  );
 }
