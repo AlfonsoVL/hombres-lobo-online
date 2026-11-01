@@ -2,12 +2,12 @@
 // linchamiento y final. El creador la dirige. Narra cada móvil con el sonido
 // activado: el del creador por defecto y el resto si lo activan.
 import { useEffect, useRef, useState } from 'react';
-import { formatSeconds, narration, type NarrationState } from '../lib/game';
+import { formatSeconds, narration, shouldAutoAdvanceNight, type NarrationState } from '../lib/game';
 import { isNarrating, narrate, onNarrating, stopNarration } from '../lib/audio/narrate';
 import { isSoundOn, onSoundChange } from '../lib/audio/sonido';
 import { isAudioUnlocked } from '../lib/audio/unlock';
 import { findRoleByKind, getRole, getTheme, roleByKind, type RoleCard, type RoleKind, type Theme } from '../lib/tematicas';
-import { advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
+import { advanceNight, advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
 import GameHistory from './GameHistory';
 import { HelpButton } from './Help';
 import Avatar from './Avatar';
@@ -76,8 +76,8 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   const byId = (id: string | null | undefined) => room.players.find((p) => p.id === id);
   const alive = room.players.filter((p) => p.is_alive);
   const me = byId(room.me.id);
-  // Cuenta atrás del turno de los malos o de la votación del día. El turno de
-  // los malos también está hecho cuando se acaba su tiempo.
+  // Cuenta atrás del turno de noche o de la votación del día. Un turno de
+  // noche también está hecho cuando se acaba su tiempo.
   const left = useSecondsLeft(room);
   const stepDone = room.phase === 'night' && (room.step_done || left === 0);
   const next = nextLabel(theme, room, stepDone);
@@ -130,6 +130,29 @@ export default function Game({ room, token, photos, online, connected, onAdvance
     void advance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room.me.is_creator, room.phase, left, room.version]);
+
+  // La noche avanza sin el creador: en cuanto se acaba la cuenta atrás o el rol
+  // activo ha actuado, cada móvil lo pide al servidor. Solo avanza el primero;
+  // los demás llegan con la versión vieja y no hacen nada.
+  const autoNight =
+    room.phase === 'night' && !room.pending_shot && shouldAutoAdvanceNight(room.night_step, room.step_done, left);
+  useEffect(() => {
+    if (!autoNight) return;
+    const version = room.version;
+    const tryAdvance = () =>
+      void advanceNight(room.code, token, version)
+        .then((ok) => (ok ? onAdvanced() : undefined))
+        .catch(() => undefined);
+    // Un momento para que quien acaba de actuar vea que está hecho; después se
+    // reintenta por si el reloj del servidor aún no había llegado a cero.
+    const first = setTimeout(tryAdvance, 1500);
+    const retry = setInterval(tryAdvance, 4000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(retry);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoNight, room.version, room.code, token]);
 
   async function run(fn: () => Promise<void>) {
     setBusy(true);
@@ -268,17 +291,24 @@ export default function Game({ room, token, photos, online, connected, onAdvance
               )}
               <p className={`mt-1 text-sm ${stepDone ? 'text-emerald-400' : 'text-stone-400'}`}>
                 {left === 0
-                  ? '✓ Se ha acabado el tiempo: gana la víctima más votada'
+                  ? room.night_step === 'bad'
+                    ? '✓ Se ha acabado el tiempo: gana la víctima más votada'
+                    : '✓ Se ha acabado el tiempo: pasa al siguiente turno'
                   : stepDone
-                    ? '✓ Ya ha actuado'
+                    ? room.night_step === 'investigate'
+                      ? '✓ Ya ha actuado. Pasa cuando lo confirme o se acabe el tiempo'
+                      : '✓ Ya ha actuado: pasa al siguiente turno'
                     : room.night_step === 'bad'
                       ? 'Esperando a que se pongan de acuerdo…'
                       : 'Esperando a que actúe…'}
               </p>
+              <p className="mt-1 text-xs text-stone-500">
+                La noche sigue sola cuando el rol actúa, lo pasa o se acaba el tiempo.
+              </p>
               <NarrationPlayer lines={lastLinesRef} />
             </Card>
           )}
-          <NightPanel room={room} theme={theme} token={token} photos={photos} />
+          <NightPanel room={room} theme={theme} token={token} photos={photos} onAdvanced={onAdvanced} />
         </>
       )}
 
@@ -440,7 +470,11 @@ export default function Game({ room, token, photos, online, connected, onAdvance
             {busy ? 'Un momento…' : next}
           </Button>
         ) : (
-          <p className="text-center text-stone-300">{creator?.name ?? 'El creador'} dirige la partida.</p>
+          <p className="text-center text-stone-300">
+            {room.phase === 'night'
+              ? 'La noche sigue sola cuando cada rol termina o se acaba su tiempo.'
+              : `${creator?.name ?? 'El creador'} dirige la partida.`}
+          </p>
         ))}
 
       {room.phase !== 'role_reveal' && room.phase !== 'intro' && room.phase !== 'finished' && (

@@ -23,7 +23,7 @@ export interface PublicRoom {
   night_step: RoleKind | null;
   /** Si ya ha actuado quien tiene el turno de noche. */
   step_done: boolean;
-  /** Fin del turno de los malos o de la votación del día, y hora del servidor al leer la sala. */
+  /** Fin del turno de noche o de la votación del día, y hora del servidor al leer la sala. */
   step_ends_at: string | null;
   server_time: string;
   day_minutes: DayMinutes;
@@ -137,6 +137,15 @@ export function getMyRole(token: string) {
 /** Solo el creador. `version` evita que dos toques seguidos se salten una fase. */
 export function advancePhase(code: string, token: string, version: number) {
   return call<void>('avanzar_fase', { p_room_code: code, p_token: token, p_version: version });
+}
+
+/**
+ * Cualquier jugador pide pasar al siguiente turno de la noche. El servidor solo
+ * avanza si se ha acabado el tiempo, si el turno está hecho (salvo la Vidente,
+ * que lo confirma ella) o si quien lo pide es el rol activo. Devuelve si ha avanzado.
+ */
+export function advanceNight(code: string, token: string, version: number) {
+  return call<boolean>('avanzar_noche', { p_room_code: code, p_token: token, p_version: version });
 }
 
 export interface SeenPlayer {

@@ -131,8 +131,10 @@ begin
 
   -- Empate: la víctima sale al azar entre las empatadas.
   r := pg_temp.advance(c, 'w');
-  perform pg_temp.check(r->>'night_step' = 'investigate' and r->>'step_ends_at' is null,
-    'turno de la Vidente sin cuenta atrás ' || r::text);
+  -- Desde 20261101010000_avanzar_noche todos los turnos de noche tienen cuenta atrás.
+  perform pg_temp.check(r->>'night_step' = 'investigate'
+    and (r->>'step_ends_at')::timestamptz > now() + interval '59 seconds',
+    'turno de la Vidente con su propia cuenta atrás ' || r::text);
   perform pg_temp.check((select night_victim in (pg_temp.pid(c, 'J3'), pg_temp.pid(c, 'J4'))
     from public.rooms where code = c), 'víctima entre las empatadas');
 end;

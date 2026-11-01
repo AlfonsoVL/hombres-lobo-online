@@ -16,8 +16,10 @@ Supabase (plan Free). El diseño y las reglas confirmadas están en
 2. Comparte el enlace (por WhatsApp o copiándolo). Los demás lo abren, escriben su nombre y,
    si quieren, se hacen una foto.
 3. El creador configura los roles (y si hay Alcalde) e inicia la partida.
-4. Cada uno mantiene pulsada su carta para ver su rol. Después el creador pasa la noche turno a
-   turno, el amanecer, la votación y el linchamiento hasta que gana un bando.
+4. Cada uno mantiene pulsada su carta para ver su rol. La noche avanza sola: cada turno dura
+   60 s y pasa al siguiente cuando el rol actúa, cuando él mismo lo pasa o cuando se acaba el
+   tiempo (el creador también puede saltarlo). El creador pasa el amanecer, la votación y el
+   linchamiento hasta que gana un bando.
 
 En el modo clásico hacen falta al menos 6 jugadores. En la portada hay un enlace a la ayuda
 con las reglas y la ficha de cada rol.
@@ -53,6 +55,7 @@ con las reglas y la ficha de cada rol.
    6. `20261029010000_historial.sql`
    7. `20261029020000_reacciones_y_tiempos.sql`
    8. `20261101000000_volver_a_jugar.sql`
+   9. `20261101010000_avanzar_noche.sql`
 
    Con la [CLI de Supabase](https://supabase.com/docs/guides/cli) también puedes hacer
    `supabase link` y `supabase db push`.
