@@ -13,6 +13,7 @@ import {
 } from '../lib/game';
 import { getRole, type Theme } from '../lib/tematicas';
 import {
+  advanceNight,
   getMyNight,
   getMyRole,
   nightAction,
@@ -34,9 +35,10 @@ interface Props {
   theme: Theme;
   token: string;
   photos: Map<string, string>;
+  onAdvanced: () => Promise<void>;
 }
 
-export default function NightPanel({ room, theme, token, photos }: Props) {
+export default function NightPanel({ room, theme, token, photos, onAdvanced }: Props) {
   const [night, setNight] = useState<MyNight | null>(null);
   const [role, setRole] = useState<MyRole | null>(null);
   const [error, setError] = useState('');
@@ -47,7 +49,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
   const timeUp = left === 0;
 
   // Se vuelve a pedir en cada cambio de la sala (turno nuevo, votos de otros malos...)
-  // y al acabarse el tiempo de los malos.
+  // y al acabarse el tiempo del turno.
   useEffect(() => {
     getMyNight(room.code, token).then(setNight).catch(() => undefined);
   }, [room.code, room.version, room.night_step, room.step_done, room.votes, timeUp, token]);
@@ -63,13 +65,32 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
     setError('');
   }, [room.night_step, room.round]);
 
-  async function act(action: NightActionName, args: Parameters<typeof nightAction>[3] = {}) {
+  // Las acciones se confirman antes de enviarlas: con la acción hecha, la noche sigue sola.
+  async function act(action: NightActionName, args: Parameters<typeof nightAction>[3] = {}, ask?: string) {
+    if (ask && !confirm(ask)) return;
     setBusy(true);
     setError('');
     try {
       setNight(await nightAction(room.code, token, action, args));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se ha podido hacer la acción.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Vía del rol activo: pasa al siguiente turno, haya actuado o no.
+  async function pass(ask?: string) {
+    if (ask && !confirm(ask)) return;
+    setBusy(true);
+    setError('');
+    try {
+      if (!(await advanceNight(room.code, token, room.version))) {
+        setError('La partida ya ha avanzado.');
+      }
+      await onAdvanced();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se ha podido pasar el turno.');
     } finally {
       setBusy(false);
     }
@@ -107,9 +128,20 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
   const done = (text: string) => (
     <Card className="flex flex-col gap-2 text-center">
       <p className="text-lg font-semibold">✓ {text}</p>
-      <p className="text-stone-400">Cierra los ojos.</p>
+      <p className="text-stone-400">Cierra los ojos. La noche sigue sola.</p>
     </Card>
   );
+  const over = timeUp || !!night.time_up;
+  const off = busy || over;
+  const countdown =
+    left !== null ? (
+      <p
+        className={`text-center font-mono text-4xl tabular-nums ${left <= 10 ? 'text-red-400' : 'text-stone-300'}`}
+        aria-label={`Quedan ${left} segundos`}
+      >
+        {formatSeconds(left)}
+      </p>
+    ) : null;
 
   let body: React.ReactNode = null;
   switch (night.kind) {
@@ -117,27 +149,19 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
       // Pantalla discreta: fondo negro, sin animaciones y botones grandes.
       const mates = new Set(role?.bad_teammates?.map((p) => p.id));
       const targets = alive.filter((p) => p.id !== me && !mates.has(p.id));
-      const over = timeUp || !!night.time_up;
       const agreed =
         !!night.my_target &&
         (night.votes ?? []).length === mates.size &&
         (night.votes ?? []).every((v) => v.target === night.my_target);
       body = (
         <>
-          {left !== null && (
-            <p
-              className={`text-center font-mono text-4xl tabular-nums ${left <= 10 ? 'text-red-400' : 'text-stone-300'}`}
-              aria-label={`Quedan ${left} segundos`}
-            >
-              {formatSeconds(left)}
-            </p>
-          )}
+          {countdown}
           <p className="text-stone-400">
             {over
               ? 'Se ha acabado el tiempo: gana la más votada (si hay empate, al azar). Cerrad los ojos.'
               : mates.size
-                ? 'Toca a tu víctima y usa las reacciones para opinar sin hablar. El turno termina cuando coincidís todos o se acaba el tiempo.'
-                : 'Toca a tu víctima antes de que se acabe el tiempo.'}
+                ? 'Toca a tu víctima y usa las reacciones para opinar sin hablar. Cuando coincidáis todos (o se acabe el tiempo), la noche sigue sola.'
+                : 'Toca a tu víctima antes de que se acabe el tiempo. Al elegirla, la noche sigue sola.'}
           </p>
           {mates.size > 0 && (
             <p className="text-sm text-stone-400">
@@ -163,7 +187,10 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
                 reactions={mates.size ? (night.reactions ?? []) : null}
                 goodRoles={night.good_roles ?? []}
                 disabled={busy || over}
-                onVote={() => void act('kill', { target: p.id })}
+                onVote={() =>
+                  // Solo, el voto cierra el turno: se confirma. Con compañeros, votar es hablar.
+                  void act('kill', { target: p.id }, mates.size ? undefined : `¿Elegir a ${p.name} como víctima?`)
+                }
                 onReact={(reaction, mine) => void react(p.id, reaction, mine)}
               />
             ))}
@@ -190,7 +217,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
             <p className="text-stone-400">
               Puedes espiar a los {theme.nombres_grupo.bad.toLowerCase()}. Hay un 50 % de que te descubran y mueras.
             </p>
-            <Button type="button" disabled={busy} onClick={() => void act('spy')}>
+            <Button type="button" disabled={off} onClick={() => void act('spy')}>
               Espiar
             </Button>
           </>
@@ -211,8 +238,8 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
                 <button
                   key={`${card}-${i}`}
                   type="button"
-                  disabled={busy}
-                  onClick={() => void act('swap', { card })}
+                  disabled={off}
+                  onClick={() => void act('swap', { card }, `¿Quedarte con ${c.nombre}?`)}
                   className={`flex flex-col items-center gap-2 rounded-xl border-2 bg-stone-800/80 p-4 text-center font-semibold ${
                     c.bando === 'bad' ? 'border-red-800 text-red-400' : 'border-stone-600 text-amber-300'
                   }`}
@@ -238,15 +265,17 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
             players={alive}
             photos={photos}
             selected={picked}
-            disabled={busy}
+            disabled={off}
             onSelect={(id) =>
               setPicked((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].slice(-2)))
             }
           />
           <Button
             type="button"
-            disabled={busy || picked.length !== 2}
-            onClick={() => void act('link', { target: picked[0], target2: picked[1] })}
+            disabled={off || picked.length !== 2}
+            onClick={() =>
+              void act('link', { target: picked[0], target2: picked[1] }, `¿Unir a ${picked.map(nameOf).join(' y ')}?`)
+            }
           >
             Unir a {picked.map(nameOf).join(' y ') || 'la pareja'}
           </Button>
@@ -268,13 +297,13 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
               players={alive.filter((p) => p.id !== me)}
               photos={photos}
               selected={picked}
-              disabled={busy}
+              disabled={off}
               onSelect={pick}
             />
             <Button
               type="button"
-              disabled={busy || !picked[0]}
-              onClick={() => void act('see', { target: picked[0] })}
+              disabled={off || !picked[0]}
+              onClick={() => void act('see', { target: picked[0] }, `¿Ver el rol de ${nameOf(picked[0])}?`)}
             >
               Ver el rol de {nameOf(picked[0]) || '…'}
             </Button>
@@ -296,7 +325,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
             </p>
             {canHeal && (
               <label className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
-                <input type="checkbox" checked={heal} onChange={(e) => setHeal(e.target.checked)} />
+                <input type="checkbox" checked={heal} disabled={off} onChange={(e) => setHeal(e.target.checked)} />
                 Usar la poción de cura con {nameOf(victim)}
               </label>
             )}
@@ -307,7 +336,7 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
                   players={alive.filter((p) => p.id !== me)}
                   photos={photos}
                   selected={picked}
-                  disabled={busy}
+                  disabled={off}
                   onSelect={(id) => setPicked((s) => (s[0] === id ? [] : [id]))}
                 />
               </>
@@ -316,9 +345,13 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
             )}
             <Button
               type="button"
-              disabled={busy}
+              disabled={off}
               onClick={() =>
-                void act('potions', { target: picked[0] ?? null, target2: heal ? victim : null })
+                void act(
+                  'potions',
+                  { target: picked[0] ?? null, target2: heal ? victim : null },
+                  potionsQuestion(heal ? nameOf(victim) : null, picked[0] ? nameOf(picked[0]) : null),
+                )
               }
             >
               {heal || picked[0] ? 'Usar las pociones' : 'No usar ninguna poción'}
@@ -335,13 +368,13 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
               players={alive.filter((p) => p.id !== me && p.id !== night.last_protected)}
               photos={photos}
               selected={picked}
-              disabled={busy}
+              disabled={off}
               onSelect={pick}
             />
             <Button
               type="button"
-              disabled={busy || !picked[0]}
-              onClick={() => void act('protect', { target: picked[0] })}
+              disabled={off || !picked[0]}
+              onClick={() => void act('protect', { target: picked[0] }, `¿Proteger a ${nameOf(picked[0])}?`)}
             >
               Proteger a {nameOf(picked[0]) || '…'}
             </Button>
@@ -363,6 +396,10 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
     );
   }
 
+  // El rol activo puede pasar al siguiente turno cuando quiera (la Niña no:
+  // actúa durante el turno de los malos).
+  const active = night.kind === room.night_step;
+  const seenDone = night.kind === 'investigate' && night.done;
   return (
     <Card className="mt-14 flex flex-col gap-4">
       <div className="-mt-[76px] flex flex-col items-center gap-2 text-center">
@@ -371,7 +408,19 @@ export default function NightPanel({ room, theme, token, photos }: Props) {
           Es tu turno{role ? `, ${getRole(theme, role.role).nombre}` : ''}
         </h2>
       </div>
+      {countdown}
+      {over && <p className="text-center text-stone-400">Se ha acabado el tiempo. Cierra los ojos.</p>}
       {body}
+      {active && !over && (
+        <Button
+          type="button"
+          variant={seenDone ? undefined : 'secondary'}
+          disabled={busy}
+          onClick={() => void pass(seenDone ? undefined : '¿Pasar el turno sin actuar?')}
+        >
+          {seenDone ? 'Ya lo he visto: siguiente turno' : 'Pasar el turno sin actuar'}
+        </Button>
+      )}
       <ErrorText>{error}</ErrorText>
     </Card>
   );
@@ -499,6 +548,14 @@ function BadCandidate({
       )}
     </li>
   );
+}
+
+/** Pregunta de confirmación de la Bruja según las pociones elegidas. */
+function potionsQuestion(heal: string | null, poison: string | null): string {
+  const parts = [heal && `curar a ${heal}`, poison && `envenenar a ${poison}`].filter(Boolean);
+  if (!parts.length) return '¿No usar ninguna poción esta noche?';
+  const text = parts.join(' y ');
+  return `¿${text.charAt(0).toUpperCase()}${text.slice(1)}?`;
 }
 
 function Quiet({ title, text }: { title: string; text: string }) {

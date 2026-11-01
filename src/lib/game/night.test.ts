@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { THEMES } from '../tematicas';
-import { nightSteps, powerButton } from './night';
+import { nightSteps, powerButton, shouldAutoAdvanceNight } from './night';
 import { playersWith } from './testUtils';
 
 const theme = THEMES.castronegro;
@@ -52,5 +52,25 @@ describe('botón de poder', () => {
   it('Cupido no actúa a partir de la segunda noche', () => {
     expect(powerButton(theme, players, 'p5', 1, 'link')).toBe('act');
     expect(powerButton(theme, players, 'p5', 2, 'bad')).toBe('sleep');
+  });
+});
+
+describe('la noche avanza sola', () => {
+  it('al acabarse la cuenta atrás, sea cual sea el turno', () => {
+    expect(shouldAutoAdvanceNight('protect', false, 0)).toBe(true);
+    expect(shouldAutoAdvanceNight('investigate', false, 0)).toBe(true);
+    expect(shouldAutoAdvanceNight('bad', false, 0)).toBe(true);
+  });
+
+  it('cuando el rol activo ya ha actuado', () => {
+    expect(shouldAutoAdvanceNight('bad', true, 20)).toBe(true);
+    expect(shouldAutoAdvanceNight('link', true, 20)).toBe(true);
+    expect(shouldAutoAdvanceNight('swap', true, null)).toBe(true);
+  });
+
+  it('la Vidente lo confirma ella, y nada avanza mientras se espera', () => {
+    expect(shouldAutoAdvanceNight('investigate', true, 20)).toBe(false);
+    expect(shouldAutoAdvanceNight('protect', false, 20)).toBe(false);
+    expect(shouldAutoAdvanceNight(null, true, 0)).toBe(false);
   });
 });

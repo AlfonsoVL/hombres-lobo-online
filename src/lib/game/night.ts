@@ -53,3 +53,18 @@ export function powerButton(
   if (mine === current) return 'act';
   return mine > current ? 'wait' : 'sleep';
 }
+
+/**
+ * Si los móviles deben pedir solos el paso al siguiente turno de la noche: se ha
+ * acabado la cuenta atrás o el rol activo ya ha actuado. La Vidente no pasa
+ * sola al ver el rol: lo confirma ella con su botón para que le dé tiempo a leerlo.
+ */
+export function shouldAutoAdvanceNight(
+  step: RoleKind | null,
+  stepDone: boolean,
+  secondsLeft: number | null,
+): boolean {
+  if (!step) return false;
+  if (secondsLeft === 0) return true;
+  return stepDone && step !== 'investigate';
+}
