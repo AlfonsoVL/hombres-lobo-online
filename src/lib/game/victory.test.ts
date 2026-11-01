@@ -50,4 +50,11 @@ describe('victoria', () => {
     const p = playersWith(['xenomorph', 'crew_member', 'android', 'scientist'], [4]);
     expect(checkVictory(THEMES.alien, p, ['p1', 'p2'])).toBe('lovers');
   });
+
+  it('el Lobo Blanco gana si queda solo, y mientras viva los malos no ganan por número', () => {
+    expect(checkVictory(theme, playersWith(['white_wolf', 'werewolf', 'villager'], [2, 3]), null)).toBe('white_wolf');
+    expect(checkVictory(theme, playersWith(['white_wolf', 'werewolf', 'villager']), null)).toBeNull();
+    expect(checkVictory(theme, playersWith(['white_wolf', 'werewolf', 'villager'], [1, 3]), null)).toBe('bad');
+    expect(checkVictory(theme, playersWith(['white_wolf', 'villager', 'seer'], [1]), null)).toBe('good');
+  });
 });

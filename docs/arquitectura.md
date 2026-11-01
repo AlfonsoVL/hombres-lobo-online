@@ -24,8 +24,8 @@
 ```
 
 Los identificadores de los roles son los mismos en SQL, en el motor y en los nombres de los
-avatares: `werewolf`, `villager`, `seer`, `witch`, `hunter`, `cupid`, `little_girl`, `thief`
-(Castronegro) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
+avatares: `werewolf`, `villager`, `seer`, `witch`, `hunter`, `cupid`, `little_girl`, `thief`,
+`fierce_wolf`, `infect_wolf`, `white_wolf`, `big_bad_wolf` (Castronegro) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
 Los nombres en español que ve el jugador salen del JSON de la temática.
 
 ## Base de datos
@@ -150,6 +150,18 @@ el plan gratuito.
 - **Decisiones mías, fáciles de cambiar:** los votos del día son públicos; el Cazador dispara también si
   muere por amor.
 
+## Lobos especiales (solo modo personalizado, Castronegro)
+
+Son del bando de los lobos: se conocen con el resto, votan con la manada y se suman al número
+de lobos (que puede ser 0 si hay alguno). La manada es cualquier jugador vivo con bando `bad`.
+
+| Rol | Tipo | Qué hace |
+|---|---|---|
+| Lobo Feroz | `fierce` | Turno propio tras la manada mientras no haya muerto ningún lobo: elige una segunda víctima. La Bruja puede curar a cualquiera de las dos. |
+| Lobo Infecto | `infect` | Turno propio tras la manada. Una vez por partida infecta a la víctima: no muere y al amanecer pasa a ser Lobo (pierde su rol). La Bruja no ve víctima esa noche. |
+| Lobo Blanco | `white` | Turno propio las noches pares: puede matar a otro lobo. Gana (`winner = 'white_wolf'`) si es el único vivo. Mientras viva, los lobos no ganan por igualar en número. |
+| Gran Lobo Malvado | `disguised` | Sin turno propio. La Vidente y la Niña lo ven como Aldeano. |
+
 ## Reglas pendientes
 
 - Número mínimo de jugadores en modo personalizado.
@@ -169,4 +181,4 @@ el plan gratuito.
 | `events.ts` | Tipos de eventos de Broadcast y comprobación de que no llevan roles. |
 
 Orden de la noche: Ladrón y Cupido (solo la primera
-noche), malos (y la Niña durante su turno), Vidente y Bruja.
+noche), malos (y la Niña durante su turno), Lobo Infecto, Lobo Feroz, Lobo Blanco, Vidente y Bruja.

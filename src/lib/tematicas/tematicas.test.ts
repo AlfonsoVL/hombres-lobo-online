@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { THEMES, type RoleKind } from '.';
 
 const FIELDS = ['id', 'nombre', 'bando', 'avatar', 'cuando_actua', 'poder', 'gana'] as const;
-const KINDS_WITH_TURN: RoleKind[] = ['investigate', 'protect', 'link', 'swap'];
+const KINDS_WITH_TURN: RoleKind[] = ['investigate', 'protect', 'link', 'swap', 'infect', 'fierce', 'white'];
 
 // Roles sembrados en la migración SQL, para que motor y base de datos coincidan.
 function sqlRoles(): string[] {

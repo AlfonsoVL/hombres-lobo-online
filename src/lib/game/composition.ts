@@ -8,6 +8,7 @@ export const MAX_PLAYERS = 24;
 
 export interface Composition {
   players: number;
+  /** Malos sin rol especial (los lobos especiales van en specials). */
   bad: number;
   /** Ids de los roles especiales, cada uno como máximo una vez. */
   specials: string[];
@@ -86,9 +87,6 @@ export function customComposition(
   if (players > MAX_PLAYERS) {
     return { ok: false, error: `El máximo es de ${MAX_PLAYERS} jugadores.` };
   }
-  if (!Number.isInteger(bad) || bad < 1) {
-    return { ok: false, error: 'Tiene que haber al menos 1 malo.' };
-  }
   if (new Set(specials).size !== specials.length) {
     return { ok: false, error: 'Cada rol especial solo puede elegirse una vez.' };
   }
@@ -97,6 +95,11 @@ export function customComposition(
     if (!role || role.tipo === 'bad' || role.tipo === 'plain_good') {
       return { ok: false, error: `El rol ${id} no es un rol especial de ${theme.nombre}.` };
     }
+  }
+  // Los lobos especiales cuentan como malos: con alguno, los malos normales pueden ser 0.
+  const specialBad = specials.filter((id) => getRole(theme, id).bando === 'bad').length;
+  if (!Number.isInteger(bad) || bad < 0 || bad + specialBad < 1) {
+    return { ok: false, error: 'Tiene que haber al menos 1 malo.' };
   }
   const plain = players - bad - specials.length;
   if (plain < 0) {
@@ -110,9 +113,11 @@ export function customComposition(
 
 /** Texto del resumen que el creador confirma antes de iniciar. */
 export function compositionSummary(theme: Theme, c: Composition): string {
-  const names = c.specials.map((id) => getRole(theme, id).nombre).join(', ') || 'ninguno';
+  const roles = c.specials.map((id) => getRole(theme, id));
+  const names = roles.filter((r) => r.bando !== 'bad').map((r) => r.nombre).join(', ') || 'ninguno';
+  const specialBad = roles.filter((r) => r.bando === 'bad').map((r) => r.nombre);
   return (
-    `${theme.nombres_grupo.bad}: ${c.bad}. ` +
+    `${theme.nombres_grupo.bad}: ${[String(c.bad), ...specialBad].join(' + ')}. ` +
     `Roles especiales: ${names}. ` +
     `${theme.nombres_grupo.plain_good}: ${c.plain}.`
   );

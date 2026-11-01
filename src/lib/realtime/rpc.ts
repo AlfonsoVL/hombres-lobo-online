@@ -1,5 +1,5 @@
 // Llamadas a las funciones SQL. Los errores de Postgres ya vienen en español.
-import type { RoleKind, ThemeId } from '../tematicas';
+import type { RoleKind, ThemeId, Winner } from '../tematicas';
 import type { GameHistory } from '../game/historial';
 import type { BadReaction, ReactionEntry } from '../game/badTurn';
 import { getSupabase } from './client';
@@ -29,7 +29,7 @@ export interface PublicRoom {
   day_minutes: DayMinutes;
   round: number;
   version: number;
-  winner: 'bad' | 'good' | 'lovers' | null;
+  winner: Winner | null;
   mayor_id: string | null;
   /** Cazador que tiene que disparar antes de seguir. */
   pending_shot: string | null;
@@ -82,7 +82,7 @@ export interface RoomStatus {
   exists: boolean;
   theme?: ThemeId;
   phase?: 'lobby' | 'playing' | 'finished';
-  winner?: 'bad' | 'good' | 'lovers' | null;
+  winner?: Winner | null;
 }
 
 export function getRoomStatus(code: string) {
@@ -125,6 +125,8 @@ export interface MyRole {
   role: string;
   team: 'bad' | 'good';
   is_alive: boolean;
+  /** Poderes y estado del rol. infected_round: ronda en que el Lobo Infecto le convirtió. */
+  power_state: { infected_round?: number } & Record<string, unknown>;
   bad_teammates: { id: string; name: string }[] | null;
   /** Enamorado, si Cupido te ha elegido. */
   lover: { id: string; name: string } | null;
@@ -175,8 +177,11 @@ export interface MyNight {
   seen?: SeenPlayer | null;
   // Ladrón
   cards?: string[];
-  // Bruja y Médico
+  // Bruja y Médico (victim2: segunda víctima, la del Lobo Feroz)
   victim?: string | null;
+  victim2?: string | null;
+  // Lobo Infecto
+  can_infect?: boolean;
   heal?: boolean;
   poison?: boolean;
   last_protected?: string | null;
@@ -186,7 +191,17 @@ export function getMyNight(code: string, token: string) {
   return call<MyNight>('mi_noche', { p_room_code: code, p_token: token });
 }
 
-export type NightActionName = 'kill' | 'spy' | 'swap' | 'link' | 'see' | 'protect' | 'potions';
+export type NightActionName =
+  | 'kill'
+  | 'spy'
+  | 'swap'
+  | 'link'
+  | 'see'
+  | 'protect'
+  | 'potions'
+  | 'infect'
+  | 'devour'
+  | 'white_kill';
 
 export function nightAction(
   code: string,

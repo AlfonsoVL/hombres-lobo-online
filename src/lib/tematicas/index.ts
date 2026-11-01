@@ -12,7 +12,17 @@ export type RoleKind =
   | 'shoot_on_death'
   | 'link'
   | 'spy'
-  | 'swap';
+  | 'swap'
+  // Lobos especiales (bando de los malos, solo en modo personalizado).
+  | 'fierce'
+  | 'infect'
+  | 'white'
+  | 'disguised';
+
+/** Tipos de los lobos especiales: votan con la manada. */
+export const SPECIAL_BAD_KINDS: RoleKind[] = ['fierce', 'infect', 'white', 'disguised'];
+
+export type Winner = 'bad' | 'good' | 'lovers' | 'white_wolf';
 
 /** Ficha de ayuda de un rol, tal como está en el JSON de la temática. */
 export interface RoleCard {
@@ -50,7 +60,7 @@ export interface Theme {
     amanecer_sin_victima: Line;
     dia: Line;
     linchamiento: Line;
-    victoria: Record<'bad' | 'good' | 'lovers', Line>;
+    victoria: Record<'bad' | 'good' | 'lovers', Line> & { white_wolf?: Line };
   };
   reglas: string[];
   /** Título de la pantalla de introducción. */
@@ -77,6 +87,11 @@ export function getRole(theme: Theme, roleId: string): RoleCard {
 /** Rol de la temática para un tipo, o undefined si la temática no lo tiene. */
 export function findRoleByKind(theme: Theme, kind: RoleKind): RoleCard | undefined {
   return theme.roles.find((r) => r.tipo === kind);
+}
+
+/** Texto de victoria del ganador (con un texto genérico si la temática no lo tiene). */
+export function victoryLine(theme: Theme, winner: Winner): Line {
+  return theme.textos.victoria[winner] ?? { texto: 'Fin de la partida.', audio: '' };
 }
 
 export function roleByKind(theme: Theme, kind: RoleKind): RoleCard {

@@ -104,6 +104,12 @@ export default function MyRoleCard({ theme, token, photos }: Props) {
               )}
             </span>
           )}
+          {role.power_state?.infected_round && (
+            <span className="rounded-lg bg-red-950/80 px-3 py-2 text-sm text-red-200">
+              🦠 Te infectaron en la noche {role.power_state.infected_round}: ahora eres uno de los{' '}
+              {theme.nombres_grupo.bad.toLowerCase()} y has perdido tu rol anterior.
+            </span>
+          )}
           {role.lover && (
             <span className="flex items-center gap-3 text-left text-sm text-pink-300">
               <Avatar id={role.lover.id} name={role.lover.name} photo={photos?.get(role.lover.id)} size={44} />

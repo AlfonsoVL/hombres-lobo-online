@@ -15,8 +15,8 @@ import {
   type PublicRoom,
   type RoomStatus,
 } from '../lib/realtime/rpc';
-import { winnerName } from '../lib/game/historial';
-import { getTheme } from '../lib/tematicas';
+import { winnerName, winnerRole } from '../lib/game/historial';
+import { getTheme, victoryLine } from '../lib/tematicas';
 import { clearToken, loadToken, newToken, saveToken } from '../lib/realtime/token';
 import { useThemeStyle } from '../lib/estilo';
 import Game from './Game';
@@ -274,14 +274,14 @@ function ClosedRoom({ status }: { status: RoomStatus }) {
   );
   if (status.phase === 'finished' && theme && status.winner) {
     const winner = status.winner;
-    const role = theme.roles.find((r) => r.tipo === (winner === 'bad' ? 'bad' : winner === 'lovers' ? 'link' : 'plain_good'));
+    const role = winnerRole(theme, winner);
     return (
       <Card className="mt-10 flex flex-col items-center gap-4 text-center">
         <Title>La partida ha terminado</Title>
         <Ornament>VICTORIA</Ornament>
         {role && <RoleAvatar role={role} size={120} />}
         <p className="titulo text-2xl font-bold text-amber-300">{winnerName(theme, winner)}</p>
-        <p className="text-stone-300">{theme.textos.victoria[winner].texto}</p>
+        <p className="text-stone-300">{victoryLine(theme, winner).texto}</p>
         {home}
       </Card>
     );

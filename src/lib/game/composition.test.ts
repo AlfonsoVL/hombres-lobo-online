@@ -122,4 +122,23 @@ describe('modo personalizado', () => {
       'Lobos: 2. Roles especiales: Vidente, Bruja. Aldeanos: 4.',
     );
   });
+
+  it('los lobos especiales cuentan como malos y se suman a los lobos', () => {
+    const r = customComposition(castronegro, 8, 0, ['white_wolf', 'seer']);
+    if (!r.ok) throw new Error(r.error);
+    expect(r.value.plain).toBe(6);
+    const two = customComposition(castronegro, 8, 2, ['fierce_wolf', 'big_bad_wolf', 'seer']);
+    if (!two.ok) throw new Error(two.error);
+    expect(compositionSummary(castronegro, two.value)).toBe(
+      'Lobos: 2 + Lobo Feroz + Gran Lobo Malvado. Roles especiales: Vidente. Aldeanos: 3.',
+    );
+  });
+
+  it('los lobos especiales no salen en el modo clásico', () => {
+    for (let n = 6; n <= 24; n++) {
+      const r = classicComposition(castronegro, n);
+      if (!r.ok) throw new Error(r.error);
+      expect(r.value.specials.some((id) => id.endsWith('_wolf'))).toBe(false);
+    }
+  });
 });

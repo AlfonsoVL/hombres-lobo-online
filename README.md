@@ -56,6 +56,7 @@ con las reglas y la ficha de cada rol.
    7. `20261029020000_reacciones_y_tiempos.sql`
    8. `20261101000000_volver_a_jugar.sql`
    9. `20261101010000_avanzar_noche.sql`
+   10. `20261101020000_lobos_legendarios.sql`
 
    Con la [CLI de Supabase](https://supabase.com/docs/guides/cli) también puedes hacer
    `supabase link` y `supabase db push`.

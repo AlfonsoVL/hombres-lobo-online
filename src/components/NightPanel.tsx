@@ -44,7 +44,8 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
-  const [heal, setHeal] = useState(false);
+  // Víctima que la Bruja cura (o null).
+  const [heal, setHeal] = useState<string | null>(null);
   const left = useSecondsLeft(room);
   const timeUp = left === 0;
 
@@ -61,7 +62,7 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
 
   useEffect(() => {
     setPicked([]);
-    setHeal(false);
+    setHeal(null);
     setError('');
   }, [room.night_step, room.round]);
 
@@ -114,6 +115,8 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
   const alive = room.players.filter((p) => p.is_alive);
   const nameOf = (id: string | null | undefined) => room.players.find((p) => p.id === id)?.name ?? '';
   const pick = (id: string) => setPicked([id]);
+  // Compañeros de manada (solo si eres lobo).
+  const mates = new Set(role?.bad_teammates?.map((p) => p.id));
 
   if (night.state === 'dead') {
     return <Quiet title="Estás muerto" text="Mantén los ojos cerrados y no hables." />;
@@ -147,7 +150,6 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
   switch (night.kind) {
     case 'bad': {
       // Pantalla discreta: fondo negro, sin animaciones y botones grandes.
-      const mates = new Set(role?.bad_teammates?.map((p) => p.id));
       const targets = alive.filter((p) => p.id !== me && !mates.has(p.id));
       const agreed =
         !!night.my_target &&
@@ -314,21 +316,36 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
     case 'protect':
       if (night.done) return done('Hecho.');
       if (theme.id === 'castronegro') {
-        const victim = night.victim;
-        const canHeal = night.heal && victim && victim !== me;
+        // La víctima de la manada y, si la hay, la del Lobo Feroz.
+        const victims = [night.victim, night.victim2].filter((v): v is string => !!v);
+        const healable = night.heal ? victims.filter((v) => v !== me) : [];
         body = (
           <>
             <p>
-              {victim
-                ? <>Esta noche la víctima es <strong>{nameOf(victim)}</strong>.</>
-                : 'Esta noche no hay víctima.'}
+              {victims.length === 0 && 'Esta noche no hay víctima.'}
+              {victims.length === 1 && (
+                <>
+                  Esta noche la víctima es <strong>{nameOf(victims[0])}</strong>.
+                </>
+              )}
+              {victims.length === 2 && (
+                <>
+                  Esta noche las víctimas son <strong>{nameOf(victims[0])}</strong> y{' '}
+                  <strong>{nameOf(victims[1])}</strong>.
+                </>
+              )}
             </p>
-            {canHeal && (
-              <label className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
-                <input type="checkbox" checked={heal} disabled={off} onChange={(e) => setHeal(e.target.checked)} />
-                Usar la poción de cura con {nameOf(victim)}
+            {healable.map((v) => (
+              <label key={v} className="flex items-center gap-3 rounded-lg bg-stone-800 px-3 py-2">
+                <input
+                  type="checkbox"
+                  checked={heal === v}
+                  disabled={off}
+                  onChange={(e) => setHeal(e.target.checked ? v : null)}
+                />
+                Usar la poción de cura con {nameOf(v)}
               </label>
-            )}
+            ))}
             {night.poison ? (
               <>
                 <p className="text-sm text-stone-400">Poción de veneno (opcional): toca a un jugador para envenenarlo.</p>
@@ -349,8 +366,8 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
               onClick={() =>
                 void act(
                   'potions',
-                  { target: picked[0] ?? null, target2: heal ? victim : null },
-                  potionsQuestion(heal ? nameOf(victim) : null, picked[0] ? nameOf(picked[0]) : null),
+                  { target: picked[0] ?? null, target2: heal },
+                  potionsQuestion(heal ? nameOf(heal) : null, picked[0] ? nameOf(picked[0]) : null),
                 )
               }
             >
@@ -382,6 +399,78 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
         );
       }
       break;
+    case 'infect': {
+      const victim = night.victim;
+      if (night.done) return done(`Has infectado a ${nameOf(victim)}. Al amanecer será uno de los vuestros.`);
+      body = !night.can_infect ? (
+        <p className="text-stone-400">Ya usaste tu infección. Pasa el turno.</p>
+      ) : !victim ? (
+        <p className="text-stone-400">Esta noche no hay víctima que infectar. Pasa el turno.</p>
+      ) : (
+        <>
+          <p>
+            La víctima de la manada es <strong>{nameOf(victim)}</strong>.
+          </p>
+          <p className="text-stone-400">
+            Puedes infectarla en vez de matarla: no morirá y al amanecer será uno de los{' '}
+            {theme.nombres_grupo.bad.toLowerCase()}. Solo puedes hacerlo una vez por partida.
+          </p>
+          <Button
+            type="button"
+            disabled={off}
+            onClick={() => void act('infect', {}, `¿Infectar a ${nameOf(victim)}? Solo puedes hacerlo una vez.`)}
+          >
+            Infectar a {nameOf(victim)}
+          </Button>
+        </>
+      );
+      break;
+    }
+    case 'fierce': {
+      if (night.done) return done(`${nameOf(night.my_target)} será tu segunda víctima.`);
+      const targets = alive.filter((p) => p.id !== me && !mates.has(p.id) && p.id !== night.victim);
+      body = (
+        <>
+          <p className="text-stone-400">
+            {night.victim ? (
+              <>
+                La manada ya ha elegido a <strong className="text-stone-200">{nameOf(night.victim)}</strong>.{' '}
+              </>
+            ) : null}
+            Elige a una segunda víctima, solo para ti.
+          </p>
+          <PlayerPicker players={targets} photos={photos} selected={picked} disabled={off} onSelect={pick} />
+          <Button
+            type="button"
+            disabled={off || !picked[0]}
+            onClick={() => void act('devour', { target: picked[0] }, `¿Devorar también a ${nameOf(picked[0])}?`)}
+          >
+            Devorar a {nameOf(picked[0]) || '…'}
+          </Button>
+        </>
+      );
+      break;
+    }
+    case 'white': {
+      if (night.done) return done(`${nameOf(night.my_target)} no verá otro amanecer.`);
+      const targets = alive.filter((p) => mates.has(p.id));
+      body = targets.length ? (
+        <>
+          <p className="text-stone-400">Puedes eliminar a otro lobo. Quieres ser el último en pie.</p>
+          <PlayerPicker players={targets} photos={photos} selected={picked} disabled={off} onSelect={pick} />
+          <Button
+            type="button"
+            disabled={off || !picked[0]}
+            onClick={() => void act('white_kill', { target: picked[0] }, `¿Eliminar a ${nameOf(picked[0])}?`)}
+          >
+            Eliminar a {nameOf(picked[0]) || '…'}
+          </Button>
+        </>
+      ) : (
+        <p className="text-stone-400">No queda ningún otro lobo vivo. Pasa el turno.</p>
+      );
+      break;
+    }
   }
 
   if (night.kind === 'bad') {

@@ -9,9 +9,15 @@ function nightOrderText(theme: Theme): string {
   const name = (kind: RoleKind) => findRoleByKind(theme, kind)?.nombre;
   const firstNight = [name('swap'), name('link')].filter(Boolean).join(' y ');
   const spy = name('spy');
+  const infect = name('infect');
+  const fierce = name('fierce');
+  const white = name('white');
   const parts = [
     firstNight && `${firstNight} (solo la primera noche)`,
     theme.nombres_grupo.bad + (spy ? ` (${spy} espía durante su turno)` : ''),
+    infect,
+    fierce && `${fierce} (mientras no haya muerto ningún lobo)`,
+    white && `${white} (solo las noches pares)`,
     name('investigate'),
     name('protect'),
   ].filter(Boolean);
