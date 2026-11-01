@@ -1,6 +1,6 @@
 {
   "id": "castronegro",
-  "nombre": "Hombres lobo de Castronegro",
+  "nombre": "La Aldea Maldita",
   "color": "#d97706",
   "bandos": { "bad": "Lobos", "good": "Aldea" },
   "nombres_grupo": { "bad": "Lobos", "plain_good": "Aldeanos", "lovers": "Enamorados" },
@@ -140,11 +140,11 @@
   ],
   "textos": {
     "introduccion": {
-      "texto": "En la aldea de Castronegro, la luna llena asoma tras la montaña. Entre sus habitantes se esconden criaturas que no deberían existir. Esta noche, nadie está a salvo.",
+      "texto": "En La Aldea Maldita, la luna llena asoma tras la montaña. Entre sus habitantes se esconden criaturas que no deberían existir. Esta noche, nadie está a salvo.",
       "audio": "/audio/castronegro/introduccion.mp3"
     },
     "cerrad_ojos": {
-      "texto": "Cae la noche sobre Castronegro. Todos cerrad los ojos.",
+      "texto": "Cae la noche sobre La Aldea Maldita. Todos cerrad los ojos.",
       "audio": "/audio/castronegro/cerrad_ojos.mp3"
     },
     "malos_abrid": {
@@ -186,11 +186,11 @@
       }
     },
     "amanecer": {
-      "texto": "Amanece en Castronegro. Los aldeanos salen de sus casas y descubren que esta noche ha muerto…",
+      "texto": "Amanece en La Aldea Maldita. Los aldeanos salen de sus casas y descubren que esta noche ha muerto…",
       "audio": "/audio/castronegro/amanecer.mp3"
     },
     "amanecer_sin_victima": {
-      "texto": "Amanece en Castronegro y, por suerte, esta noche no ha muerto nadie.",
+      "texto": "Amanece en La Aldea Maldita y, por suerte, esta noche no ha muerto nadie.",
       "audio": "/audio/castronegro/amanecer_sin_victima.mp3"
     },
     "dia": {
@@ -202,13 +202,13 @@
       "audio": "/audio/castronegro/linchamiento.mp3"
     },
     "victoria": {
-      "bad": { "texto": "Los lobos se han hecho con Castronegro. Ganan los lobos.", "audio": "/audio/castronegro/victoria_lobos.mp3" },
-      "good": { "texto": "No queda ningún lobo en Castronegro. Gana la aldea.", "audio": "/audio/castronegro/victoria_aldea.mp3" },
+      "bad": { "texto": "Los lobos se han hecho con La Aldea Maldita. Ganan los lobos.", "audio": "/audio/castronegro/victoria_lobos.mp3" },
+      "good": { "texto": "No queda ningún lobo en La Aldea Maldita. Gana la aldea.", "audio": "/audio/castronegro/victoria_aldea.mp3" },
       "lovers": { "texto": "Solo el amor ha sobrevivido. Ganan los Enamorados.", "audio": "/audio/castronegro/victoria_enamorados.mp3" },
       "white_wolf": { "texto": "Solo queda en pie el Lobo Blanco. Gana el Lobo Blanco.", "audio": "/audio/castronegro/victoria_lobo_blanco.mp3" }
     }
   },
-  "titulo_intro": "La noche cae sobre Castronegro",
+  "titulo_intro": "La noche cae sobre La Aldea Maldita",
   "fondos": {
     "portada": "/fondos/castronegro/portada.webp",
     "intro": "/fondos/castronegro/intro.webp",
