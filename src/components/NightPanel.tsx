@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import {
   BAD_REACTIONS,
+  CONFIRM_STEPS,
   GUESS_EMOJI,
   formatSeconds,
   guessReaction,
@@ -313,6 +314,50 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
         );
       }
       break;
+    case 'compare':
+      if (night.done && night.compared) {
+        const { a, b, same } = night.compared;
+        body = (
+          <p className="text-lg">
+            🎶 <strong>{nameOf(a)}</strong> y <strong>{nameOf(b)}</strong> son{' '}
+            <strong className={same ? 'text-emerald-400' : 'text-red-400'}>
+              {same ? 'del mismo bando' : 'de bandos distintos'}
+            </strong>
+            .
+          </p>
+        );
+      } else {
+        body = (
+          <>
+            <p className="text-stone-400">
+              Toca tu flauta y elige a dos jugadores: sabrás si son del mismo bando o no.
+            </p>
+            <PlayerPicker
+              players={alive.filter((p) => p.id !== me)}
+              photos={photos}
+              selected={picked}
+              disabled={off}
+              onSelect={(id) =>
+                setPicked((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].slice(-2)))
+              }
+            />
+            <Button
+              type="button"
+              disabled={off || picked.length !== 2}
+              onClick={() =>
+                void act(
+                  'compare',
+                  { target: picked[0], target2: picked[1] },
+                  `¿Tocar la flauta para ${picked.map(nameOf).join(' y ')}?`,
+                )
+              }
+            >
+              Tocar para {picked.map(nameOf).join(' y ') || 'dos jugadores'}
+            </Button>
+          </>
+        );
+      }
+      break;
     case 'protect':
       if (night.done) return done('Hecho.');
       if (theme.id === 'castronegro') {
@@ -488,7 +533,7 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
   // El rol activo puede pasar al siguiente turno cuando quiera (la Niña no:
   // actúa durante el turno de los malos).
   const active = night.kind === room.night_step;
-  const seenDone = night.kind === 'investigate' && night.done;
+  const seenDone = CONFIRM_STEPS.includes(night.kind) && night.done;
   return (
     <Card className="mt-14 flex flex-col gap-4">
       <div className="-mt-[76px] flex flex-col items-center gap-2 text-center">

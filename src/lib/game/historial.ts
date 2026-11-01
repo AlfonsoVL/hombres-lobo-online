@@ -4,8 +4,22 @@
 import { findRoleByKind, roleByKind, type RoleCard, type Team, type Theme } from '../tematicas';
 import type { Winner } from './victory';
 
-/** Causas de muerte. fierce: devorado por el Lobo Feroz; white: eliminado por el Lobo Blanco. */
-export type DeathCause = 'bad' | 'poisoned' | 'spied' | 'lynched' | 'shot' | 'lover' | 'fierce' | 'white';
+/**
+ * Causas de muerte. fierce: devorado por el Lobo Feroz; white: eliminado por el
+ * Lobo Blanco; tetanus: contagiado por el Caballero; scapegoat: el Chivo
+ * Expiatorio en un empate.
+ */
+export type DeathCause =
+  | 'bad'
+  | 'poisoned'
+  | 'spied'
+  | 'lynched'
+  | 'shot'
+  | 'lover'
+  | 'fierce'
+  | 'white'
+  | 'tetanus'
+  | 'scapegoat';
 
 export interface GameHistory {
   winner: Winner;
@@ -13,7 +27,8 @@ export interface GameHistory {
   links: [string, string][];
   night: { round: number; actor: string; action: string; target: string | null; target2: string | null }[];
   votes: { round: number; voter: string; target: string }[];
-  log: { round: number; event: 'attack' | 'death'; cause: DeathCause | null; player: string }[];
+  /** resist: el Anciano aguanta un ataque. pardon: la aldea perdona al Tonto del Pueblo. */
+  log: { round: number; event: 'attack' | 'death' | 'resist' | 'pardon'; cause: DeathCause | null; player: string }[];
 }
 
 export interface ChronicleRound {
@@ -103,6 +118,10 @@ export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
         return `🐺 El ${findRoleByKind(theme, 'fierce')?.nombre ?? 'Lobo Feroz'} devoró también a ${who}.`;
       case 'white':
         return `🤍 El ${findRoleByKind(theme, 'white')?.nombre ?? 'Lobo Blanco'} traicionó a la manada y acabó con ${who}.`;
+      case 'tetanus':
+        return `🗡 ${who} murió del tétanos que le contagió la espada oxidada del ${findRoleByKind(theme, 'rusty_sword')?.nombre ?? 'Caballero'}.`;
+      case 'scapegoat':
+        return `🐐 La votación acabó en empate y pagó ${who}.`;
       default:
         return `☠ Murió ${who}.`;
     }
@@ -126,6 +145,9 @@ export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
           }
           case 'link':
             night.push(`💘 ${actor} unió a ${name(a.target)} y ${name(a.target2)}.`);
+            break;
+          case 'compare':
+            night.push(`🎶 ${actor} tocó para ${name(a.target)} y ${name(a.target2)}.`);
             break;
           case 'see':
             night.push(
@@ -175,11 +197,24 @@ export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
       // Muertes en orden: las de la noche (y sus consecuencias) y las del día.
       let inDay = false;
       h.log.forEach((e, i) => {
-        if (e.round !== round || e.event !== 'death') return;
-        if (e.cause === 'lynched') inDay = true;
+        if (e.round !== round) return;
+        if (e.event === 'resist') {
+          night.push(`🛡 ${name(e.player)} (${roleName(e.player)}) resistió el ataque de los ${bad}.`);
+          return;
+        }
+        if (e.event === 'pardon') {
+          inDay = true;
+          day.push(`🌼 La votación eligió a ${name(e.player)}, pero era ${roleName(e.player)} y la aldea le perdonó.`);
+          return;
+        }
+        if (e.event !== 'death') return;
+        if (e.cause === 'lynched' || e.cause === 'scapegoat') inDay = true;
         (inDay ? day : night).push(deathLine(e, i));
       });
-      if (votes.length && !h.log.some((e) => e.round === round && e.cause === 'lynched')) {
+      if (
+        votes.length &&
+        !h.log.some((e) => e.round === round && (e.cause === 'lynched' || e.cause === 'scapegoat' || e.event === 'pardon'))
+      ) {
         day.push('⚖ La votación no eliminó a nadie.');
       }
       return { round, night, day };

@@ -110,6 +110,16 @@ export default function MyRoleCard({ theme, token, photos }: Props) {
               {theme.nombres_grupo.bad.toLowerCase()} y has perdido tu rol anterior.
             </span>
           )}
+          {role.power_state?.wounded && (
+            <span className="rounded-lg bg-amber-950/80 px-3 py-2 text-sm text-amber-200">
+              🩹 Ya has resistido un ataque de los {theme.nombres_grupo.bad.toLowerCase()}: el próximo te matará.
+            </span>
+          )}
+          {role.power_state?.pardoned && (
+            <span className="rounded-lg bg-amber-950/80 px-3 py-2 text-sm text-amber-200">
+              🌼 La aldea ya te perdonó: sigues jugando, pero no puedes votar.
+            </span>
+          )}
           {role.lover && (
             <span className="flex items-center gap-3 text-left text-sm text-pink-300">
               <Avatar id={role.lover.id} name={role.lover.name} photo={photos?.get(role.lover.id)} size={44} />

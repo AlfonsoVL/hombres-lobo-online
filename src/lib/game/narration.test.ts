@@ -70,4 +70,25 @@ describe('narración', () => {
   it('no repite nada si el turno no cambia', () => {
     expect(narration(theme, state({ nightStep: 'bad' }), state({ nightStep: 'bad' }))).toEqual([]);
   });
+
+  it('el Tonto perdonado, el Chivo Expiatorio y la muerte del Anciano tienen su frase', () => {
+    const t = theme.textos;
+    expect(narration(theme, state({ phase: 'day' }), state({ phase: 'lynch', pardoned: 'Ana' })).map((l) => l.texto)).toEqual([
+      t.linchamiento.texto,
+      'Ana.',
+      t.tonto_perdonado!.texto,
+    ]);
+    const goat = narration(
+      theme,
+      state({ phase: 'day' }),
+      state({ phase: 'lynch', scapegoat: true, deaths: [{ name: 'Luis', role: 'scapegoat' }] }),
+    );
+    expect(goat.map((l) => l.texto)).toEqual([t.chivo_expiatorio!.texto, 'Luis, que era Chivo Expiatorio.']);
+    const elder = narration(
+      theme,
+      state({ phase: 'day' }),
+      state({ phase: 'lynch', powersLost: true, deaths: [{ name: 'Eva', role: 'elder' }] }),
+    );
+    expect(elder.at(-1)?.texto).toBe(t.poderes_perdidos!.texto);
+  });
 });
