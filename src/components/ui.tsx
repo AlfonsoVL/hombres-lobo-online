@@ -124,7 +124,19 @@ export function NameField({ value, onChange }: { value: string; onChange: (v: st
           className="w-full rounded-xl border border-stone-700 bg-stone-900/90 px-4 py-3 text-lg outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/40"
           value={value}
           maxLength={24}
-          autoComplete="nickname"
+          // El móvil (Chrome/Google Pay) no reconoce "nickname" y, al ver un
+          // campo de "nombre" suelto, lo tomaba por el titular de una tarjeta.
+          // "given-name" lo marca como nombre de persona; name/id neutros
+          // evitan que las heurísticas de autorrelleno lo asocien a pagos.
+          id="apodo-jugador"
+          name="apodo"
+          type="text"
+          inputMode="text"
+          autoComplete="given-name"
+          autoCapitalize="words"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="done"
           onChange={(e) => onChange(e.target.value)}
           placeholder="Cómo te llamarán en la partida"
         />
