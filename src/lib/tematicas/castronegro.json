@@ -191,6 +191,28 @@
       "cuando_actua": "Cada noche, en su turno, después de la Vidente.",
       "poder": "Toca su flauta y elige a dos jugadores (no a sí mismo): la música le dice si son del mismo bando o de bandos distintos, pero no de cuál. El Gran Lobo Malvado le parece un aldeano.",
       "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "guardian",
+      "tipo": "guard",
+      "nombre": "Salvador",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/guardian.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche, en su turno, antes que los lobos.",
+      "poder": "Elige a un jugador (puede ser él mismo) y lo protege esa noche del ataque de los lobos: no muere ni se infecta. No puede proteger al mismo jugador dos noches seguidas. No protege del veneno de la Bruja.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "actor",
+      "tipo": "actor",
+      "nombre": "Comediante",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/actor.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche, en su turno, mientras le queden cartas.",
+      "poder": "Al repartir recibe hasta 3 cartas de aldeanos con poder nocturno que no están en juego (Vidente, Flautista, Bruja o Salvador). Cada noche elige una y usa su poder esa noche. Cada carta sirve una sola vez.",
+      "gana": "Cuando no queda ningún lobo vivo."
     }
   ],
   "textos": {
@@ -242,6 +264,14 @@
       "piper": {
         "abrir": { "texto": "Flautista, abre los ojos. Toca tu flauta y elige a dos jugadores.", "audio": "/audio/castronegro/piper_abrir.mp3" },
         "cerrar": { "texto": "Flautista, cierra los ojos.", "audio": "/audio/castronegro/piper_cerrar.mp3" }
+      },
+      "guardian": {
+        "abrir": { "texto": "Salvador, abre los ojos y elige a quién proteges esta noche.", "audio": "/audio/castronegro/guardian_abrir.mp3" },
+        "cerrar": { "texto": "Salvador, cierra los ojos.", "audio": "/audio/castronegro/guardian_cerrar.mp3" }
+      },
+      "actor": {
+        "abrir": { "texto": "Comediante, abre los ojos y elige qué papel interpretas esta noche.", "audio": "/audio/castronegro/actor_abrir.mp3" },
+        "cerrar": { "texto": "Comediante, cierra los ojos.", "audio": "/audio/castronegro/actor_cerrar.mp3" }
       }
     },
     "amanecer": {
@@ -294,6 +324,6 @@
     "Los muertos no pueden hablar ni votar.",
     "Los lobos ganan cuando igualan o superan en número al resto de vivos. La aldea gana cuando no queda ningún lobo.",
     "En el modo personalizado se pueden añadir lobos especiales: Lobo Feroz, Lobo Infecto, Lobo Blanco y Gran Lobo Malvado. Votan con la manada y tienen además un poder propio, que explica su ficha.",
-    "También se pueden añadir aldeanos especiales: Caballero de la Espada Oxidada, Anciano, Tonto del Pueblo, Chivo Expiatorio y Flautista. Juegan con la aldea y su ficha explica su poder."
+    "También se pueden añadir aldeanos especiales: Caballero de la Espada Oxidada, Anciano, Tonto del Pueblo, Chivo Expiatorio, Flautista, Salvador y Comediante. Juegan con la aldea y su ficha explica su poder."
   ]
 }

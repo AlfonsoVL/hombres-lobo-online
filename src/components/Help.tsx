@@ -14,12 +14,14 @@ function nightOrderText(theme: Theme): string {
   const white = name('white');
   const parts = [
     firstNight && `${firstNight} (solo la primera noche)`,
+    name('guard'),
     theme.nombres_grupo.bad + (spy ? ` (${spy} espía durante su turno)` : ''),
     infect,
     fierce && `${fierce} (mientras no haya muerto ningún lobo)`,
     white && `${white} (solo las noches pares)`,
     name('investigate'),
     name('compare'),
+    name('actor'),
     name('protect'),
   ].filter(Boolean);
   return `Orden de la noche: ${parts.join(', ')}.`;

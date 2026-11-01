@@ -172,6 +172,11 @@ export function chronicle(theme: Theme, h: GameHistory): ChronicleRound[] {
                 : `👀 ${actor} espió, pero la descubrieron.`,
             );
             break;
+          case 'guard':
+            night.push(
+              `🛡 ${actor} protegió a ${name(a.target)}${attack?.player === a.target ? ' y le salvó la vida' : ''}.`,
+            );
+            break;
           case 'protect':
             night.push(
               `🛡 ${actor} protegió a ${name(a.target)}${attack?.player === a.target ? ' y le salvó la vida' : ''}.`,
@@ -260,7 +265,9 @@ export function hallOfFame(theme: Theme, h: GameHistory): Award[] {
 
   // Vidas salvadas con protección o con la poción de cura.
   const saves = h.night.filter(
-    (a) => (a.action === 'protect' && a.target && a.target === attackOf(a.round)) || (a.action === 'potions' && a.target2),
+    (a) =>
+      ((a.action === 'protect' || a.action === 'guard') && a.target && a.target === attackOf(a.round)) ||
+      (a.action === 'potions' && a.target2),
   );
   for (const [id, n] of count(saves, (a) => a.actor)) {
     const saved = saves.filter((a) => a.actor === id).map((a) => name(a.action === 'potions' ? a.target2 : a.target));

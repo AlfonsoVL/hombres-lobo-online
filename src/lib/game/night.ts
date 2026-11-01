@@ -5,18 +5,20 @@ import { kindOf, teamOf, type GamePlayer } from './state';
 /** Tipos de rol que solo actúan la primera noche. */
 export const FIRST_NIGHT_ONLY: RoleKind[] = ['swap', 'link'];
 
-/** Turnos que el propio rol confirma tras leer el resultado (Vidente y Flautista). */
-export const CONFIRM_STEPS: RoleKind[] = ['investigate', 'compare'];
+/** Turnos que el propio rol confirma tras leer el resultado (Vidente, Flautista y Comediante). */
+export const CONFIRM_STEPS: RoleKind[] = ['investigate', 'compare', 'actor'];
 
 /** Lobos especiales con turno propio, después del de la manada. */
 export const SPECIAL_BAD_STEPS: RoleKind[] = ['infect', 'fierce', 'white'];
 
 // Orden de los turnos. El Ladrón va primero para que, si se convierte en malo,
 // vote ya con los malos esa misma noche. Mismo orden que _night_order en SQL.
-const NIGHT_ORDER: RoleKind[] = ['swap', 'link', 'bad', 'infect', 'fierce', 'white', 'investigate', 'compare', 'protect'];
+const NIGHT_ORDER: RoleKind[] = [
+  'swap', 'link', 'guard', 'bad', 'infect', 'fierce', 'white', 'investigate', 'compare', 'actor', 'protect',
+];
 
 /** Turnos de los aldeanos que desaparecen si la aldea mata al Anciano. */
-export const GOOD_POWER_STEPS: RoleKind[] = ['swap', 'link', 'investigate', 'compare', 'protect'];
+export const GOOD_POWER_STEPS: RoleKind[] = ['swap', 'link', 'guard', 'investigate', 'compare', 'actor', 'protect'];
 
 /**
  * Turnos de una noche (la primera es la ronda 1) según los roles de los vivos.

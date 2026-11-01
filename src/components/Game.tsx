@@ -589,7 +589,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
 
 /** Turnos de la noche de la temática, para la barra de progreso. */
 function nightSteps(theme: Theme, room: PublicRoom): { done: boolean; current: boolean }[] {
-  const later: RoleKind[] = ['bad', 'investigate', 'compare', 'protect'];
+  const later: RoleKind[] = ['guard', 'bad', 'investigate', 'compare', 'actor', 'protect'];
   const order: RoleKind[] = room.round === 1 ? ['swap', 'link', ...later] : later;
   const kinds = order.filter((k) => k === 'bad' || findRoleByKind(theme, k));
   // Los turnos de los lobos especiales cuentan como parte del de la manada.

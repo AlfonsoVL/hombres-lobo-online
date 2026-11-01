@@ -23,7 +23,9 @@ export type RoleKind =
   | 'elder'
   | 'idiot'
   | 'scapegoat'
-  | 'compare';
+  | 'compare'
+  | 'guard'
+  | 'actor';
 
 /** Tipos de los lobos especiales: votan con la manada. */
 export const SPECIAL_BAD_KINDS: RoleKind[] = ['fierce', 'infect', 'white', 'disguised'];
