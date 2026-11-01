@@ -19,6 +19,7 @@ function nightOrderText(theme: Theme): string {
     fierce && `${fierce} (mientras no haya muerto ningún lobo)`,
     white && `${white} (solo las noches pares)`,
     name('investigate'),
+    name('compare'),
     name('protect'),
   ].filter(Boolean);
   return `Orden de la noche: ${parts.join(', ')}.`;
@@ -99,7 +100,8 @@ export default function Help({ themeId }: { themeId?: ThemeId }) {
             </p>
             <p className="text-stone-400">
               Si hay empate en la votación del día, muere el empatado al que votó el Alcalde. Si no votó a
-              ninguno, no muere nadie. Si el Alcalde muere, se sortea otro entre los vivos.
+              ninguno, no muere nadie (o muere el Chivo Expiatorio, si está en juego). Si el Alcalde muere, se
+              sortea otro entre los vivos.
             </p>
           </div>
         </article>

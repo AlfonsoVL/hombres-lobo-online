@@ -98,3 +98,23 @@ describe('lobos especiales', () => {
     expect(powerButton(theme, wolves, 'p3', 2, 'infect')).toBe('wait');
   });
 });
+
+describe('aldeanos especiales', () => {
+  // p1 lobo, p2 Flautista, p3 vidente, p4 bruja, p5 Anciano, p6 Caballero, p7 Tonto, p8 Chivo
+  const village = playersWith(['werewolf', 'piper', 'seer', 'witch', 'elder', 'rusty_knight', 'village_idiot', 'scapegoat']);
+
+  it('el Flautista actúa después de la Vidente; los demás no tienen turno', () => {
+    expect(nightSteps(theme, village, 1)).toEqual(['bad', 'investigate', 'compare', 'protect']);
+    expect(powerButton(theme, village, 'p2', 1, 'investigate')).toBe('wait');
+    expect(powerButton(theme, village, 'p5', 1, 'bad')).toBe('sleep');
+  });
+
+  it('sin poderes, los aldeanos se quedan sin turno', () => {
+    expect(nightSteps(theme, village, 2, true)).toEqual(['bad']);
+  });
+
+  it('el Flautista confirma él que ha leído el resultado', () => {
+    expect(shouldAutoAdvanceNight('compare', true, 20)).toBe(false);
+    expect(shouldAutoAdvanceNight('compare', false, 0)).toBe(true);
+  });
+});

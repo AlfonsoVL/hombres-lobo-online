@@ -25,7 +25,8 @@
 
 Los identificadores de los roles son los mismos en SQL, en el motor y en los nombres de los
 avatares: `werewolf`, `villager`, `seer`, `witch`, `hunter`, `cupid`, `little_girl`, `thief`,
-`fierce_wolf`, `infect_wolf`, `white_wolf`, `big_bad_wolf` (La Aldea Maldita) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
+`fierce_wolf`, `infect_wolf`, `white_wolf`, `big_bad_wolf`, `rusty_knight`, `elder`, `village_idiot`,
+`scapegoat`, `piper` (La Aldea Maldita) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
 Los nombres en español que ve el jugador salen del JSON de la temática.
 
 ## Base de datos
@@ -162,6 +163,18 @@ de lobos (que puede ser 0 si hay alguno). La manada es cualquier jugador vivo co
 | Lobo Blanco | `white` | Turno propio las noches pares: puede matar a otro lobo. Gana (`winner = 'white_wolf'`) si es el único vivo. Mientras viva, los lobos no ganan por igualar en número. |
 | Gran Lobo Malvado | `disguised` | Sin turno propio. La Vidente y la Niña lo ven como Aldeano. |
 
+## Aldeanos especiales (solo modo personalizado, La Aldea Maldita)
+
+Son del bando de la aldea y ganan con ella.
+
+| Rol | Tipo | Qué hace |
+|---|---|---|
+| Caballero de la Espada Oxidada | `rusty_sword` | Si lo devoran los lobos (manada o Lobo Feroz), el primer lobo vivo que le sigue en la lista de jugadores (orden de llegada, dando la vuelta) se contagia de tétanos y muere al final de la noche siguiente (`power_state.tetanus_round`, causa `tetanus`). |
+| Anciano | `elder` | Resiste el primer ataque de los lobos (`power_state.wounded`, evento `resist`). Si lo lincha la aldea o lo envenena la Bruja, los aldeanos pierden sus poderes (`_powers_lost`): sin turnos de Ladrón, Cupido, Vidente, Flautista ni Bruja; la Niña no espía, el Cazador no dispara, el Caballero no contagia, el Tonto no se salva y el Chivo no elige votantes. |
+| Tonto del Pueblo | `idiot` | La primera vez que lo linchan se revela y sigue vivo, pero sin voto (`power_state.pardoned`, evento `pardon`). La segunda vez muere. |
+| Chivo Expiatorio | `scapegoat` | En un empate que el Alcalde no deshace, muere él (causa `scapegoat`). Antes de seguir elige quién votará el día siguiente (`rooms.pending_voters`, `elegir_votantes`, `rooms.allowed_voters`). |
+| Flautista | `compare` | Turno propio tras la Vidente: elige a dos jugadores (no a sí mismo) y sabe si son del mismo bando (el Gran Lobo Malvado parece aldeano). Como la Vidente, confirma él que ha leído el resultado. |
+
 ## Reglas pendientes
 
 - Número mínimo de jugadores en modo personalizado.
@@ -181,4 +194,4 @@ de lobos (que puede ser 0 si hay alguno). La manada es cualquier jugador vivo co
 | `events.ts` | Tipos de eventos de Broadcast y comprobación de que no llevan roles. |
 
 Orden de la noche: Ladrón y Cupido (solo la primera
-noche), malos (y la Niña durante su turno), Lobo Infecto, Lobo Feroz, Lobo Blanco, Vidente y Bruja.
+noche), malos (y la Niña durante su turno), Lobo Infecto, Lobo Feroz, Lobo Blanco, Vidente, Flautista y Bruja.

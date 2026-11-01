@@ -3,6 +3,7 @@
 // activado: el del creador por defecto y el resto si lo activan.
 import { useEffect, useRef, useState } from 'react';
 import {
+  CONFIRM_STEPS,
   SPECIAL_BAD_STEPS,
   formatSeconds,
   narration,
@@ -14,7 +15,7 @@ import { isNarrating, narrate, onNarrating, stopNarration } from '../lib/audio/n
 import { isSoundOn, onSoundChange } from '../lib/audio/sonido';
 import { isAudioUnlocked } from '../lib/audio/unlock';
 import { findRoleByKind, getRole, getTheme, victoryLine, type RoleCard, type RoleKind, type Theme } from '../lib/tematicas';
-import { advanceNight, advancePhase, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
+import { advanceNight, advancePhase, chooseVoters, shoot, vote, type PublicPlayer, type PublicRoom } from '../lib/realtime/rpc';
 import GameHistory from './GameHistory';
 import { HelpButton } from './Help';
 import Avatar from './Avatar';
@@ -85,6 +86,10 @@ export default function Game({ room, token, photos, online, connected, onAdvance
   const next = nextLabel(theme, room, stepDone);
   const mayor = byId(room.mayor_id);
   const shooter = byId(room.pending_shot);
+  // Chivo Expiatorio que tiene que elegir a los votantes de mañana.
+  const goat = room.phase === 'lynch' ? byId(room.pending_voters) : undefined;
+  const pardoned = byId(room.pardoned);
+  const [voters, setVoters] = useState<string[]>([]);
   const deaths = room.last_deaths.map(byId).filter((p): p is PublicPlayer => !!p);
 
   const [soundOn, setSoundOn] = useState(isSoundOn());
@@ -98,8 +103,11 @@ export default function Game({ room, token, photos, online, connected, onAdvance
     nightStep: room.night_step,
     winner: room.winner,
     deaths: deaths.map((p) => ({ name: p.name, role: p.revealed_role })),
+    pardoned: pardoned?.name ?? null,
+    scapegoat: room.scapegoat,
+    powersLost: room.powers_lost,
   };
-  const narrationKey = `${room.phase}|${room.round}|${room.night_step}|${room.last_deaths.join(',')}`;
+  const narrationKey = `${room.phase}|${room.round}|${room.night_step}|${room.last_deaths.join(',')}|${room.pardoned}`;
   useEffect(() => {
     const prev = prevRef.current;
     prevRef.current = narrationState;
@@ -211,7 +219,44 @@ export default function Game({ room, token, photos, online, connected, onAdvance
     </Card>
   );
 
+  const goatPanel = goat && (
+    <Card className="flex flex-col gap-3">
+      {goat.id === room.me.id ? (
+        <>
+          <h2 className="text-xl font-bold text-amber-300">Antes de irte, elige quién vota mañana</h2>
+          <p className="text-stone-300">Toca a los jugadores que podrán votar en el próximo día.</p>
+          <PlayerPicker
+            players={alive}
+            photos={photos}
+            selected={voters}
+            disabled={busy}
+            onSelect={(id) => setVoters((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))}
+          />
+          <Button
+            type="button"
+            disabled={busy || voters.length === 0}
+            onClick={() => {
+              const names = voters.map((id) => byId(id)?.name).join(', ');
+              if (confirm(`¿Solo votarán mañana ${names}?`)) void run(() => chooseVoters(room.code, token, voters));
+            }}
+          >
+            {voters.length ? `Solo votarán ${voters.length === 1 ? '1 jugador' : `${voters.length} jugadores`}` : 'Elige al menos a uno'}
+          </Button>
+        </>
+      ) : (
+        <p className="text-center">{goat.name} está eligiendo quién votará mañana…</p>
+      )}
+    </Card>
+  );
+
   const myVote = room.votes.find((v) => v.voter === room.me.id)?.target;
+  // El Tonto perdonado no vota y, si el Chivo eligió votantes, solo votan ellos.
+  const silenced = (p: PublicPlayer | undefined) =>
+    !!p &&
+    ((p.revealed_role !== null && p.is_alive && findRoleByKind(theme, 'idiot')?.id === p.revealed_role) ||
+      (room.allowed_voters !== null && !room.allowed_voters.includes(p.id)));
+  const canVote = !!me?.is_alive && !silenced(me);
+  const allowedNames = room.allowed_voters?.map((id) => byId(id)?.name).filter(Boolean) ?? null;
   const votesOf = (id: string) => room.votes.filter((v) => v.target === id).length;
   const fondos = theme.fondos ?? {};
   const scene =
@@ -243,6 +288,11 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       {connected && online.size > 0 && creator && creator.id !== room.me.id && !online.has(creator.id) && room.phase !== 'finished' && (
         <p role="status" className="rounded-lg bg-stone-800 px-3 py-2 text-center text-sm text-stone-300">
           {creator.name} se ha desconectado. La partida sigue en cuanto vuelva a abrir el enlace.
+        </p>
+      )}
+      {room.powers_lost && room.phase !== 'finished' && (
+        <p role="status" className="rounded-lg bg-red-950/80 px-3 py-2 text-center text-sm text-red-200">
+          La aldea mató a su {findRoleByKind(theme, 'elder')?.nombre ?? 'Anciano'}: los aldeanos han perdido sus poderes.
         </p>
       )}
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -298,7 +348,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
                     ? '✓ Se ha acabado el tiempo: gana la víctima más votada'
                     : '✓ Se ha acabado el tiempo: pasa al siguiente turno'
                   : stepDone
-                    ? room.night_step === 'investigate'
+                    ? room.night_step && CONFIRM_STEPS.includes(room.night_step)
                       ? '✓ Ya ha actuado. Pasa cuando lo confirme o se acabe el tiempo'
                       : '✓ Ya ha actuado: pasa al siguiente turno'
                     : room.night_step === 'bad'
@@ -347,6 +397,14 @@ export default function Game({ room, token, photos, online, connected, onAdvance
             )}
           </div>
           {!me?.is_alive && <p className="text-sm text-stone-400">Los muertos no votan.</p>}
+          {allowedNames && (
+            <p className="rounded-lg bg-stone-900/80 px-3 py-2 text-sm text-stone-300">
+              🐐 Hoy solo votan: <strong>{allowedNames.join(', ')}</strong>.
+            </p>
+          )}
+          {me?.is_alive && !canVote && (
+            <p className="text-sm text-stone-400">Hoy no puedes votar, pero sí debatir.</p>
+          )}
           <ul className="flex flex-col gap-2">
             {alive.map((p) => {
               const n = votesOf(p.id);
@@ -373,7 +431,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
                   >
                     {n}
                   </span>
-                  {me?.is_alive &&
+                  {canVote &&
                     (mine ? (
                       <span className="w-20 text-center text-sm text-stone-400">Tu voto</span>
                     ) : (
@@ -405,9 +463,24 @@ export default function Game({ room, token, photos, online, connected, onAdvance
         <section className="flex flex-col items-center gap-4 pt-6 text-center">
           <Title className="text-4xl">Resultado</Title>
           <Ornament />
-          {lynched ? (
+          {pardoned ? (
             <>
               <p className="text-lg text-stone-100">{theme.textos.linchamiento.texto}</p>
+              <Avatar id={pardoned.id} name={pardoned.name} photo={photos.get(pardoned.id)} size={176} ring />
+              <p className="titulo text-4xl font-bold text-stone-50">{pardoned.name}</p>
+              {roleOf(pardoned) && <RoleAvatar role={roleOf(pardoned)!} size={72} />}
+              <p className="text-lg">
+                {theme.textos.tonto_perdonado?.texto ??
+                  `${pardoned.name} es ${roleOf(pardoned)?.nombre}: la aldea le perdona, pero ya no podrá votar.`}
+              </p>
+            </>
+          ) : lynched ? (
+            <>
+              <p className="text-lg text-stone-100">
+                {room.scapegoat && theme.textos.chivo_expiatorio
+                  ? theme.textos.chivo_expiatorio.texto
+                  : theme.textos.linchamiento.texto}
+              </p>
               <span className="relative">
                 <Avatar
                   id={lynched.id}
@@ -465,11 +538,12 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       )}
 
       {shotPanel}
+      {goatPanel}
 
       <ErrorText>{error}</ErrorText>
       {next &&
         (room.me.is_creator ? (
-          <Button type="button" disabled={busy || !!shooter} onClick={() => void advance()}>
+          <Button type="button" disabled={busy || !!shooter || !!goat} onClick={() => void advance()}>
             {busy ? 'Un momento…' : next}
           </Button>
         ) : (
@@ -515,7 +589,8 @@ export default function Game({ room, token, photos, online, connected, onAdvance
 
 /** Turnos de la noche de la temática, para la barra de progreso. */
 function nightSteps(theme: Theme, room: PublicRoom): { done: boolean; current: boolean }[] {
-  const order: RoleKind[] = room.round === 1 ? ['swap', 'link', 'bad', 'investigate', 'protect'] : ['bad', 'investigate', 'protect'];
+  const later: RoleKind[] = ['bad', 'investigate', 'compare', 'protect'];
+  const order: RoleKind[] = room.round === 1 ? ['swap', 'link', ...later] : later;
   const kinds = order.filter((k) => k === 'bad' || findRoleByKind(theme, k));
   // Los turnos de los lobos especiales cuentan como parte del de la manada.
   const step = room.night_step && SPECIAL_BAD_STEPS.includes(room.night_step) ? 'bad' : room.night_step;

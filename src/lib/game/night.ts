@@ -5,19 +5,26 @@ import { kindOf, teamOf, type GamePlayer } from './state';
 /** Tipos de rol que solo actúan la primera noche. */
 export const FIRST_NIGHT_ONLY: RoleKind[] = ['swap', 'link'];
 
+/** Turnos que el propio rol confirma tras leer el resultado (Vidente y Flautista). */
+export const CONFIRM_STEPS: RoleKind[] = ['investigate', 'compare'];
+
 /** Lobos especiales con turno propio, después del de la manada. */
 export const SPECIAL_BAD_STEPS: RoleKind[] = ['infect', 'fierce', 'white'];
 
 // Orden de los turnos. El Ladrón va primero para que, si se convierte en malo,
 // vote ya con los malos esa misma noche. Mismo orden que _night_order en SQL.
-const NIGHT_ORDER: RoleKind[] = ['swap', 'link', 'bad', 'infect', 'fierce', 'white', 'investigate', 'protect'];
+const NIGHT_ORDER: RoleKind[] = ['swap', 'link', 'bad', 'infect', 'fierce', 'white', 'investigate', 'compare', 'protect'];
+
+/** Turnos de los aldeanos que desaparecen si la aldea mata al Anciano. */
+export const GOOD_POWER_STEPS: RoleKind[] = ['swap', 'link', 'investigate', 'compare', 'protect'];
 
 /**
  * Turnos de una noche (la primera es la ronda 1) según los roles de los vivos.
  * La manada es cualquier malo vivo. El Lobo Blanco solo actúa las noches pares
- * y el Lobo Feroz mientras no haya muerto ningún malo.
+ * y el Lobo Feroz mientras no haya muerto ningún malo. Si los aldeanos han
+ * perdido sus poderes (`powersLost`), no tienen turno.
  */
-export function nightSteps(theme: Theme, players: GamePlayer[], round: number): RoleKind[] {
+export function nightSteps(theme: Theme, players: GamePlayer[], round: number, powersLost = false): RoleKind[] {
   const alive = players.filter((p) => p.alive);
   const kinds = new Set(alive.map((p) => kindOf(theme, p)));
   if (alive.some((p) => teamOf(theme, p) === 'bad')) kinds.add('bad');
@@ -27,7 +34,8 @@ export function nightSteps(theme: Theme, players: GamePlayer[], round: number): 
       kinds.has(kind) &&
       (round === 1 || !FIRST_NIGHT_ONLY.includes(kind)) &&
       (kind !== 'white' || round % 2 === 0) &&
-      (kind !== 'fierce' || !badDied),
+      (kind !== 'fierce' || !badDied) &&
+      (!powersLost || !GOOD_POWER_STEPS.includes(kind)),
   );
 }
 
@@ -72,8 +80,9 @@ export function powerButton(
 
 /**
  * Si los móviles deben pedir solos el paso al siguiente turno de la noche: se ha
- * acabado la cuenta atrás o el rol activo ya ha actuado. La Vidente no pasa
- * sola al ver el rol: lo confirma ella con su botón para que le dé tiempo a leerlo.
+ * acabado la cuenta atrás o el rol activo ya ha actuado. La Vidente y el
+ * Flautista no pasan solos al ver el resultado: lo confirman con su botón para
+ * que les dé tiempo a leerlo.
  */
 export function shouldAutoAdvanceNight(
   step: RoleKind | null,
@@ -82,5 +91,5 @@ export function shouldAutoAdvanceNight(
 ): boolean {
   if (!step) return false;
   if (secondsLeft === 0) return true;
-  return stepDone && step !== 'investigate';
+  return stepDone && !CONFIRM_STEPS.includes(step);
 }

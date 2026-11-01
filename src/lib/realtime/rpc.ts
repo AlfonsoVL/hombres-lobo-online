@@ -33,6 +33,16 @@ export interface PublicRoom {
   mayor_id: string | null;
   /** Cazador que tiene que disparar antes de seguir. */
   pending_shot: string | null;
+  /** Chivo Expiatorio que tiene que elegir quién vota mañana (solo en el linchamiento). */
+  pending_voters: string | null;
+  /** Quién puede votar el próximo día; null: todos los vivos. */
+  allowed_voters: string[] | null;
+  /** La aldea mató al Anciano: los aldeanos han perdido sus poderes. */
+  powers_lost: boolean;
+  /** Tonto del Pueblo perdonado en el linchamiento de esta ronda. */
+  pardoned: string | null;
+  /** El linchamiento de esta ronda fue el del Chivo Expiatorio por empate. */
+  scapegoat: boolean;
   /** Muertos de la última resolución (amanecer, linchamiento o disparo). */
   last_deaths: string[];
   /** Votos del día: son públicos. */
@@ -125,8 +135,12 @@ export interface MyRole {
   role: string;
   team: 'bad' | 'good';
   is_alive: boolean;
-  /** Poderes y estado del rol. infected_round: ronda en que el Lobo Infecto le convirtió. */
-  power_state: { infected_round?: number } & Record<string, unknown>;
+  /**
+   * Poderes y estado del rol. infected_round: ronda en que el Lobo Infecto le
+   * convirtió. wounded: el Anciano ya resistió un ataque. pardoned: el Tonto ya
+   * fue perdonado.
+   */
+  power_state: { infected_round?: number; wounded?: boolean; pardoned?: boolean } & Record<string, unknown>;
   bad_teammates: { id: string; name: string }[] | null;
   /** Enamorado, si Cupido te ha elegido. */
   lover: { id: string; name: string } | null;
@@ -177,6 +191,8 @@ export interface MyNight {
   seen?: SeenPlayer | null;
   // Ladrón
   cards?: string[];
+  // Flautista: a quién comparó y si son del mismo bando.
+  compared?: { a: string; b: string; same: boolean } | null;
   // Bruja y Médico (victim2: segunda víctima, la del Lobo Feroz)
   victim?: string | null;
   victim2?: string | null;
@@ -197,6 +213,7 @@ export type NightActionName =
   | 'swap'
   | 'link'
   | 'see'
+  | 'compare'
   | 'protect'
   | 'potions'
   | 'infect'
@@ -231,6 +248,11 @@ export function reactBad(code: string, token: string, target: string, reaction: 
 
 export function vote(code: string, token: string, target: string) {
   return call<void>('votar', { p_room_code: code, p_token: token, p_target: target });
+}
+
+/** El Chivo Expiatorio, recién linchado, elige quién podrá votar mañana. */
+export function chooseVoters(code: string, token: string, voters: string[]) {
+  return call<void>('elegir_votantes', { p_room_code: code, p_token: token, p_voters: voters });
 }
 
 export function shoot(code: string, token: string, target: string) {

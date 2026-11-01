@@ -136,6 +136,61 @@
       "cuando_actua": "Solo la primera noche.",
       "poder": "Ve dos cartas que han quedado sin repartir y cambia su rol por una de ellas. Si las dos son de lobo, tiene que convertirse en lobo.",
       "gana": "Con el bando del rol que elija."
+    },
+    {
+      "id": "rusty_knight",
+      "tipo": "rusty_sword",
+      "nombre": "Caballero de la Espada Oxidada",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/rusty_knight.webp",
+      "retrato": true,
+      "cuando_actua": "En el momento en que lo devoran los lobos.",
+      "poder": "Si los lobos lo devoran, su espada oxidada contagia el tétanos al primer lobo que le sigue en la lista de jugadores (por orden de llegada a la sala, dando la vuelta). Ese lobo muere al final de la noche siguiente.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "elder",
+      "tipo": "elder",
+      "nombre": "Anciano",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/elder.webp",
+      "retrato": true,
+      "cuando_actua": "Nunca: su poder es pasivo.",
+      "poder": "Resiste el primer ataque de los lobos (de la manada o del Lobo Feroz): hace falta atacarle dos veces. Pero si la aldea lo lincha o la Bruja lo envenena, todos los aldeanos pierden sus poderes el resto de la partida.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "village_idiot",
+      "tipo": "idiot",
+      "nombre": "Tonto del Pueblo",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/village_idiot.webp",
+      "retrato": true,
+      "cuando_actua": "Cuando la aldea lo lincha.",
+      "poder": "La primera vez que la aldea vota lincharlo, se revela su carta y le perdonan: sigue jugando y debatiendo, pero ya no puede votar. Si lo vuelven a linchar, muere.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "scapegoat",
+      "tipo": "scapegoat",
+      "nombre": "Chivo Expiatorio",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/scapegoat.webp",
+      "retrato": true,
+      "cuando_actua": "Cuando la votación del día acaba en empate.",
+      "poder": "Si la votación del día acaba en empate y el Alcalde no lo deshace, el linchado es él. A cambio, antes de irse elige quién podrá votar al día siguiente.",
+      "gana": "Cuando no queda ningún lobo vivo."
+    },
+    {
+      "id": "piper",
+      "tipo": "compare",
+      "nombre": "Flautista",
+      "bando": "good",
+      "avatar": "/avatares/castronegro/piper.webp",
+      "retrato": true,
+      "cuando_actua": "Cada noche, en su turno, después de la Vidente.",
+      "poder": "Toca su flauta y elige a dos jugadores (no a sí mismo): la música le dice si son del mismo bando o de bandos distintos, pero no de cuál. El Gran Lobo Malvado le parece un aldeano.",
+      "gana": "Cuando no queda ningún lobo vivo."
     }
   ],
   "textos": {
@@ -183,6 +238,10 @@
       "white_wolf": {
         "abrir": { "texto": "Lobo Blanco, abre los ojos. ¿Eliminarás a otro lobo?", "audio": "/audio/castronegro/white_wolf_abrir.mp3" },
         "cerrar": { "texto": "Lobo Blanco, cierra los ojos.", "audio": "/audio/castronegro/white_wolf_cerrar.mp3" }
+      },
+      "piper": {
+        "abrir": { "texto": "Flautista, abre los ojos. Toca tu flauta y elige a dos jugadores.", "audio": "/audio/castronegro/piper_abrir.mp3" },
+        "cerrar": { "texto": "Flautista, cierra los ojos.", "audio": "/audio/castronegro/piper_cerrar.mp3" }
       }
     },
     "amanecer": {
@@ -196,6 +255,18 @@
     "dia": {
       "texto": "Los aldeanos se reúnen en la plaza. Debatid y decidid a quién linchar.",
       "audio": "/audio/castronegro/dia.mp3"
+    },
+    "tonto_perdonado": {
+      "texto": "¡Un momento! Es el Tonto del Pueblo. La aldea se apiada de él y le perdona la vida, pero ya nunca podrá votar.",
+      "audio": "/audio/castronegro/tonto_perdonado.mp3"
+    },
+    "chivo_expiatorio": {
+      "texto": "La votación ha acabado en empate y, como siempre, la culpa es del Chivo Expiatorio. Antes de irse, decidirá quién podrá votar mañana.",
+      "audio": "/audio/castronegro/chivo_expiatorio.mp3"
+    },
+    "poderes_perdidos": {
+      "texto": "La aldea ha matado a su Anciano. Avergonzados, los aldeanos pierden sus poderes para el resto de la partida.",
+      "audio": "/audio/castronegro/poderes_perdidos.mp3"
     },
     "linchamiento": {
       "texto": "La aldea ha decidido. El elegido para el linchamiento es…",
@@ -222,6 +293,7 @@
     "Durante el día, todos debaten y votan a quién linchar. El linchado revela su rol.",
     "Los muertos no pueden hablar ni votar.",
     "Los lobos ganan cuando igualan o superan en número al resto de vivos. La aldea gana cuando no queda ningún lobo.",
-    "En el modo personalizado se pueden añadir lobos especiales: Lobo Feroz, Lobo Infecto, Lobo Blanco y Gran Lobo Malvado. Votan con la manada y tienen además un poder propio, que explica su ficha."
+    "En el modo personalizado se pueden añadir lobos especiales: Lobo Feroz, Lobo Infecto, Lobo Blanco y Gran Lobo Malvado. Votan con la manada y tienen además un poder propio, que explica su ficha.",
+    "También se pueden añadir aldeanos especiales: Caballero de la Espada Oxidada, Anciano, Tonto del Pueblo, Chivo Expiatorio y Flautista. Juegan con la aldea y su ficha explica su poder."
   ]
 }

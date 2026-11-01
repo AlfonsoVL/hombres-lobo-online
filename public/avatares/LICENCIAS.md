@@ -19,6 +19,11 @@ recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retra
 | castronegro/infect_wolf.webp | Lámina de los lobos legendarios del proyecto |
 | castronegro/white_wolf.webp | Lámina de los lobos legendarios del proyecto |
 | castronegro/big_bad_wolf.webp | Lámina de los lobos legendarios del proyecto |
+| castronegro/rusty_knight.webp | Retrato del Caballero aportado por el propietario, recortado en círculo |
+| castronegro/elder.webp | Retrato del Anciano aportado por el propietario, recortado en círculo |
+| castronegro/village_idiot.webp | Retrato del Tonto del Pueblo aportado por el propietario, recortado en círculo |
+| castronegro/scapegoat.webp | Retrato del Chivo Expiatorio aportado por el propietario, recortado en círculo |
+| castronegro/piper.webp | Retrato del Flautista aportado por el propietario, recortado en círculo |
 
 ## Alcalde
 
