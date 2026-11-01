@@ -22,6 +22,7 @@ import MyRoleCard from './MyRoleCard';
 import NightPanel from './NightPanel';
 import PlayerPicker from './PlayerPicker';
 import RoleAvatar from './RoleAvatar';
+import AmbientControl from './AmbientControl';
 import SoundToggle from './SoundToggle';
 import { Button, Card, ErrorText, Ornament, Scene, Title } from './ui';
 import { useSecondsLeft } from './useSecondsLeft';
@@ -247,6 +248,7 @@ export default function Game({ room, token, photos, online, connected, onAdvance
       <div className="flex flex-wrap items-center justify-center gap-2">
         <HelpButton themeId={room.theme} />
         {room.phase !== 'finished' && <SoundToggle code={room.code} />}
+        <AmbientControl />
       </div>
 
       {room.phase === 'intro' && (

@@ -1,5 +1,6 @@
 // Pantalla de la sala: unirse, lobby y (más adelante) la partida.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { disposeAmbient, isAmbientOn, isAmbientPlaying, loadAmbient, startAmbient } from '../lib/audio/ambiente';
 import { isSoundOn, loadSound } from '../lib/audio/sonido';
 import { isAudioUnlocked, unlockAudio } from '../lib/audio/unlock';
 import { getOwnPhoto, setOwnPhoto } from '../lib/foto/ownPhoto';
@@ -59,6 +60,20 @@ export default function RoomApp({ code }: { code: string }) {
     document.addEventListener('pointerdown', unlockOnTouch);
     return () => document.removeEventListener('pointerdown', unlockOnTouch);
   }, [code, isCreator]);
+
+  // Sonido ambiente: se recuerda en el móvil y, si estaba activado, arranca
+  // con el primer toque (los móviles no dejan sonar sin uno).
+  useEffect(() => {
+    loadAmbient();
+    const startOnTouch = () => {
+      if (isAmbientOn() && !isAmbientPlaying()) startAmbient();
+    };
+    document.addEventListener('pointerdown', startOnTouch);
+    return () => {
+      document.removeEventListener('pointerdown', startOnTouch);
+      disposeAmbient();
+    };
+  }, []);
   // Si este móvil vio la sala de espera, la introducción se narra al empezar.
   const sawLobbyRef = useRef(false);
   if (room?.phase === 'lobby') sawLobbyRef.current = true;
