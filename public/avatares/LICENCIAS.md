@@ -1,8 +1,8 @@
 # Licencias de los avatares
 
-## Castronegro
+## La Aldea Maldita
 
-Los retratos de Castronegro los ha aportado el propietario del proyecto. Están
+Los retratos de La Aldea Maldita los ha aportado el propietario del proyecto. Están
 recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retrato": true` en `castronegro.json`.
 
 | Archivo | Origen |
@@ -80,5 +80,5 @@ SOFTWARE.
 Las fuentes de los títulos se instalan con npm (`@fontsource`) y se sirven desde
 la propia web, sin llamar a Google:
 
-- Cinzel (Castronegro y portada): SIL Open Font License 1.1.
+- Cinzel (La Aldea Maldita y portada): SIL Open Font License 1.1.
 - Orbitron (Alien): SIL Open Font License 1.1.

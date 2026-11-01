@@ -14,7 +14,7 @@
 /*
  * Cada temática redefine los tonos «stone» (fondos y textos) y «amber»
  * (acento), así todos los componentes cambian de estilo sin tocar sus clases.
- * Castronegro es también el estilo de la portada.
+ * La Aldea Maldita (id «castronegro») es también el estilo de la portada.
  */
 :root,
 [data-tema="castronegro"] {
@@ -80,7 +80,7 @@ body {
   background-attachment: fixed;
 }
 
-/* Siluetas de tejados y árboles al pie de la pantalla en Castronegro. */
+/* Siluetas de tejados y árboles al pie de la pantalla en La Aldea Maldita. */
 :root:not([data-tema="alien"]) body::after {
   content: "";
   position: fixed;
