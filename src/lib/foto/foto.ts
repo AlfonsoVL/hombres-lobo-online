@@ -32,6 +32,33 @@ export function captureSquarePhoto(
   return canvas.toDataURL('image/jpeg', PHOTO_QUALITY);
 }
 
+/**
+ * Foto elegida con el selector nativo del móvil (<input type="file"
+ * capture>). Es la alternativa cuando el navegador no deja usar la cámara en
+ * vivo, como Safari en algunos iPhone o los navegadores dentro de otras apps.
+ * La imagen ya viene orientada (EXIF) y sin espejo.
+ */
+export function fileToSquarePhoto(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        resolve(captureSquarePhoto(img, img.naturalWidth, img.naturalHeight, false));
+      } catch (e) {
+        reject(e);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('No se pudo leer la foto'));
+    };
+    img.src = url;
+  });
+}
+
 export function isSendablePhoto(dataUrl: string): boolean {
   return dataUrl.startsWith('data:image/jpeg;base64,') && dataUrl.length <= MAX_PHOTO_CHARS;
 }
