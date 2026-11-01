@@ -21,6 +21,12 @@ export interface NarrationState {
   winner: Winner | null;
   /** Muertos de la última resolución, con su rol ya revelado. */
   deaths: { name: string; role: string | null }[];
+  /** Tonto del Pueblo al que la aldea acaba de perdonar. */
+  pardoned?: string | null;
+  /** El linchado es el Chivo Expiatorio por un empate. */
+  scapegoat?: boolean;
+  /** La aldea ha matado al Anciano y los aldeanos han perdido sus poderes. */
+  powersLost?: boolean;
 }
 
 function stepLine(theme: Theme, kind: RoleKind, open: boolean): Spoken | null {
@@ -72,6 +78,11 @@ export function narration(theme: Theme, prev: NarrationState | null, next: Narra
     case 'lynch':
       if (prev?.phase === 'lynch') {
         lines.push(...deathLines(theme, next.deaths));
+      } else if (next.pardoned) {
+        lines.push(theme.textos.linchamiento, { texto: `${next.pardoned}.` });
+        if (theme.textos.tonto_perdonado) lines.push(theme.textos.tonto_perdonado);
+      } else if (next.scapegoat && theme.textos.chivo_expiatorio) {
+        lines.push(theme.textos.chivo_expiatorio, ...deathLines(theme, next.deaths));
       } else if (next.deaths.length) {
         lines.push(theme.textos.linchamiento, ...deathLines(theme, next.deaths));
       } else {
@@ -83,6 +94,10 @@ export function narration(theme: Theme, prev: NarrationState | null, next: Narra
       if (next.deaths.length && prev?.phase !== 'finished') lines.push(...deathLines(theme, next.deaths));
       if (next.winner) lines.push(victoryLine(theme, next.winner));
       break;
+  }
+  // La aldea acaba de matar al Anciano.
+  if (next.powersLost && prev && !prev.powersLost && next.phase !== 'finished' && theme.textos.poderes_perdidos) {
+    lines.push(theme.textos.poderes_perdidos);
   }
   const result = lines.filter((l): l is Spoken => l !== null);
   // La pausa solo hace falta si después se llama a alguien.

@@ -17,7 +17,13 @@ export type RoleKind =
   | 'fierce'
   | 'infect'
   | 'white'
-  | 'disguised';
+  | 'disguised'
+  // Aldeanos especiales (bando bueno, solo en modo personalizado).
+  | 'rusty_sword'
+  | 'elder'
+  | 'idiot'
+  | 'scapegoat'
+  | 'compare';
 
 /** Tipos de los lobos especiales: votan con la manada. */
 export const SPECIAL_BAD_KINDS: RoleKind[] = ['fierce', 'infect', 'white', 'disguised'];
@@ -61,6 +67,12 @@ export interface Theme {
     dia: Line;
     linchamiento: Line;
     victoria: Record<'bad' | 'good' | 'lovers', Line> & { white_wolf?: Line };
+    /** La aldea perdona al Tonto del Pueblo. */
+    tonto_perdonado?: Line;
+    /** Empate: muere el Chivo Expiatorio. */
+    chivo_expiatorio?: Line;
+    /** La aldea ha matado al Anciano: los aldeanos pierden sus poderes. */
+    poderes_perdidos?: Line;
   };
   reglas: string[];
   /** Título de la pantalla de introducción. */
