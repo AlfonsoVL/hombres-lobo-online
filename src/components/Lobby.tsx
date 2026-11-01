@@ -6,6 +6,7 @@ import type { PublicRoom } from '../lib/realtime/rpc';
 import Avatar from './Avatar';
 import GameSetup from './GameSetup';
 import { HelpButton } from './Help';
+import AmbientControl from './AmbientControl';
 import SoundToggle from './SoundToggle';
 import Logo from './Logo';
 import { ErrorText, Ornament } from './ui';
@@ -174,6 +175,7 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
       <div className="flex flex-wrap items-center justify-center gap-2">
         <HelpButton themeId={room.theme} />
         <SoundToggle code={room.code} />
+        <AmbientControl />
       </div>
 
       {room.me.is_creator ? (
