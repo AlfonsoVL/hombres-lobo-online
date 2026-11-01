@@ -23,6 +23,7 @@ const SERVER_EVENTS: GameEvent['type'][] = [
   'jugador_eliminado',
   'partida_terminada',
   'sala_cancelada',
+  'jugador_quitado',
 ];
 
 export interface RoomChannel {

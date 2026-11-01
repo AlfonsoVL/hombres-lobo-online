@@ -18,13 +18,16 @@ interface Props {
   connected: boolean;
   onStarted: () => Promise<void>;
   onCancel: () => Promise<void>;
+  /** Solo el creador: quita a un jugador de la sala de espera. */
+  onRemove: (playerId: string) => Promise<void>;
 }
 
-export default function Lobby({ room, token, online, photos, connected, onStarted, onCancel }: Props) {
+export default function Lobby({ room, token, online, photos, connected, onStarted, onCancel, onRemove }: Props) {
   const theme = getTheme(room.theme);
   const [copied, setCopied] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState('');
+  const [removing, setRemoving] = useState<string | null>(null);
   const creator = room.players.find((p) => p.is_creator);
 
   const url = `${window.location.origin}/sala/${room.code}`;
@@ -55,6 +58,19 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
     } catch (err) {
       setCancelError(err instanceof Error ? err.message : 'No se ha podido cancelar la sala.');
       setCancelling(false);
+    }
+  }
+
+  async function remove(id: string, name: string) {
+    if (!confirm(`¿Quitar a ${name} de la sala?`)) return;
+    setRemoving(id);
+    setCancelError('');
+    try {
+      await onRemove(id);
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : 'No se ha podido quitar al jugador.');
+    } finally {
+      setRemoving(null);
     }
   }
 
@@ -125,6 +141,17 @@ export default function Lobby({ room, token, online, photos, connected, onStarte
                   }`}
                   aria-label={online.has(p.id) ? 'Conectado' : 'Desconectado'}
                 />
+                {room.me.is_creator && !p.is_creator && (
+                  <button
+                    type="button"
+                    disabled={removing !== null}
+                    onClick={() => void remove(p.id, p.name)}
+                    aria-label={`Quitar a ${p.name}`}
+                    className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-red-400/50 bg-stone-950 text-sm text-red-300 disabled:opacity-50"
+                  >
+                    ✕
+                  </button>
+                )}
               </span>
               <span className="w-full truncate text-sm font-semibold">
                 {p.name}

@@ -26,6 +26,8 @@ interface Props {
   online: Set<string>;
   connected: boolean;
   onAdvanced: () => Promise<void>;
+  /** Solo el creador, con la partida terminada: vuelve a la sala de espera. */
+  onPlayAgain: () => Promise<void>;
   /** La partida acaba de empezar ante este móvil (no es una recarga). */
   justStarted: boolean;
 }
@@ -66,7 +68,7 @@ function nextLabel(theme: Theme, room: PublicRoom, stepDone: boolean): string | 
   }
 }
 
-export default function Game({ room, token, photos, online, connected, onAdvanced, justStarted }: Props) {
+export default function Game({ room, token, photos, online, connected, onAdvanced, onPlayAgain, justStarted }: Props) {
   const theme = getTheme(room.theme);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -408,8 +410,23 @@ export default function Game({ room, token, photos, online, connected, onAdvance
           <p className="titulo text-2xl font-bold text-amber-300">{theme.textos.victoria[room.winner].texto}</p>
           {deathList && <div className="w-full text-left">{deathList}</div>}
           <GameHistory code={room.code} token={token} theme={theme} photos={photos} />
+          {room.me.is_creator ? (
+            <div className="flex w-full flex-col gap-2">
+              <Button type="button" disabled={busy} onClick={() => void run(onPlayAgain)}>
+                {busy ? 'Un momento…' : 'Volver a jugar con los mismos'}
+              </Button>
+              <p className="text-sm text-stone-400">
+                Volveréis a la sala con los mismos jugadores. Podrás cambiar los roles, quitar a alguien y
+                entrarán más con el mismo enlace.
+              </p>
+            </div>
+          ) : (
+            <p className="text-stone-300">
+              Si {creator?.name ?? 'el creador'} decide volver a jugar, pasarás a la sala solo.
+            </p>
+          )}
           <a href="/" className="text-amber-400 underline underline-offset-4">
-            Nueva partida
+            Crear otra sala
           </a>
         </section>
       )}

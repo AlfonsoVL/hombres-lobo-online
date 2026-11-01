@@ -5,7 +5,16 @@ import { isAudioUnlocked, unlockAudio } from '../lib/audio/unlock';
 import { getOwnPhoto, setOwnPhoto } from '../lib/foto/ownPhoto';
 import type { GameEvent } from '../lib/game';
 import { isNewer, joinRoomChannel, type RoomChannel } from '../lib/realtime/channel';
-import { cancelRoom, getRoom, getRoomStatus, joinRoom, type PublicRoom, type RoomStatus } from '../lib/realtime/rpc';
+import {
+  cancelRoom,
+  getRoom,
+  getRoomStatus,
+  joinRoom,
+  playAgain,
+  removePlayer,
+  type PublicRoom,
+  type RoomStatus,
+} from '../lib/realtime/rpc';
 import { winnerName } from '../lib/game/historial';
 import { getTheme } from '../lib/tematicas';
 import { clearToken, loadToken, newToken, saveToken } from '../lib/realtime/token';
@@ -16,7 +25,7 @@ import Lobby from './Lobby';
 import RoleAvatar from './RoleAvatar';
 import { Button, Card, Ornament, Title } from './ui';
 
-type Status = 'loading' | 'join' | 'ready' | 'cancelled';
+type Status = 'loading' | 'join' | 'ready' | 'cancelled' | 'removed';
 
 export default function RoomApp({ code }: { code: string }) {
   const [status, setStatus] = useState<Status>('loading');
@@ -93,6 +102,12 @@ export default function RoomApp({ code }: { code: string }) {
       if (event.type === 'sala_cancelada') {
         clearToken(code);
         setStatus('cancelled');
+        return;
+      }
+      // El creador te ha quitado de la sala de espera.
+      if (event.type === 'jugador_quitado' && event.id === playerId) {
+        clearToken(code);
+        setStatus('removed');
         return;
       }
       if (!isNewer(event, versionRef.current)) return;
@@ -205,6 +220,27 @@ export default function RoomApp({ code }: { code: string }) {
     window.location.href = '/';
   }
 
+  // Con la partida terminada, el creador vuelve a la sala de espera con los mismos jugadores.
+  async function onPlayAgain() {
+    await playAgain(code, token!);
+    await onAdvanced();
+  }
+
+  // El creador quita a alguien de la sala de espera.
+  async function onRemove(playerId: string) {
+    await removePlayer(code, token!, playerId);
+    await refresh(token!);
+  }
+
+  if (status === 'removed') {
+    return (
+      <Card className="mt-10 flex flex-col items-center gap-4 text-center">
+        <Title>Ya no estás en la sala</Title>
+        <p className="text-stone-300">Quien creó la sala te ha quitado de la partida.</p>
+        <Button onClick={() => (window.location.href = '/')}>Volver al inicio</Button>
+      </Card>
+    );
+  }
   if (status === 'cancelled') {
     return (
       <Card className="mt-10 flex flex-col items-center gap-4 text-center">
@@ -224,9 +260,9 @@ export default function RoomApp({ code }: { code: string }) {
     return <JoinForm code={code} onJoin={join} />;
   }
   if (room.phase === 'lobby') {
-    return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} onCancel={onCancel} />;
+    return <Lobby room={room} token={token} online={online} photos={photos} connected={connected} onStarted={onStarted} onCancel={onCancel} onRemove={onRemove} />;
   }
-  return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} justStarted={sawLobbyRef.current} />;
+  return <Game room={room} token={token} photos={photos} online={online} connected={connected} onAdvanced={onAdvanced} onPlayAgain={onPlayAgain} justStarted={sawLobbyRef.current} />;
 }
 
 /** Aviso para quien abre el enlace de una sala en la que ya no puede entrar. */

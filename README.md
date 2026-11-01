@@ -52,6 +52,7 @@ con las reglas y la ficha de cada rol.
    5. `20261029000000_cancelar_sala.sql`
    6. `20261029010000_historial.sql`
    7. `20261029020000_reacciones_y_tiempos.sql`
+   8. `20261101000000_volver_a_jugar.sql`
 
    Con la [CLI de Supabase](https://supabase.com/docs/guides/cli) también puedes hacer
    `supabase link` y `supabase db push`.
