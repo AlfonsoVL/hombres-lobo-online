@@ -25,6 +25,7 @@ const LIVE_TIMEOUT_MS = 5000;
 export default function Camera({ name, photo, onChange, color, onColor }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [state, setState] = useState<State>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +67,11 @@ export default function Camera({ name, photo, onChange, color, onColor }: Props)
   function openNative() {
     setError(null);
     fileRef.current?.click();
+  }
+
+  function openGallery() {
+    setError(null);
+    galleryRef.current?.click();
   }
 
   async function start() {
@@ -152,6 +158,14 @@ export default function Camera({ name, photo, onChange, color, onColor }: Props)
         className="hidden"
         onChange={(e) => void onFile(e)}
       />
+      {/* Sin «capture»: el móvil ofrece elegir una foto de la galería. */}
+      <input
+        ref={galleryRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => void onFile(e)}
+      />
 
       {state === 'live' ? (
         <Button type="button" variant="small" onClick={take}>
@@ -170,6 +184,18 @@ export default function Camera({ name, photo, onChange, color, onColor }: Props)
           onClick={() => void start()}
         >
           {photo ? 'Repetir foto' : state === 'starting' ? 'Abriendo cámara…' : 'Hazte una foto'}
+        </Button>
+      )}
+
+      {state !== 'live' && (
+        <Button
+          type="button"
+          variant="secondary"
+          className="!w-auto !py-1.5 text-sm"
+          disabled={state === 'starting'}
+          onClick={openGallery}
+        >
+          🖼️ Subir de la galería
         </Button>
       )}
 
@@ -198,7 +224,7 @@ export default function Camera({ name, photo, onChange, color, onColor }: Props)
       {state === 'native' && !photo && (
         <p className="text-center text-sm text-stone-400">
           Este navegador no deja ver la cámara aquí. Pulsa «Abrir la cámara» para hacerte la foto con la del
-          móvil, o deja tus iniciales.
+          móvil, súbela de la galería o deja tus iniciales.
         </p>
       )}
       {error && <p className="text-center text-sm text-red-400">{error}</p>}

@@ -1,7 +1,7 @@
 # Hombres lobo online
 
-Web app de partidas sociales de deducción con varias temáticas (Castronegro y Alien),
-inspirada en «Los Hombres Lobo de Castronegro». Cada jugador usa su móvil: recibe su rol en
+Web app de partidas sociales de deducción con varias temáticas (La Aldea Maldita y Alien),
+inspirada en el clásico juego de los hombres lobo. Cada jugador usa su móvil: recibe su rol en
 secreto, actúa de noche cuando le toca y vota de día. Quien crea la sala también juega, pasa
 los turnos y su móvil hace de narrador. El sonido viene activado en su móvil y desactivado en
 el de los demás, que pueden activarlo para oír también la narración en cada fase.
@@ -133,4 +133,4 @@ GitHub Actions ejecuta todo esto en cada pull request.
 
 Los textos y los nombres exactos de los MP3 están en `src/lib/tematicas/{tematica}.json`
 (campo `audio`). Copia cada MP3 a `public/audio/{tematica}/` con ese nombre. Hoy están los de
-Castronegro; Alien usa la voz del navegador hasta que se añadan los suyos.
+La Aldea Maldita; Alien usa la voz del navegador hasta que se añadan los suyos.

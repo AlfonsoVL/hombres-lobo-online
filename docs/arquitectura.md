@@ -26,7 +26,7 @@
 Los identificadores de los roles son los mismos en SQL, en el motor y en los nombres de los
 avatares: `werewolf`, `villager`, `seer`, `witch`, `hunter`, `cupid`, `little_girl`, `thief`,
 `fierce_wolf`, `infect_wolf`, `white_wolf`, `big_bad_wolf`, `rusty_knight`, `elder`, `village_idiot`,
-`scapegoat`, `piper` (Castronegro) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
+`scapegoat`, `piper` (La Aldea Maldita) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
 Los nombres en español que ve el jugador salen del JSON de la temática.
 
 ## Base de datos
@@ -151,7 +151,7 @@ el plan gratuito.
 - **Decisiones mías, fáciles de cambiar:** los votos del día son públicos; el Cazador dispara también si
   muere por amor.
 
-## Lobos especiales (solo modo personalizado, Castronegro)
+## Lobos especiales (solo modo personalizado, La Aldea Maldita)
 
 Son del bando de los lobos: se conocen con el resto, votan con la manada y se suman al número
 de lobos (que puede ser 0 si hay alguno). La manada es cualquier jugador vivo con bando `bad`.
@@ -163,7 +163,7 @@ de lobos (que puede ser 0 si hay alguno). La manada es cualquier jugador vivo co
 | Lobo Blanco | `white` | Turno propio las noches pares: puede matar a otro lobo. Gana (`winner = 'white_wolf'`) si es el único vivo. Mientras viva, los lobos no ganan por igualar en número. |
 | Gran Lobo Malvado | `disguised` | Sin turno propio. La Vidente y la Niña lo ven como Aldeano. |
 
-## Aldeanos especiales (solo modo personalizado, Castronegro)
+## Aldeanos especiales (solo modo personalizado, La Aldea Maldita)
 
 Son del bando de la aldea y ganan con ella.
 
