@@ -26,7 +26,7 @@
 Los identificadores de los roles son los mismos en SQL, en el motor y en los nombres de los
 avatares: `werewolf`, `villager`, `seer`, `witch`, `hunter`, `cupid`, `little_girl`, `thief`,
 `fierce_wolf`, `infect_wolf`, `white_wolf`, `big_bad_wolf`, `rusty_knight`, `elder`, `village_idiot`,
-`scapegoat`, `piper` (La Aldea Maldita) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
+`scapegoat`, `piper`, `guardian`, `actor` (La Aldea Maldita) y `xenomorph`, `crew_member`, `scientist`, `medic`, `marine`, `android` (Alien).
 Los nombres en español que ve el jugador salen del JSON de la temática.
 
 ## Base de datos
@@ -173,6 +173,8 @@ Son del bando de la aldea y ganan con ella.
 | Anciano | `elder` | Resiste el primer ataque de los lobos (`power_state.wounded`, evento `resist`). Si lo lincha la aldea o lo envenena la Bruja, los aldeanos pierden sus poderes (`_powers_lost`): sin turnos de Ladrón, Cupido, Vidente, Flautista ni Bruja; la Niña no espía, el Cazador no dispara, el Caballero no contagia, el Tonto no se salva y el Chivo no elige votantes. |
 | Tonto del Pueblo | `idiot` | La primera vez que lo linchan se revela y sigue vivo, pero sin voto (`power_state.pardoned`, evento `pardon`). La segunda vez muere. |
 | Chivo Expiatorio | `scapegoat` | En un empate que el Alcalde no deshace, muere él (causa `scapegoat`). Antes de seguir elige quién votará el día siguiente (`rooms.pending_voters`, `elegir_votantes`, `rooms.allowed_voters`). |
+| Salvador | `guard` | Turno propio antes que la manada: protege a un jugador (también a sí mismo) del ataque de los lobos; no muere ni se infecta. No al mismo dos noches seguidas (`power_state.last_guarded`). No protege del veneno. |
+| Comediante | `actor` | Al repartir recibe hasta 3 cartas de aldeanos con poder nocturno que no están en juego (`_actor_cards`, `power_state.cards`). Turno propio tras el Flautista: elige una carta (`p_card` en `accion_nocturna`) y hace la acción de ese rol esa noche. Cada carta sirve una vez; sin cartas no tiene turno. Confirma él que ha terminado. |
 | Flautista | `compare` | Turno propio tras la Vidente: elige a dos jugadores (no a sí mismo) y sabe si son del mismo bando (el Gran Lobo Malvado parece aldeano). Como la Vidente, confirma él que ha leído el resultado. |
 
 ## Reglas pendientes
@@ -194,4 +196,4 @@ Son del bando de la aldea y ganan con ella.
 | `events.ts` | Tipos de eventos de Broadcast y comprobación de que no llevan roles. |
 
 Orden de la noche: Ladrón y Cupido (solo la primera
-noche), malos (y la Niña durante su turno), Lobo Infecto, Lobo Feroz, Lobo Blanco, Vidente, Flautista y Bruja.
+noche), Salvador, malos (y la Niña durante su turno), Lobo Infecto, Lobo Feroz, Lobo Blanco, Vidente, Flautista, Comediante y Bruja.

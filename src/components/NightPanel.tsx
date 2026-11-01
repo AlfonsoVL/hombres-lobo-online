@@ -47,6 +47,8 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
   const [picked, setPicked] = useState<string[]>([]);
   // Víctima que la Bruja cura (o null).
   const [heal, setHeal] = useState<string | null>(null);
+  // Carta que elige el Comediante antes de actuar.
+  const [card, setCard] = useState<string | null>(null);
   const left = useSecondsLeft(room);
   const timeUp = left === 0;
 
@@ -64,6 +66,7 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
   useEffect(() => {
     setPicked([]);
     setHeal(null);
+    setCard(null);
     setError('');
   }, [room.night_step, room.round]);
 
@@ -73,7 +76,9 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
     setBusy(true);
     setError('');
     try {
-      setNight(await nightAction(room.code, token, action, args));
+      // El Comediante actúa con la carta que ha elegido.
+      const withCard = night?.kind === 'actor' && card ? { ...args, card } : args;
+      setNight(await nightAction(room.code, token, action, withCard));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se ha podido hacer la acción.');
     } finally {
@@ -147,8 +152,42 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
       </p>
     ) : null;
 
+  // El Comediante usa el poder de la carta que elige: se muestra la pantalla de ese rol.
+  const isActor = night.kind === 'actor';
+  const actorCard = isActor ? (night.card ?? card) : null;
+  const kind = isActor ? (actorCard ? getRole(theme, actorCard).tipo : null) : night.kind;
+  // Con la acción hecha: el Comediante sigue en pantalla para pasar el turno.
+  const finished = (text: string) => (isActor ? <p className="text-lg">✓ {text}</p> : done(text));
+
   let body: React.ReactNode = null;
-  switch (night.kind) {
+  if (isActor && !actorCard) {
+    const cards = night.cards ?? [];
+    body = cards.length ? (
+      <>
+        <p className="text-stone-400">Elige una de tus cartas: esta noche usarás su poder. Cada carta sirve una sola vez.</p>
+        <div className="grid grid-cols-2 gap-3">
+          {cards.map((id) => {
+            const c = getRole(theme, id);
+            return (
+              <button
+                key={id}
+                type="button"
+                disabled={off}
+                onClick={() => setCard(id)}
+                className="flex flex-col items-center gap-2 rounded-xl border-2 border-stone-600 bg-stone-800/80 p-4 text-center font-semibold text-amber-300"
+              >
+                <RoleAvatar role={c} size={72} />
+                {c.nombre}
+              </button>
+            );
+          })}
+        </div>
+      </>
+    ) : (
+      <p className="text-stone-400">Ya no te quedan cartas. Pasa el turno.</p>
+    );
+  }
+  switch (kind) {
     case 'bad': {
       // Pantalla discreta: fondo negro, sin animaciones y botones grandes.
       const targets = alive.filter((p) => p.id !== me && !mates.has(p.id));
@@ -358,8 +397,42 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
         );
       }
       break;
+    case 'guard':
+      if (night.done) {
+        const text = `Esta noche proteges a ${nameOf(night.my_target)}.`;
+        if (!isActor) return done(text);
+        body = finished(text);
+        break;
+      }
+      body = (
+        <>
+          <p className="text-stone-400">
+            Elige a quién proteges esta noche de los {theme.nombres_grupo.bad.toLowerCase()}. Puedes protegerte a ti
+            mismo, pero no repetir con quien protegiste anoche.
+          </p>
+          <PlayerPicker
+            players={alive.filter((p) => p.id !== night.last_protected)}
+            photos={photos}
+            selected={picked}
+            disabled={off}
+            onSelect={pick}
+          />
+          <Button
+            type="button"
+            disabled={off || !picked[0]}
+            onClick={() => void act('guard', { target: picked[0] }, `¿Proteger a ${nameOf(picked[0])}?`)}
+          >
+            Proteger a {nameOf(picked[0]) || '…'}
+          </Button>
+        </>
+      );
+      break;
     case 'protect':
-      if (night.done) return done('Hecho.');
+      if (night.done) {
+        if (!isActor) return done('Hecho.');
+        body = finished('Hecho.');
+        break;
+      }
       if (theme.id === 'castronegro') {
         // La víctima de la manada y, si la hay, la del Lobo Feroz.
         const victims = [night.victim, night.victim2].filter((v): v is string => !!v);
@@ -541,10 +614,21 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
         <h2 className="text-2xl font-bold text-amber-300">
           Es tu turno{role ? `, ${getRole(theme, role.role).nombre}` : ''}
         </h2>
+        {actorCard && (
+          <p className="flex items-center gap-2 text-stone-300">
+            <RoleAvatar role={getRole(theme, actorCard)} size={32} />
+            Esta noche haces de {getRole(theme, actorCard).nombre}
+          </p>
+        )}
       </div>
       {countdown}
       {over && <p className="text-center text-stone-400">Se ha acabado el tiempo. Cierra los ojos.</p>}
       {body}
+      {isActor && card && !night.done && !over && (
+        <Button type="button" variant="secondary" disabled={busy} onClick={() => setCard(null)}>
+          Cambiar de carta
+        </Button>
+      )}
       {active && !over && (
         <Button
           type="button"
@@ -552,7 +636,7 @@ export default function NightPanel({ room, theme, token, photos, onAdvanced }: P
           disabled={busy}
           onClick={() => void pass(seenDone ? undefined : '¿Pasar el turno sin actuar?')}
         >
-          {seenDone ? 'Ya lo he visto: siguiente turno' : 'Pasar el turno sin actuar'}
+          {seenDone ? (isActor ? 'Listo: siguiente turno' : 'Ya lo he visto: siguiente turno') : 'Pasar el turno sin actuar'}
         </Button>
       )}
       <ErrorText>{error}</ErrorText>

@@ -118,3 +118,18 @@ describe('aldeanos especiales', () => {
     expect(shouldAutoAdvanceNight('compare', false, 0)).toBe(true);
   });
 });
+
+describe('Salvador y Comediante', () => {
+  // p1 lobo, p2 Salvador, p3 Comediante, p4 vidente, p5 aldeano
+  const players = playersWith(['werewolf', 'guardian', 'actor', 'seer', 'villager']);
+
+  it('el Salvador va antes que los lobos y el Comediante tras la Vidente', () => {
+    expect(nightSteps(theme, players, 2)).toEqual(['guard', 'bad', 'investigate', 'actor']);
+    expect(nightSteps(theme, players, 2, true)).toEqual(['bad']);
+  });
+
+  it('el Comediante confirma él que ha terminado', () => {
+    expect(shouldAutoAdvanceNight('actor', true, 20)).toBe(false);
+    expect(shouldAutoAdvanceNight('guard', true, 20)).toBe(true);
+  });
+});

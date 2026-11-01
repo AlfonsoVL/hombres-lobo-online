@@ -189,8 +189,10 @@ export interface MyNight {
   caught?: boolean;
   // Vidente y Niña
   seen?: SeenPlayer | null;
-  // Ladrón
+  // Ladrón (las dos sin repartir) y Comediante (las que le quedan)
   cards?: string[];
+  // Comediante: la carta que ha usado esta noche (las que le quedan van en cards).
+  card?: string | null;
   // Flautista: a quién comparó y si son del mismo bando.
   compared?: { a: string; b: string; same: boolean } | null;
   // Bruja y Médico (victim2: segunda víctima, la del Lobo Feroz)
@@ -214,6 +216,7 @@ export type NightActionName =
   | 'link'
   | 'see'
   | 'compare'
+  | 'guard'
   | 'protect'
   | 'potions'
   | 'infect'

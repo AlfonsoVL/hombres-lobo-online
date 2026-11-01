@@ -24,6 +24,8 @@ recortados de una sola lámina, sin la cinta del nombre, y se marcan con `"retra
 | castronegro/village_idiot.webp | Retrato del Tonto del Pueblo aportado por el propietario, recortado en círculo |
 | castronegro/scapegoat.webp | Retrato del Chivo Expiatorio aportado por el propietario, recortado en círculo |
 | castronegro/piper.webp | Retrato del Flautista aportado por el propietario, recortado en círculo |
+| castronegro/guardian.webp | Retrato del Salvador aportado por el propietario, recortado en círculo |
+| castronegro/actor.webp | Retrato del Comediante aportado por el propietario, recortado en círculo |
 
 ## Alcalde
 
